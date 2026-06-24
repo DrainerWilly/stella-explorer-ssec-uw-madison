@@ -1,0 +1,62 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Theme tokens as RGB channels so Tailwind's /opacity modifiers keep working
+   (e.g. text-ink/70). Flipping these in `.dark` re-themes the whole app. */
+:root {
+  color-scheme: light;
+  --bg: 251 250 247; /* #FBFAF7 off-white page */
+  --panel: 244 238 232; /* #F4EEE8 cream sidebar / right panel */
+  --panel2: 246 240 234; /* #F6F0EA featured card */
+  --surface: 255 255 255; /* white cards/chips sitting on panels */
+  --ink: 17 17 17; /* primary text + active accent */
+  --muted: 107 107 107;
+  --faint: 154 154 154;
+}
+
+.dark {
+  color-scheme: dark;
+  --bg: 16 18 23; /* #101217 */
+  --panel: 26 29 36; /* #1A1D24 */
+  --panel2: 30 34 42; /* #1E222A */
+  --surface: 34 39 47; /* #22272F */
+  --ink: 240 241 243; /* near-white text + active accent */
+  --muted: 161 165 173;
+  --faint: 120 124 132;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  width: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: 'Manrope', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  color: rgb(var(--ink));
+  background-color: rgb(var(--bg)); /* the dashboard is the page */
+  overflow-x: hidden; /* never show a horizontal scrollbar */
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+/* Thin, friendly scrollbars inside the dashboard panels */
+.scroll-soft {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(var(--ink) / 0.18) transparent;
+}
+.scroll-soft::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+.scroll-soft::-webkit-scrollbar-thumb {
+  background: rgb(var(--ink) / 0.16);
+  border-radius: 999px;
+}
+.scroll-soft::-webkit-scrollbar-track {
+  background: transparent;
+}
