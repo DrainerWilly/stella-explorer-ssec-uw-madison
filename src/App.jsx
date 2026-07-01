@@ -5,12 +5,11 @@ import HeroSection from './components/HeroSection.jsx'
 import CategoryFilters from './components/CategoryFilters.jsx'
 import LessonCardGrid from './components/LessonCardGrid.jsx'
 import FeaturedActivityCard from './components/FeaturedActivityCard.jsx'
-import RightDashboard from './components/RightDashboard.jsx'
 import DataGraphsPage from './components/DataGraphsPage.jsx'
 import AnimationsPage from './components/animations/AnimationsPage.jsx'
 import HowLandsatImagesAreMade from './components/lessons/HowLandsatImagesAreMade.jsx'
 import WhatIsTheEMS from './components/lessons/WhatIsTheEMS.jsx'
-import { LESSONS, GRADES, filterLessons } from './data/lessons.js'
+import { LESSONS, filterLessons } from './data/lessons.js'
 
 export default function App() {
   const [page, setPage] = useState('home')
@@ -49,8 +48,6 @@ export default function App() {
     () => filterLessons(LESSONS, category, grade),
     [category, grade],
   )
-
-  const gradeLabel = GRADES.find((g) => g.id === grade)?.label ?? 'All grades'
 
   return (
     <AppShell>
@@ -106,11 +103,6 @@ export default function App() {
                 <FeaturedActivityCard />
               </div>
             </main>
-
-            {/* right dashboard — between main and nav on mobile, far right on desktop */}
-            <div className="order-2 px-5 pb-6 lg:order-3 lg:flex lg:p-3 lg:pl-0">
-              <RightDashboard gradeLabel={gradeLabel} lessonCount={visibleLessons.length} />
-            </div>
           </>
         )}
       </div>
