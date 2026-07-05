@@ -2,28 +2,18 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Theme tokens as RGB channels so Tailwind's /opacity modifiers keep working
-   (e.g. text-ink/70). Flipping these in `.dark` re-themes the whole app. */
+/* Single NASA dark-blue theme. Tokens are RGB channels so Tailwind's /opacity
+   modifiers keep working (e.g. text-ink/70). There is no light/dark toggle —
+   the whole site uses this one deep-navy palette. */
 :root {
-  color-scheme: light;
-  --bg: 251 250 247; /* #FBFAF7 off-white page */
-  --panel: 244 238 232; /* #F4EEE8 cream sidebar / right panel */
-  --panel2: 246 240 234; /* #F6F0EA featured card */
-  --surface: 255 255 255; /* white cards/chips sitting on panels */
-  --ink: 17 17 17; /* primary text + active accent */
-  --muted: 107 107 107;
-  --faint: 154 154 154;
-}
-
-.dark {
   color-scheme: dark;
-  --bg: 16 18 23; /* #101217 */
-  --panel: 26 29 36; /* #1A1D24 */
-  --panel2: 30 34 42; /* #1E222A */
-  --surface: 34 39 47; /* #22272F */
-  --ink: 240 241 243; /* near-white text + active accent */
-  --muted: 161 165 173;
-  --faint: 120 124 132;
+  --bg: 6 14 38; /* #060E26 deep NASA navy page */
+  --panel: 11 26 61; /* #0B1A3D blue sidebar / panels */
+  --panel2: 14 32 74; /* #0E204A featured card */
+  --surface: 20 41 90; /* #14295A cards/chips sitting on panels */
+  --ink: 233 240 252; /* #E9F0FC near-white text + active accent */
+  --muted: 158 178 214; /* #9EB2D6 */
+  --faint: 110 130 168; /* #6E82A8 */
 }
 
 html,

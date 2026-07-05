@@ -11,6 +11,7 @@ export const GRADES = [
 
 export const CATEGORIES = [
   { id: 'all', label: 'All', icon: 'grid' },
+  { id: 'missions', label: 'Satellite Missions', icon: 'orbit' },
   { id: 'spectrum', label: 'Electromagnetic Spectrum', icon: 'spectrum' },
   { id: 'stella', label: 'STELLA Data', icon: 'device' },
   { id: 'landsat', label: 'Landsat', icon: 'satellite' },
@@ -22,6 +23,19 @@ export const CATEGORIES = [
 
 // color keys map to Tailwind theme colors (pink, yellow, lavender, cardmint, blue, coral)
 export const LESSONS = [
+  {
+    id: 'mission-control',
+    route: 'mission-control',
+    color: 'blue',
+    label: 'Satellite missions',
+    icon: 'orbit',
+    title: 'Explore Earth-Observing Satellites',
+    meta: 'Grades 6–12 • Interactive',
+    badge: 'Orbit explorer',
+    minutes: 20,
+    category: 'missions',
+    grades: ['middle', 'high'],
+  },
   {
     id: 'how-landsat-images',
     route: 'lesson-landsat',

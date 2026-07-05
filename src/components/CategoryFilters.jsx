@@ -10,16 +10,16 @@ export default function CategoryFilters({ active, onChange }) {
           <button
             key={cat.id}
             onClick={() => onChange(cat.id)}
-            className={`group flex shrink-0 items-center gap-2 rounded-full py-1.5 pl-1.5 pr-4 text-sm font-semibold transition-all duration-200
+            className={`group flex shrink-0 items-center gap-2 rounded-full border py-1.5 pl-1.5 pr-4 text-sm font-semibold backdrop-blur transition-all duration-200
               ${
                 isActive
-                  ? 'bg-ink text-app shadow-soft'
-                  : 'bg-cream text-ink/80 hover:bg-surface hover:shadow-soft'
+                  ? 'border-white/20 bg-white text-[#04122b]'
+                  : 'border-white/10 bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
               }`}
           >
             <span
               className={`grid h-7 w-7 place-items-center rounded-full transition-colors ${
-                isActive ? 'bg-app/20 text-app' : 'bg-surface text-ink/70'
+                isActive ? 'bg-[#04122b]/10 text-[#04122b]' : 'bg-white/10 text-white/70'
               }`}
             >
               <Icon name={cat.icon} className="h-4 w-4" />

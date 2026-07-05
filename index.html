@@ -9,15 +9,6 @@
       content="Explore Earth with STELLA — a K-12 remote sensing dashboard comparing STELLA field measurements with Landsat 8 & 9 satellite data."
     />
     <title>Explore Earth with STELLA</title>
-    <script>
-      // Default to light mode; only use dark when the user has chosen it.
-      // Applied before paint to avoid a flash.
-      try {
-        if (localStorage.getItem('theme') === 'dark') {
-          document.documentElement.classList.add('dark')
-        }
-      } catch (e) {}
-    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link

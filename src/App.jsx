@@ -1,36 +1,23 @@
-import { useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useMemo, useState } from 'react'
 import AppShell from './components/AppShell.jsx'
 import SidebarNav from './components/SidebarNav.jsx'
-import HeroSection from './components/HeroSection.jsx'
-import CategoryFilters from './components/CategoryFilters.jsx'
-import LessonCardGrid from './components/LessonCardGrid.jsx'
-import FeaturedActivityCard from './components/FeaturedActivityCard.jsx'
+import HomePage from './components/HomePage.jsx'
+import GamesPage from './components/games/GamesPage.jsx'
 import DataGraphsPage from './components/DataGraphsPage.jsx'
 import AnimationsPage from './components/animations/AnimationsPage.jsx'
 import HowLandsatImagesAreMade from './components/lessons/HowLandsatImagesAreMade.jsx'
 import WhatIsTheEMS from './components/lessons/WhatIsTheEMS.jsx'
 import { LESSONS, filterLessons } from './data/lessons.js'
 
+// Mission Control pulls in Three.js; load it (and its deps) only when opened.
+const MissionControlPage = lazy(() =>
+  import('./components/mission-control/MissionControlPage.jsx'),
+)
+
 export default function App() {
   const [page, setPage] = useState('home')
   const [category, setCategory] = useState('all')
   const [grade, setGrade] = useState('all')
-  const [theme, setTheme] = useState(() =>
-    typeof document !== 'undefined' && document.documentElement.classList.contains('dark')
-      ? 'dark'
-      : 'light',
-  )
-
-  useEffect(() => {
-    document.documentElement.classList.toggle('dark', theme === 'dark')
-    try {
-      localStorage.setItem('theme', theme)
-    } catch (e) {
-      /* ignore storage failures (private mode) */
-    }
-  }, [theme])
-
-  const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'))
 
   // Open a lesson detail view when a card with a `route` is clicked.
   const openLesson = (lesson) => {
@@ -58,8 +45,6 @@ export default function App() {
         {/* left sidebar — first on desktop, bottom nav on mobile */}
         <SidebarNav
           className="order-3 lg:order-1"
-          theme={theme}
-          onToggleTheme={toggleTheme}
           active={page}
           onNavigate={(id) => {
             setAnimationTarget(null) // clear lesson deep-link on manual nav
@@ -73,37 +58,36 @@ export default function App() {
         ) : page === 'animations' ? (
           /* Animations gallery — full width beside the sidebar */
           <AnimationsPage initialId={animationTarget} />
+        ) : page === 'games' ? (
+          /* Educational games — gallery + individual games, full width */
+          <GamesPage />
         ) : page === 'lesson-landsat' ? (
           /* Landsat lesson — full width beside the sidebar */
           <HowLandsatImagesAreMade onBack={() => setPage('home')} />
         ) : page === 'lesson-ems' ? (
           /* Electromagnetic Spectrum lesson — full width beside the sidebar */
           <WhatIsTheEMS onBack={() => setPage('home')} onOpenAnimation={openAnimation} />
+        ) : page === 'mission-control' ? (
+          /* Mission Control — 3D Earth-orbit explorer, full width beside the sidebar */
+          <Suspense
+            fallback={
+              <div className="order-1 grid flex-1 place-items-center bg-[#050b1f] text-sm font-semibold text-white/60">
+                Loading Mission Control…
+              </div>
+            }
+          >
+            <MissionControlPage onNavigate={setPage} />
+          </Suspense>
         ) : (
-          <>
-            {/* main content */}
-            <main className="order-1 flex-1 overflow-y-auto scroll-soft px-5 py-6 sm:px-8 lg:order-2 lg:px-10 lg:py-8">
-              <HeroSection grade={grade} onGradeChange={setGrade} />
-
-              <div className="mt-8">
-                <CategoryFilters active={category} onChange={setCategory} />
-              </div>
-
-              <div className="mt-7 flex items-center justify-between">
-                <h2 className="text-lg font-extrabold tracking-tight text-ink">Start learning</h2>
-                <span className="text-sm font-semibold text-faint">
-                  {visibleLessons.length} {visibleLessons.length === 1 ? 'lesson' : 'lessons'}
-                </span>
-              </div>
-              <div className="mt-4">
-                <LessonCardGrid lessons={visibleLessons} onOpenLesson={openLesson} />
-              </div>
-
-              <div className="mt-6">
-                <FeaturedActivityCard />
-              </div>
-            </main>
-          </>
+          <HomePage
+            category={category}
+            onCategory={setCategory}
+            grade={grade}
+            onGrade={setGrade}
+            lessons={visibleLessons}
+            onOpenLesson={openLesson}
+            onNavigate={setPage}
+          />
         )}
       </div>
     </AppShell>

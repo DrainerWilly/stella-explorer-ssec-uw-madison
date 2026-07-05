@@ -6,13 +6,13 @@ const NAV = [
   { id: 'device', icon: 'device', label: 'STELLA device' },
   { id: 'data', icon: 'data', label: 'Data & graphs' },
   { id: 'animations', icon: 'animation', label: 'Animations' },
+  { id: 'games', icon: 'games', label: 'Games' },
+  { id: 'mission-control', icon: 'orbit', label: 'Mission Control' },
   { id: 'satellite', icon: 'satellite', label: 'Satellite imagery' },
   { id: 'teacher', icon: 'book', label: 'Teacher resources' },
 ]
 
-export default function SidebarNav({ className = '', theme = 'light', onToggleTheme, active = 'home', onNavigate }) {
-  const isDark = theme === 'dark'
-
+export default function SidebarNav({ className = '', active = 'home', onNavigate }) {
   return (
     <nav
       className={`z-10 flex shrink-0 items-center gap-1 border-t border-black/5 bg-cream px-2 py-2
@@ -48,22 +48,6 @@ export default function SidebarNav({ className = '', theme = 'light', onToggleTh
             </button>
           )
         })}
-      </div>
-
-      {/* settings + avatar — bottom on desktop, inline on mobile */}
-      <div className="flex items-center gap-1 lg:flex-col lg:gap-2.5">
-        <button
-          onClick={onToggleTheme}
-          title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
-          className="grid h-11 w-11 place-items-center rounded-full bg-surface/70 text-ink/70 transition-all hover:bg-surface hover:text-ink hover:shadow-soft"
-        >
-          <Icon name={isDark ? 'sun' : 'moon'} className="h-[22px] w-[22px]" />
-        </button>
-        <span
-          aria-hidden="true"
-          className="h-10 w-10 rounded-full bg-gradient-to-br from-lavender via-pink to-coral shadow-soft ring-2 ring-white"
-        />
       </div>
     </nav>
   )

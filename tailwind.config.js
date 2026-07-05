@@ -66,10 +66,16 @@ export default {
           '88%': { opacity: '1' },
           '100%': { transform: 'translateY(var(--beam-dist, 60px))', opacity: '0' },
         },
+        // gentle fade + rise, used when swapping rotating text content
+        'fade-in': {
+          '0%': { opacity: '0', transform: 'translateY(4px)' },
+          '100%': { opacity: '1', transform: 'translateY(0)' },
+        },
       },
       animation: {
         dashflow: 'dashflow 1s linear infinite',
         'beam-fall': 'beam-fall 2.4s ease-in-out infinite',
+        'fade-in': 'fade-in 0.5s ease-out',
       },
     },
   },

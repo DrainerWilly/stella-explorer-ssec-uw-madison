@@ -56,12 +56,12 @@ export default function DataGraphsPage() {
           Why bands matter
         </h3>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink/80">
-          Every instrument splits light into <strong>bands</strong> — slices of the spectrum it can
+          Every instrument splits light into bands, slices of the spectrum it can
           measure. Our eyes only see <strong>visible light</strong> (about 400–700 nm), but
-          satellites and STELLA also read <strong>infrared</strong>, which reveals plant health,
+          satellites and STELLA also detect <strong>infrared</strong>, which reveals plant health,
           water, heat, and more. Wider bands collect more light; narrower bands target specific
           features like the vegetation red edge. A field instrument like STELLA has no ground
-          resolution — it measures whatever you point it at — while a satellite band's resolution is
+          resolution, it measures whatever you point it at, while a satellite band's resolution is
           how much ground each pixel covers. Switch instruments above to see how a handheld sensor
           and a satellite sample the same spectrum differently.
         </p>

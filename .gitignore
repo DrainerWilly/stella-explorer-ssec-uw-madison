@@ -4,6 +4,10 @@ dist/
 dist-ssr/
 *.local
 .vite/
+
+# Mission Control orbital-data cache (fetched from CelesTrak at runtime)
+.cache/
+.vercel/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
