@@ -22,6 +22,7 @@ function SceneContents({
   reducedMotion,
   focusSignal,
   resetSignal,
+  modelScale = 1,
 }) {
   const sunRef = useRef()
   const controlsRef = useRef()
@@ -87,8 +88,8 @@ function SceneContents({
 
   return (
     <>
-      <ambientLight intensity={0.07} />
-      <directionalLight ref={sunRef} intensity={2.1} color="#fff6e6" position={[10, 3, 6]} />
+      <ambientLight intensity={0.09} />
+      <directionalLight ref={sunRef} intensity={2.4} color="#fff6e6" position={[10, 3, 6]} />
       {/* faint fill so the night side isn't pure black */}
       <hemisphereLight intensity={0.05} color="#88aaff" groundColor="#0a0a12" />
 
@@ -138,6 +139,7 @@ function SceneContents({
               clock={clock}
               exaggeration={settings.exaggeration}
               reducedMotion={reducedMotion}
+              modelScale={modelScale}
             />
           </Suspense>
         )
@@ -162,6 +164,9 @@ function SceneContents({
         enableDamping
         dampingFactor={0.08}
         rotateSpeed={0.5}
+        // While a satellite is selected, the wheel resizes its model instead of
+        // dollying the camera, so the Earth's apparent size stays constant.
+        enableZoom={!selectedId}
         minDistance={2.6}
         maxDistance={60}
         autoRotate={settings.earthRotation && !reducedMotion}
@@ -181,6 +186,9 @@ export default function OrbitScene(props) {
       gl={{ antialias: props.settings.quality !== 'low', powerPreference: 'high-performance' }}
       camera={{ position: [0, 1.6, 6.4], fov: 42, near: 0.1, far: 600 }}
       frameloop="always"
+      onCreated={({ gl }) => {
+        gl.toneMappingExposure = 1.12 // slightly brighter filmic exposure
+      }}
     >
       <color attach="background" args={[bg]} />
       <SceneContents {...props} />

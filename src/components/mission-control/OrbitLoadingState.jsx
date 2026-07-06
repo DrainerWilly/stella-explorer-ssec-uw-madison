@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { BASE_EARTH_LAYER } from '../../data/earthLayers.js'
-import { EARTH_FACTS, randomEarthFact } from '../../data/earthFacts.js'
+import { EARTH_FACTS, randomEarthFact } from '../../data/earthFacts'
 
 const IMG_SRC = `${import.meta.env.BASE_URL}${BASE_EARTH_LAYER.file}`
 const FACT_INTERVAL_MS = 5000

@@ -15,10 +15,11 @@ export const BASE_EARTH_LAYER = {
   active: true,
   // Loaded lazily by EarthGlobe; served from /public. If the file is missing or
   // fails to decode, the globe falls back to a clean procedural material.
-  file: 'assets/nasa/blue-marble.jpg',
-  source: 'NASA Earth Observatory, Blue Marble: Next Generation',
-  sourceUrl: 'https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/',
-  credit: 'Earth texture: NASA Earth Observatory, Blue Marble: Next Generation.',
+  file: 'assets/nasa/earth-day-8k.jpg',
+  source: 'Solar System Scope (NASA-derived Earth textures), CC BY 4.0',
+  sourceUrl: 'https://www.solarsystemscope.com/textures/',
+  credit:
+    'Earth textures (8K day, night lights, clouds): Solar System Scope (solarsystemscope.com), derived from NASA imagery, licensed CC BY 4.0.',
 }
 
 // Future layers — descriptive placeholders only. `available: false` everywhere.

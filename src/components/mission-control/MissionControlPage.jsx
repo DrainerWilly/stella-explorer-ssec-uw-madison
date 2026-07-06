@@ -5,13 +5,13 @@ import useOrbitPropagation from '../../hooks/useOrbitPropagation.js'
 import useReducedMotion from '../../hooks/useReducedMotion.js'
 import { MISSIONS } from '../../data/missionCatalog.js'
 import { RAD2DEG, propagateAt, normalizeLonRad } from '../../utils/orbitMath.js'
-import { createSimClock } from './simClock.js'
+import { createSimClock } from './simClock'
 import {
   cacheStatusInfo,
   isStale,
   formatUtc,
   MODELED_POSITION_DISCLAIMER,
-} from './orbitStatus.js'
+} from './orbitStatus'
 import { PANEL, LABEL, GHOST_BTN, CHIP } from './mcStyles.js'
 
 import MissionCatalog from './MissionCatalog.jsx'
@@ -104,6 +104,9 @@ export default function MissionControlPage({ onNavigate }) {
   const [follow, setFollow] = useState(false)
   const [focusSignal, setFocusSignal] = useState(null)
   const [resetSignal, setResetSignal] = useState(0)
+  // While a satellite is selected, the scroll wheel resizes ITS model instead of
+  // dollying the camera, so the Earth's apparent size never changes.
+  const [modelScale, setModelScale] = useState(1)
   const [showMethodology, setShowMethodology] = useState(false)
   const [showOverlay, setShowOverlay] = useState(false)
   const [railOpen, setRailOpen] = useState(true)
@@ -196,10 +199,19 @@ export default function MissionControlPage({ onNavigate }) {
   // --- handlers ---
   function selectMission(id) {
     setSelectedId(id)
+    setModelScale(1) // start each mission at its default model size
     setFocusSignal({ id, ts: Date.now() })
     if (!isDesktop) setMobilePanel('mission')
   }
   const changeSetting = (key, value) => setSettings((s) => ({ ...s, [key]: value }))
+
+  // Scroll wheel over the globe: when a satellite is selected, grow/shrink its
+  // model rather than zooming the camera (keeps the Earth the same size).
+  const onSceneWheel = (e) => {
+    if (!selectedId) return // no selection → let the camera zoom normally
+    const factor = e.deltaY < 0 ? 1.12 : 1 / 1.12
+    setModelScale((s) => Math.min(8, Math.max(0.25, s * factor)))
+  }
 
   const cycle = (dir) => {
     const ids = MISSIONS.map((m) => m.id)
@@ -259,6 +271,7 @@ export default function MissionControlPage({ onNavigate }) {
         reducedMotion={reducedMotion}
         focusSignal={focusSignal}
         resetSignal={resetSignal}
+        modelScale={modelScale}
         maxDpr={isDesktop ? 2 : 1.5}
       />
     </Suspense>
@@ -439,7 +452,9 @@ export default function MissionControlPage({ onNavigate }) {
     return (
       <div className="order-1 relative h-screen min-w-0 flex-1 overflow-hidden bg-[#050b1f] text-white">
         {/* the globe IS the page */}
-        <div className="absolute inset-0">{sceneEl}</div>
+        <div className="absolute inset-0" onWheel={onSceneWheel}>
+          {sceneEl}
+        </div>
 
         {/* cinematic vignette + top legibility gradient (never intercept input) */}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_58%,rgba(0,0,0,0.55)_100%)]" />
@@ -527,7 +542,10 @@ export default function MissionControlPage({ onNavigate }) {
       {staleBanner && <div className="px-4 pb-2">{staleBanner}</div>}
 
       {/* globe */}
-      <div className="relative mx-3 h-[52vh] overflow-hidden rounded-2xl border border-white/10">
+      <div
+        className="relative mx-3 h-[52vh] overflow-hidden rounded-2xl border border-white/10"
+        onWheel={onSceneWheel}
+      >
         {sceneEl}
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_60%,rgba(0,0,0,0.5)_100%)]" />
       </div>

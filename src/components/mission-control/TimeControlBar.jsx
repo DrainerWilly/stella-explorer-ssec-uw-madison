@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Icon from '../Icon.jsx'
-import { formatClockUtc } from './orbitStatus.js'
+import { formatClockUtc } from './orbitStatus'
 import { PANEL, LABEL, ACCENT, ACCENT_INK } from './mcStyles.js'
 
 const RATES = [1, 10, 60, 600]

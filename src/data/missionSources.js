@@ -26,11 +26,11 @@ export const DATA_SOURCES = {
       'Satellite positions are propagated in your browser with satellite.js using the SGP4/SDP4 model.',
   },
   earthTexture: {
-    name: 'Blue Marble / Black Marble',
-    org: 'NASA Earth Observatory',
-    url: 'https://science.nasa.gov/earth/earth-observatory/blue-marble-next-generation/',
+    name: '8K Earth textures + NASA terrain',
+    org: 'Solar System Scope (CC BY 4.0) · NASA/GEBCO',
+    url: 'https://www.solarsystemscope.com/textures/',
     credit:
-      'Earth imagery: NASA Earth Observatory — Blue Marble: Next Generation (day), Earth at Night / Black Marble (night lights), and Blue Marble cloud composite.',
+      'Earth textures (8K day, night lights, clouds): Solar System Scope (solarsystemscope.com), derived from NASA imagery, CC BY 4.0. Terrain relief from GEBCO/NASA elevation; ocean specular is derived from the day imagery.',
   },
   spacecraftModels: {
     name: 'NASA-3D-Resources spacecraft models',

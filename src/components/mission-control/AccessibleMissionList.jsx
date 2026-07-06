@@ -1,6 +1,6 @@
 import Icon from '../Icon.jsx'
 import { LABEL } from './mcStyles.js'
-import { timeInOrbit } from './orbitStatus.js'
+import { timeInOrbit } from './orbitStatus'
 
 // Keyboard-first, canvas-independent companion. Also serves as the primary UI
 // when WebGL is unavailable (pass showTable to render modeled positions as text).

@@ -47,7 +47,7 @@ export default function HomePage({
 
       <div className="relative z-10">
         {/* ---------- HERO ---------- */}
-        <section className="flex min-h-[90svh] flex-col justify-center px-6 py-16 sm:px-10 lg:px-16">
+        <section className="flex min-h-[62svh] flex-col justify-center px-6 pb-8 pt-16 sm:px-10 lg:px-16">
           <div className="relative max-w-2xl">
             {/* soft glow behind the headline */}
             <div
@@ -98,19 +98,6 @@ export default function HomePage({
               </button>
             </motion.div>
           </div>
-
-          {/* scroll cue */}
-          <motion.button
-            {...fade(5)}
-            onClick={scrollToLessons}
-            aria-label="Scroll to lessons"
-            className="mt-10 inline-flex w-fit items-center gap-2 text-[11px] font-bold uppercase tracking-[0.2em] text-slate-400 transition-colors hover:text-white"
-          >
-            <span className="grid h-8 w-8 place-items-center rounded-full border border-white/15">
-              <Icon name="chevron" className="h-4 w-4 rotate-90 motion-safe:animate-bounce" />
-            </span>
-            Explore
-          </motion.button>
         </section>
 
         {/* ---------- LESSONS / CONTENT ---------- */}

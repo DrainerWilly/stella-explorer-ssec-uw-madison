@@ -74,8 +74,8 @@ export const SATELLITE_MODELS = {
   'prefire-1': M(null, REPRESENTATIVE_NOTE),
   'prefire-2': M(null, REPRESENTATIVE_NOTE),
   tempo: M(
-    null,
-    'TEMPO is an instrument aboard the commercial Intelsat 40e satellite; a stylized representative model is shown.',
+    'tempo.glb',
+    'TEMPO rides on the commercial Intelsat 40e satellite — a Maxar/SSL-1300-class comms bus, shown here.',
   ),
 }
 

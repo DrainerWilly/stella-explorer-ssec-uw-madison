@@ -3,7 +3,7 @@ import Icon from '../Icon.jsx'
 import { categoryColor } from '../../data/missionCategories.js'
 import { getMissionSource } from '../../data/missionSources.js'
 import { getSatelliteModel } from '../../data/satelliteModels.js'
-import { MISSION_POSITION_NOTE, cacheStatusInfo, formatUtc, timeInOrbit } from './orbitStatus.js'
+import { MISSION_POSITION_NOTE, cacheStatusInfo, formatUtc, timeInOrbit } from './orbitStatus'
 import { LABEL, ACCENT, ACCENT_INK } from './mcStyles.js'
 
 function relatedLessons(missionId) {

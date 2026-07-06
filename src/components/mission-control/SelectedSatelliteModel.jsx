@@ -11,7 +11,7 @@ import { getSatelliteModel } from '../../data/satelliteModels.js'
 // every craft to one size keeps a cubesat and the ISS equally visible.
 const MODEL_TARGET_SIZE = 0.6
 const SPIN_SPEED = 0.3 // rad/s, slow turntable feel
-const ENV_INTENSITY = 1.35 // image-based lighting strength on the spacecraft
+const ENV_INTENSITY = 1.6 // image-based lighting strength on the spacecraft
 
 // Build a studio environment (PMREM) once per renderer and reuse it. This gives
 // the metallic foil / solar panels real reflections + soft fill light. It is
@@ -62,80 +62,108 @@ function GltfBody({ url, envMap }) {
 }
 
 // ---- detailed stylized satellite (used when NASA has no published model) -----
+// Higher-fidelity generic Earth-observing spacecraft: an MLI-foil octagonal bus
+// with radiators and seam ribs, large multi-segment solar arrays with a fine
+// cell grid on articulated booms, a high-gain dish, a nadir telescope with
+// sunshade, antennas, star trackers and a thruster cluster. Clearly labeled as a
+// representative model in the mission panel.
 
+function mat(envMap, color, metalness, roughness) {
+  return { color, metalness, roughness, envMap, envMapIntensity: ENV_INTENSITY }
+}
+
+// One articulated solar wing: three celled panel segments on a boom.
 function SolarWing({ side, envMap }) {
-  const cellMat = { color: '#12224e', metalness: 0.35, roughness: 0.42, envMap, envMapIntensity: ENV_INTENSITY }
-  const frameMat = { color: '#b8bdc7', metalness: 0.85, roughness: 0.3, envMap, envMapIntensity: ENV_INTENSITY }
-  const panelW = 1.05
-  const panelH = 0.66
+  const cell = mat(envMap, '#0e1c46', 0.4, 0.4)
+  const frame = mat(envMap, '#c2c7d2', 0.9, 0.26)
+  const segW = 0.94
+  const segH = 0.8
+  const gap = 0.06
+  const segs = [0, 1, 2]
   return (
-    <group position={[side * 1.05, 0, 0]}>
-      {/* yoke / boom to the bus */}
-      <mesh position={[side * -0.5, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
-        <cylinderGeometry args={[0.03, 0.03, 0.5, 10]} />
-        <meshStandardMaterial {...frameMat} />
+    <group position={[side * 0.62, 0, 0]}>
+      {/* boom + hinge */}
+      <mesh position={[side * -0.16, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.026, 0.026, 0.34, 16]} />
+        <meshStandardMaterial {...frame} />
       </mesh>
-      {/* two panel segments per wing, each a celled array */}
-      {[-0.55, 0.55].map((px) => (
-        <group key={px} position={[side * px, 0, 0]}>
-          {/* dark blue cells */}
-          <mesh>
-            <boxGeometry args={[panelW, 0.02, panelH]} />
-            <meshStandardMaterial {...cellMat} />
-          </mesh>
-          {/* frame edges */}
-          <mesh>
-            <boxGeometry args={[panelW + 0.03, 0.03, panelH + 0.03]} />
-            <meshStandardMaterial {...frameMat} wireframe />
-          </mesh>
-          {/* cell grid lines (thin metallic bars) */}
-          {[-0.34, 0, 0.34].map((gx) => (
-            <mesh key={`v${gx}`} position={[gx * (panelW / 0.7), 0.012, 0]}>
-              <boxGeometry args={[0.012, 0.005, panelH]} />
-              <meshStandardMaterial {...frameMat} />
+      <mesh>
+        <cylinderGeometry args={[0.05, 0.05, 0.1, 16]} />
+        <meshStandardMaterial {...mat(envMap, '#8f96a6', 0.9, 0.3)} />
+      </mesh>
+      {segs.map((si) => {
+        const px = side * (0.2 + si * (segW + gap))
+        return (
+          <group key={si} position={[px, 0, 0]}>
+            {/* blue cell substrate */}
+            <mesh>
+              <boxGeometry args={[segW, 0.018, segH]} />
+              <meshStandardMaterial {...cell} />
             </mesh>
-          ))}
-          {[-0.18, 0.18].map((gz) => (
-            <mesh key={`h${gz}`} position={[0, 0.012, gz * (panelH / 0.44)]}>
-              <boxGeometry args={[panelW, 0.005, 0.012]} />
-              <meshStandardMaterial {...frameMat} />
+            {/* outer frame */}
+            <mesh position={[0, 0.002, 0]}>
+              <boxGeometry args={[segW + 0.04, 0.024, segH + 0.04]} />
+              <meshStandardMaterial {...frame} wireframe />
             </mesh>
-          ))}
-        </group>
-      ))}
+            {/* fine cell grid: vertical + horizontal metallic ribs */}
+            {[-0.36, -0.18, 0, 0.18, 0.36].map((f) => (
+              <mesh key={`v${f}`} position={[f * segW, 0.011, 0]}>
+                <boxGeometry args={[0.01, 0.006, segH]} />
+                <meshStandardMaterial {...frame} />
+              </mesh>
+            ))}
+            {[-0.3, -0.1, 0.1, 0.3].map((f) => (
+              <mesh key={`h${f}`} position={[0, 0.011, f * segH]}>
+                <boxGeometry args={[segW, 0.006, 0.01]} />
+                <meshStandardMaterial {...frame} />
+              </mesh>
+            ))}
+          </group>
+        )
+      })}
     </group>
   )
 }
 
-// Stylized generic Earth-observing satellite: foil-wrapped bus, celled solar
-// wings, high-gain dish, nadir instrument, antennas and thrusters. Clearly
-// labeled as a representative model in the mission panel.
 function RepresentativeBody({ envMap }) {
-  const foil = { color: '#c9a24a', metalness: 0.6, roughness: 0.34, envMap, envMapIntensity: ENV_INTENSITY }
-  const foilDark = { color: '#9c7a2e', metalness: 0.6, roughness: 0.4, envMap, envMapIntensity: ENV_INTENSITY }
-  const metal = { color: '#c6cad2', metalness: 0.85, roughness: 0.28, envMap, envMapIntensity: ENV_INTENSITY }
-  const dark = { color: '#2b3040', metalness: 0.5, roughness: 0.5, envMap, envMapIntensity: ENV_INTENSITY }
+  const foil = mat(envMap, '#caa24a', 0.62, 0.3)
+  const foilDark = mat(envMap, '#8f6f2a', 0.62, 0.4)
+  const metal = mat(envMap, '#c6cad2', 0.9, 0.24)
+  const white = mat(envMap, '#e9edf3', 0.2, 0.55)
+  const dark = mat(envMap, '#242a3a', 0.55, 0.5)
+  const glass = { color: '#0a1020', metalness: 0.95, roughness: 0.12, envMap, envMapIntensity: ENV_INTENSITY }
 
   return (
-    <group scale={0.26}>
-      {/* central bus — stacked foil-wrapped boxes */}
+    <group scale={0.24}>
+      {/* octagonal foil-wrapped bus */}
       <mesh>
-        <boxGeometry args={[0.72, 0.9, 0.72]} />
-        <meshStandardMaterial {...foil} />
+        <cylinderGeometry args={[0.52, 0.52, 1.15, 8]} />
+        <meshStandardMaterial {...foil} flatShading />
       </mesh>
-      <mesh position={[0, 0.54, 0]}>
-        <boxGeometry args={[0.6, 0.22, 0.6]} />
-        <meshStandardMaterial {...foilDark} />
+      {/* top + bottom deck plates */}
+      <mesh position={[0, 0.6, 0]}>
+        <cylinderGeometry args={[0.56, 0.54, 0.1, 8]} />
+        <meshStandardMaterial {...metal} flatShading />
       </mesh>
-      <mesh position={[0, -0.52, 0]}>
-        <boxGeometry args={[0.66, 0.16, 0.66]} />
-        <meshStandardMaterial {...metal} />
+      <mesh position={[0, -0.6, 0]}>
+        <cylinderGeometry args={[0.54, 0.5, 0.1, 8]} />
+        <meshStandardMaterial {...foilDark} flatShading />
       </mesh>
-      {/* foil seam bands */}
-      {[-0.2, 0.1].map((y) => (
-        <mesh key={y} position={[0, y, 0.365]}>
-          <boxGeometry args={[0.72, 0.04, 0.02]} />
-          <meshStandardMaterial {...metal} />
+      {/* vertical seam ribs around the bus */}
+      {Array.from({ length: 8 }).map((_, i) => {
+        const a = (i / 8) * Math.PI * 2
+        return (
+          <mesh key={i} position={[Math.sin(a) * 0.5, 0, Math.cos(a) * 0.5]} rotation={[0, a, 0]}>
+            <boxGeometry args={[0.02, 1.1, 0.06]} />
+            <meshStandardMaterial {...metal} />
+          </mesh>
+        )
+      })}
+      {/* two white radiator panels */}
+      {[1, -1].map((s) => (
+        <mesh key={s} position={[0, 0.05, s * 0.53]} rotation={[0, 0, 0]}>
+          <boxGeometry args={[0.66, 0.7, 0.02]} />
+          <meshStandardMaterial {...white} />
         </mesh>
       ))}
 
@@ -143,54 +171,76 @@ function RepresentativeBody({ envMap }) {
       <SolarWing side={-1} envMap={envMap} />
       <SolarWing side={1} envMap={envMap} />
 
-      {/* high-gain dish on a boom (top) */}
-      <group position={[0.28, 0.78, 0.1]} rotation={[-0.6, 0.3, 0]}>
-        <mesh position={[0, -0.18, 0]}>
-          <cylinderGeometry args={[0.02, 0.02, 0.34, 8]} />
+      {/* high-gain dish on an articulated boom */}
+      <group position={[0.26, 0.78, 0.16]} rotation={[-0.6, 0.35, 0]}>
+        <mesh position={[0, -0.22, 0]}>
+          <cylinderGeometry args={[0.022, 0.022, 0.4, 16]} />
           <meshStandardMaterial {...metal} />
         </mesh>
         <mesh>
-          <sphereGeometry args={[0.26, 24, 14, 0, Math.PI * 2, 0, Math.PI / 2.5]} />
+          <sphereGeometry args={[0.3, 40, 20, 0, Math.PI * 2, 0, Math.PI / 2.4]} />
           <meshStandardMaterial {...metal} side={THREE.DoubleSide} />
         </mesh>
-        <mesh position={[0, 0.12, 0]}>
-          <cylinderGeometry args={[0.006, 0.006, 0.24, 6]} />
+        <mesh position={[0, 0.16, 0]}>
+          <cylinderGeometry args={[0.008, 0.008, 0.3, 12]} />
+          <meshStandardMaterial {...metal} />
+        </mesh>
+        <mesh position={[0, 0.31, 0]}>
+          <coneGeometry args={[0.05, 0.09, 16]} />
           <meshStandardMaterial {...metal} />
         </mesh>
       </group>
 
-      {/* nadir-facing instrument package (bottom) */}
-      <group position={[0, -0.66, 0.12]}>
-        <mesh>
-          <boxGeometry args={[0.34, 0.24, 0.28]} />
+      {/* nadir telescope + sunshade + radiator */}
+      <group position={[0, -0.7, 0.14]}>
+        <mesh rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.16, 0.18, 0.5, 32]} />
           <meshStandardMaterial {...dark} />
         </mesh>
-        {/* lens / aperture */}
-        <mesh position={[0, -0.14, 0]} rotation={[Math.PI / 2, 0, 0]}>
-          <cylinderGeometry args={[0.09, 0.11, 0.1, 20]} />
-          <meshStandardMaterial color="#0b1220" metalness={0.9} roughness={0.15} envMap={envMap} envMapIntensity={ENV_INTENSITY} />
+        {/* sunshade ring */}
+        <mesh position={[0, -0.28, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.2, 0.16, 0.16, 32, 1, true]} />
+          <meshStandardMaterial {...metal} side={THREE.DoubleSide} />
+        </mesh>
+        {/* dark aperture / optics */}
+        <mesh position={[0, -0.36, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.15, 0.15, 0.02, 32]} />
+          <meshStandardMaterial {...glass} />
         </mesh>
       </group>
 
-      {/* star tracker + small antenna whips */}
-      <mesh position={[-0.28, 0.36, 0.3]} rotation={[0.5, 0.4, 0]}>
-        <boxGeometry args={[0.12, 0.12, 0.16]} />
-        <meshStandardMaterial {...dark} />
-      </mesh>
-      {[[0.34, 0.5, -0.3, 0.3], [-0.34, 0.5, -0.3, -0.3]].map(([x, y, z, r], i) => (
-        <mesh key={i} position={[x, y, z]} rotation={[0, 0, r]}>
-          <cylinderGeometry args={[0.008, 0.008, 0.5, 6]} />
-          <meshStandardMaterial {...metal} />
+      {/* star trackers */}
+      {[[-0.34, 0.34, 0.32, 0.5, 0.4], [0.32, 0.36, 0.3, 0.4, -0.5]].map(([x, y, z, rx, ry], i) => (
+        <mesh key={i} position={[x, y, z]} rotation={[rx, ry, 0]}>
+          <cylinderGeometry args={[0.06, 0.08, 0.16, 16]} />
+          <meshStandardMaterial {...dark} />
         </mesh>
       ))}
 
-      {/* thrusters at the base */}
-      {[[-0.22, -0.62, -0.22], [0.22, -0.62, -0.22], [0, -0.62, 0.24]].map(([x, y, z], i) => (
-        <mesh key={i} position={[x, y, z]} rotation={[Math.PI, 0, 0]}>
-          <coneGeometry args={[0.05, 0.1, 12]} />
+      {/* antenna whips + helical GPS antenna */}
+      {[[0.36, 0.55, -0.28, 0.25], [-0.36, 0.55, -0.28, -0.25]].map(([x, y, z, r], i) => (
+        <mesh key={i} position={[x, y, z]} rotation={[0, 0, r]}>
+          <cylinderGeometry args={[0.007, 0.004, 0.6, 8]} />
           <meshStandardMaterial {...metal} />
         </mesh>
       ))}
+      <group position={[0, 0.7, 0.18]}>
+        <mesh>
+          <cylinderGeometry args={[0.05, 0.05, 0.14, 20]} />
+          <meshStandardMaterial {...metal} />
+        </mesh>
+      </group>
+
+      {/* thruster cluster at the base */}
+      {Array.from({ length: 4 }).map((_, i) => {
+        const a = (i / 4) * Math.PI * 2 + Math.PI / 4
+        return (
+          <mesh key={i} position={[Math.sin(a) * 0.28, -0.68, Math.cos(a) * 0.28]} rotation={[Math.PI, 0, 0]}>
+            <coneGeometry args={[0.05, 0.12, 16]} />
+            <meshStandardMaterial {...metal} />
+          </mesh>
+        )
+      })}
     </group>
   )
 }
@@ -198,7 +248,7 @@ function RepresentativeBody({ envMap }) {
 // The selected spacecraft, rendered as a 3D model floating at its modeled
 // orbital position on the globe (à la NASA Eyes). Moves along the orbit as the
 // simulation clock advances and gently rotates for legibility.
-export default function SelectedSatelliteModel({ item, clock, exaggeration, reducedMotion }) {
+export default function SelectedSatelliteModel({ item, clock, exaggeration, reducedMotion, modelScale = 1 }) {
   const posRef = useRef() // outer group: orbital position
   const spinRef = useRef() // inner group: rotation
   const envMap = useStudioEnvMap()
@@ -221,7 +271,8 @@ export default function SelectedSatelliteModel({ item, clock, exaggeration, redu
 
   return (
     <group ref={posRef}>
-      <group ref={spinRef}>
+      {/* scale is driven by the scroll wheel while this mission is selected */}
+      <group ref={spinRef} scale={modelScale}>
         {url ? <GltfBody url={url} envMap={envMap} /> : <RepresentativeBody envMap={envMap} />}
       </group>
     </group>

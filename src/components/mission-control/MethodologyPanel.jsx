@@ -1,7 +1,7 @@
 import Icon from '../Icon.jsx'
 import { DATA_SOURCES } from '../../data/missionSources.js'
 import { SCIENCE_LAYERS_NOTE } from '../../data/earthLayers.js'
-import { MODELED_POSITION_DISCLAIMER, cacheStatusInfo, formatUtc } from './orbitStatus.js'
+import { MODELED_POSITION_DISCLAIMER, cacheStatusInfo, formatUtc } from './orbitStatus'
 import { LABEL, ACCENT } from './mcStyles.js'
 
 function SourceRow({ title, children, href }) {

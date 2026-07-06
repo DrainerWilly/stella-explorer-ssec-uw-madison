@@ -53,7 +53,7 @@ export default function DataGraphsPage() {
 
       <div className="mt-6 rounded-panel bg-cream p-5">
         <h3 className="text-sm font-extrabold uppercase tracking-wide text-muted">
-          Why bands matter
+          Why bands are important
         </h3>
         <p className="mt-2 max-w-3xl text-sm leading-relaxed text-ink/80">
           Every instrument splits light into bands, slices of the spectrum it can
