@@ -59,30 +59,46 @@ export default function RgbCompositeMixer() {
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {/* channel assignment */}
+        {/* channel assignment: band (left) → color channel (right) */}
         <div className="rounded-panel bg-surface p-5 shadow-soft">
-          <p className="mb-3 text-xs font-bold uppercase tracking-wide text-faint">Display channels</p>
+          <div className="mb-3 flex items-center justify-between text-xs font-bold uppercase tracking-wide text-faint">
+            <span>Band</span>
+            <span>Display channel</span>
+          </div>
           <div className="space-y-2.5">
             {CHANNELS.map((c) => (
               <button
                 key={c.key}
                 onClick={() => setActive(c.key)}
-                className={`flex w-full items-center gap-3 rounded-2xl border-2 p-3 text-left transition-all ${
+                aria-pressed={active === c.key}
+                className={`grid w-full grid-cols-[1fr_auto_1fr] items-center gap-2 rounded-2xl border-2 p-3 transition-all ${
                   active === c.key ? 'border-ink bg-cream' : 'border-transparent bg-cream/60 hover:bg-cream'
                 }`}
               >
-                <span className="h-4 w-4 rounded-full" style={{ backgroundColor: c.color }} />
-                <span className="w-14 text-sm font-extrabold text-ink">{c.label}</span>
+                {/* band (left) */}
                 <motion.span
                   key={ch[c.key]}
                   initial={{ scale: 0.7, opacity: 0 }}
                   animate={{ scale: 1, opacity: 1 }}
                   transition={{ type: 'spring', stiffness: 320, damping: 22 }}
-                  className="ml-auto inline-flex items-center gap-1.5 rounded-full bg-surface px-3 py-1 text-xs font-bold text-ink shadow-soft"
+                  className="inline-flex items-center gap-1.5 justify-self-start rounded-full bg-surface px-3 py-1.5 text-xs font-bold text-ink shadow-soft"
                 >
                   <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: BAND_PREVIEW_COLOR[ch[c.key]] ?? '#94a3b8' }} />
                   Band {ch[c.key]}
                 </motion.span>
+
+                {/* arrow: band maps to channel */}
+                <Icon
+                  name="arrowRight"
+                  className={`h-5 w-5 transition-colors ${active === c.key ? 'text-ink' : 'text-faint'}`}
+                  strokeWidth={2.2}
+                />
+
+                {/* display channel (right) */}
+                <span className="inline-flex items-center gap-2 justify-self-end">
+                  <span className="text-sm font-extrabold text-ink">{c.label}</span>
+                  <span className="h-4 w-4 rounded-full ring-2 ring-white" style={{ backgroundColor: c.color }} />
+                </span>
               </button>
             ))}
           </div>

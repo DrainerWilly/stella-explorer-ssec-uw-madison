@@ -125,6 +125,7 @@ const paths = {
   ),
   chevron: <path d="m9 6 6 6-6 6" />,
   back: <path d="m15 6-6 6 6 6" />,
+  arrowRight: <path d="M4 12h14M13 6l6 6-6 6" />,
   star: (
     <path
       d="m12 4 2.2 4.6 5 .7-3.6 3.5.9 5-4.5-2.4L7.5 17.8l.9-5L4.8 9.3l5-.7z"
