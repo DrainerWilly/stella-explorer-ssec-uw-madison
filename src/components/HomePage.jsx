@@ -93,7 +93,7 @@ export default function HomePage({
                 onClick={() => onNavigate?.('mission-control')}
                 className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-bold text-white backdrop-blur transition-colors hover:bg-white/10"
               >
-                <Icon name="orbit" className="h-4 w-4" />
+                <Icon name="globe" className="h-4 w-4" />
                 Launch Mission Control
               </button>
             </motion.div>

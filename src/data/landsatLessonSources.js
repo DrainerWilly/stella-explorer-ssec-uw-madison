@@ -95,6 +95,15 @@ export const SOURCES = [
     credit: 'NASA Earthdata.',
     note: 'Band-combination reference for Landsat 8 surface reflectance.',
   },
+  {
+    id: 'usgs-landsat-scene-016042',
+    group: 'Band-measurement scene',
+    title: 'Landsat 8 scene LC08_L2SP_016042_20240222 (Collection 2 Level-2)',
+    organization: 'USGS / NASA',
+    url: 'https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC08_L2SP_016042_20240222_02_T1',
+    credit: 'USGS/NASA Landsat 8, Collection 2 Level-2 (Surface Reflectance & Surface Temperature).',
+    note: 'Real per-band grayscale crops in the band-measurement activity are rendered from this single verified scene (acquired 2024-02-22, 0.04% cloud cover, over Cape Coral–Fort Myers, Florida), accessed via Microsoft Planetary Computer’s public STAC catalog of the USGS/NASA Landsat Collection 2 archive.',
+  },
 ]
 
 export const SOURCE_GROUPS = [
@@ -150,5 +159,82 @@ export const IMAGES = {
     sourceUrl: 'https://www.usgs.gov/media/images/common-landsat-rgb-composites',
     sourceId: 'usgs-rgb-composites',
     alt: 'USGS graphic of common Landsat RGB composites.',
+  },
+}
+
+// Real per-band grayscale crops for the band-measurement activity — all seven
+// rendered from ONE verified Landsat 8 Collection 2 Level-2 scene
+// (LC08_L2SP_016042_20240222_02_T1, acquired 2024-02-22, 0.04% cloud cover,
+// over Cape Coral–Fort Myers, Florida, on the Caloosahatchee River). Each crop
+// is that band's real reflectance (or, for Band 10, surface-temperature) data
+// stretched to an 8-bit grayscale image — not an illustration and not a channel
+// split of an RGB composite.
+const BAND_SCENE_CREDIT =
+  'Image: USGS/NASA Landsat 8 (Collection 2 Level-2), scene LC08_L2SP_016042_20240222, 2024-02-22.'
+const BAND_SCENE_ALT_PLACE = 'Cape Coral–Fort Myers, Florida, on the Caloosahatchee River'
+
+export const BAND_TILE_IMAGES = {
+  2: {
+    file: 'landsat/bands/band-2.jpg',
+    org: 'USGS / NASA',
+    credit: BAND_SCENE_CREDIT,
+    sourceUrl:
+      'https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC08_L2SP_016042_20240222_02_T1',
+    sourceId: 'usgs-landsat-scene-016042',
+    alt: `Real Landsat 8 Band 2 (Blue) grayscale image of ${BAND_SCENE_ALT_PLACE}.`,
+  },
+  3: {
+    file: 'landsat/bands/band-3.jpg',
+    org: 'USGS / NASA',
+    credit: BAND_SCENE_CREDIT,
+    sourceUrl:
+      'https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC08_L2SP_016042_20240222_02_T1',
+    sourceId: 'usgs-landsat-scene-016042',
+    alt: `Real Landsat 8 Band 3 (Green) grayscale image of ${BAND_SCENE_ALT_PLACE}.`,
+  },
+  4: {
+    file: 'landsat/bands/band-4.jpg',
+    org: 'USGS / NASA',
+    credit: BAND_SCENE_CREDIT,
+    sourceUrl:
+      'https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC08_L2SP_016042_20240222_02_T1',
+    sourceId: 'usgs-landsat-scene-016042',
+    alt: `Real Landsat 8 Band 4 (Red) grayscale image of ${BAND_SCENE_ALT_PLACE}.`,
+  },
+  5: {
+    file: 'landsat/bands/band-5.jpg',
+    org: 'USGS / NASA',
+    credit: BAND_SCENE_CREDIT,
+    sourceUrl:
+      'https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC08_L2SP_016042_20240222_02_T1',
+    sourceId: 'usgs-landsat-scene-016042',
+    alt: `Real Landsat 8 Band 5 (Near-infrared) grayscale image of ${BAND_SCENE_ALT_PLACE}; water is nearly black and vegetation is bright.`,
+  },
+  6: {
+    file: 'landsat/bands/band-6.jpg',
+    org: 'USGS / NASA',
+    credit: BAND_SCENE_CREDIT,
+    sourceUrl:
+      'https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC08_L2SP_016042_20240222_02_T1',
+    sourceId: 'usgs-landsat-scene-016042',
+    alt: `Real Landsat 8 Band 6 (SWIR 1) grayscale image of ${BAND_SCENE_ALT_PLACE}.`,
+  },
+  7: {
+    file: 'landsat/bands/band-7.jpg',
+    org: 'USGS / NASA',
+    credit: BAND_SCENE_CREDIT,
+    sourceUrl:
+      'https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC08_L2SP_016042_20240222_02_T1',
+    sourceId: 'usgs-landsat-scene-016042',
+    alt: `Real Landsat 8 Band 7 (SWIR 2) grayscale image of ${BAND_SCENE_ALT_PLACE}.`,
+  },
+  10: {
+    file: 'landsat/bands/band-10.jpg',
+    org: 'USGS / NASA',
+    credit: BAND_SCENE_CREDIT,
+    sourceUrl:
+      'https://planetarycomputer.microsoft.com/api/stac/v1/collections/landsat-c2-l2/items/LC08_L2SP_016042_20240222_02_T1',
+    sourceId: 'usgs-landsat-scene-016042',
+    alt: `Real Landsat 8 Band 10 (Thermal) surface-temperature image of ${BAND_SCENE_ALT_PLACE}. Small dark patches (mostly over large flat rooftops) are pixels the surface-temperature algorithm could not confidently retrieve.`,
   },
 }

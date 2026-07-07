@@ -7,9 +7,7 @@ const NAV = [
   { id: 'data', icon: 'data', label: 'Data & graphs' },
   { id: 'animations', icon: 'animation', label: 'Animations' },
   { id: 'games', icon: 'games', label: 'Games' },
-  { id: 'mission-control', icon: 'orbit', label: 'Mission Control' },
-  { id: 'satellite', icon: 'satellite', label: 'Satellite imagery' },
-  { id: 'teacher', icon: 'book', label: 'Teacher resources' },
+  { id: 'mission-control', icon: 'globe', label: 'Mission Control' },
 ]
 
 export default function SidebarNav({ className = '', active = 'home', onNavigate }) {
@@ -20,8 +18,12 @@ export default function SidebarNav({ className = '', active = 'home', onNavigate
       aria-label="Primary"
     >
       {/* logo — desktop only at top */}
-      <div className="hidden lg:mb-3 lg:grid lg:h-11 lg:w-11 lg:place-items-center lg:rounded-2xl lg:bg-ink lg:text-app">
-        <Icon name="logo" className="h-6 w-6" strokeWidth={1.9} />
+      <div className="hidden lg:mb-3 lg:grid lg:h-11 lg:w-11 lg:place-items-center lg:overflow-hidden lg:rounded-2xl lg:bg-white lg:p-1.5 lg:shadow-soft">
+        <img
+          src={`${import.meta.env.BASE_URL}assets/brand/ssec-logo.png`}
+          alt="SSEC"
+          className="h-full w-full object-contain"
+        />
       </div>
 
       <div className="flex w-full items-center justify-around gap-1 lg:flex-1 lg:flex-col lg:justify-start lg:gap-2.5">

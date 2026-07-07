@@ -1,0 +1,11 @@
+{
+  "sceneId": "LC08_L2SP_016042_20240222_02_T1",
+  "datetime": "2024-02-22T15:56:16.075407Z",
+  "platform": "landsat-8",
+  "cloudCover": 0.04,
+  "collection": "landsat-c2-l2 (USGS Landsat Collection 2 Level-2)",
+  "cropCenterLonLat": [
+    -81.87,
+    26.53
+  ]
+}
