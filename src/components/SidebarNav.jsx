@@ -3,8 +3,8 @@ import Icon from './Icon.jsx'
 const NAV = [
   { id: 'home', icon: 'home', label: 'Home' },
   { id: 'mission-control', icon: 'globe', label: 'Mission Control' },
-  { id: 'games', icon: 'games', label: 'Games' },
   { id: 'animations', icon: 'animation', label: 'Animations' },
+  { id: 'games', icon: 'games', label: 'Games' },
   { id: 'lessons', icon: 'lessons', label: 'Lessons', dot: true },
   { id: 'device', icon: 'device', label: 'STELLA device' },
   { id: 'data', icon: 'data', label: 'Data & graphs' },
