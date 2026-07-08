@@ -184,6 +184,15 @@ const paths = {
       <path d="M12 3l-2 2m2-2 2 2M12 21l-2-2m2 2 2-2" />
     </>
   ),
+  // data visualizer — pulse line over scatter dots
+  viz: (
+    <>
+      <path d="M3 13.5 7 9l3.5 5L14 6.5l2.5 4.5H21" />
+      <circle cx="6" cy="18.5" r="1.2" fill="currentColor" stroke="none" />
+      <circle cx="11" cy="19.5" r="1.2" fill="currentColor" stroke="none" />
+      <circle cx="16.5" cy="18" r="1.2" fill="currentColor" stroke="none" />
+    </>
+  ),
   // game controller
   games: (
     <>

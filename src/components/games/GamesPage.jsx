@@ -31,8 +31,8 @@ export default function GamesPage() {
         </span>
         <h1 className="mt-1 text-3xl font-extrabold tracking-tight text-ink sm:text-4xl">Games</h1>
         <p className="mt-2 text-sm leading-relaxed text-muted sm:text-base">
-          Interactive challenges that turn real Earth-science ideas — spectral signatures, orbits,
-          the electromagnetic spectrum, and vegetation health — into games you can play.
+          Interactive challenges that turn real Earth-science ideas, spectral signatures, orbits,
+          the electromagnetic spectrum, and vegetation health, into games you can play.
         </p>
       </header>
 

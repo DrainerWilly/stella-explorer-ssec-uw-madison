@@ -14,6 +14,11 @@ const MissionControlPage = lazy(() =>
   import('./components/mission-control/MissionControlPage.jsx'),
 )
 
+// Data Visualizer bundles ~800 KB of NASA STELLA sample data; lazy-load it too.
+const DataVisualizerPage = lazy(() =>
+  import('./components/data-visualizer/DataVisualizerPage.jsx'),
+)
+
 export default function App() {
   const [page, setPage] = useState('home')
   const [category, setCategory] = useState('all')
@@ -61,6 +66,17 @@ export default function App() {
         ) : page === 'games' ? (
           /* Educational games — gallery + individual games, full width */
           <GamesPage />
+        ) : page === 'data-viz' ? (
+          /* Data Visualizer — real STELLA instrument data + user uploads */
+          <Suspense
+            fallback={
+              <div className="order-1 grid flex-1 place-items-center bg-app text-sm font-semibold text-muted">
+                Loading Data Visualizer…
+              </div>
+            }
+          >
+            <DataVisualizerPage />
+          </Suspense>
         ) : page === 'lesson-landsat' ? (
           /* Landsat lesson — full width beside the sidebar */
           <HowLandsatImagesAreMade onBack={() => setPage('home')} />

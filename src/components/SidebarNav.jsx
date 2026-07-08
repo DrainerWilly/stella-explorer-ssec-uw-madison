@@ -7,6 +7,7 @@ const NAV = [
   { id: 'games', icon: 'games', label: 'Games' },
   { id: 'lessons', icon: 'lessons', label: 'Lessons', dot: true },
   { id: 'device', icon: 'device', label: 'STELLA device' },
+  { id: 'data-viz', icon: 'viz', label: 'Data Visualizer' },
   { id: 'data', icon: 'data', label: 'Data & graphs' },
 ]
 
