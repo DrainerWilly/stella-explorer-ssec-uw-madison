@@ -10,7 +10,10 @@ import RgbCompositeMixer from './landsat/RgbCompositeMixer.jsx'
 import RealImageComparison from './landsat/RealImageComparison.jsx'
 import LandsatKnowledgeCheck from './landsat/LandsatKnowledgeCheck.jsx'
 import SourceAttribution from './landsat/SourceAttribution.jsx'
+import ImageWithAttribution from './landsat/ImageWithAttribution.jsx'
+import MediaVideo from '../MediaVideo.jsx'
 import { CHAPTERS, GRADE_BANDS } from '../../data/landsatLessonContent.js'
+import { VIDEOS } from '../../data/mediaLibrary.js'
 
 const META = ['Landsat 8/9', 'Interactive lesson', 'Grades 6–12', 'About 25 minutes']
 
@@ -104,6 +107,17 @@ export default function HowLandsatImagesAreMade({ onBack }) {
         </aside>
 
         <div className="space-y-10">
+          {/* intro: see Landsat from orbit (still + motion) */}
+          <div className="rounded-panel bg-surface p-4 shadow-soft sm:p-5">
+            <p className="mb-3 text-xs font-bold uppercase tracking-wide text-faint">
+              See Landsat from orbit
+            </p>
+            <div className="grid gap-4 lg:grid-cols-2">
+              <ImageWithAttribution imageId="landsatInOrbit" aspect="aspect-video" />
+              <MediaVideo video={VIDEOS['landsat-orbits']} />
+            </div>
+          </div>
+
           {CHAPTERS.map((c) => (
             <section
               key={c.id}

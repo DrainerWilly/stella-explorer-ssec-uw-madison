@@ -11,6 +11,8 @@ import RadiationBudget from './ems/RadiationBudget.jsx'
 import RemoteSensingConnections from './ems/RemoteSensingConnections.jsx'
 import EmsReview from './ems/EmsReview.jsx'
 import EmsSources from './ems/EmsSources.jsx'
+import MediaVideo from '../MediaVideo.jsx'
+import { VIDEOS } from '../../data/mediaLibrary.js'
 
 export default function WhatIsTheEMS({ onBack, onOpenAnimation }) {
   const [band, setBand] = useState('6-8')
@@ -114,6 +116,14 @@ export default function WhatIsTheEMS({ onBack, onOpenAnimation }) {
 
         {/* sections */}
         <div className="min-w-0 space-y-12">
+          {/* intro video: a tour of the spectrum */}
+          <div className="rounded-panel bg-surface p-4 shadow-soft sm:p-5">
+            <p className="mb-3 text-xs font-bold uppercase tracking-wide text-faint">
+              Watch first — a tour of the spectrum
+            </p>
+            <MediaVideo video={VIDEOS['electromagnetic-spectrum']} />
+          </div>
+
           {SECTIONS.map((s) => (
             <section key={s.id} id={s.id} ref={(el) => (refs.current[s.id] = el)} className="scroll-mt-6">
               {body[s.id]}

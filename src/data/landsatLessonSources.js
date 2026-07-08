@@ -160,6 +160,14 @@ export const IMAGES = {
     sourceId: 'usgs-rgb-composites',
     alt: 'USGS graphic of common Landsat RGB composites.',
   },
+  landsatInOrbit: {
+    file: 'assets/media/landsat-in-orbit.jpg',
+    org: 'NASA',
+    credit: 'Illustration: NASA’s Scientific Visualization Studio (Landsat).',
+    sourceUrl: 'https://svs.gsfc.nasa.gov/',
+    sourceId: 'nasa-landsat',
+    alt: 'Rendered view of a Landsat satellite in orbit above a mountainous coastline, with its orbital path arcing behind it.',
+  },
 }
 
 // Real per-band grayscale crops for the band-measurement activity — all seven

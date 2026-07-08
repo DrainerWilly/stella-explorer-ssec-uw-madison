@@ -4,7 +4,11 @@ import Icon from './Icon.jsx'
 import CategoryFilters from './CategoryFilters.jsx'
 import LessonCardGrid from './LessonCardGrid.jsx'
 import FeaturedActivityCard from './FeaturedActivityCard.jsx'
+import MediaVideo from './MediaVideo.jsx'
 import { GRADES } from '../data/lessons.js'
+import { VIDEOS } from '../data/mediaLibrary.js'
+
+const HOME_VIDEO_IDS = ['goes-east-west', 'urban-heat-islands', 'tdrs-fleet-360']
 
 // Heavy Three.js Earth loads after first paint (kept out of the initial bundle).
 const HomeEarthBackground = lazy(() => import('./HomeEarthBackground.jsx'))
@@ -156,6 +160,33 @@ export default function HomePage({
 
             <div className="mt-6">
               <FeaturedActivityCard />
+            </div>
+          </motion.div>
+        </section>
+
+        {/* ---------- WATCH & LEARN ---------- */}
+        <section className="bg-app px-5 pb-24 sm:px-8 lg:px-16">
+          <motion.div
+            initial={{ opacity: 0, y: reduce ? 0 : 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.6, ease: EASE }}
+          >
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300/80">
+              Watch & learn
+            </span>
+            <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+              Earth science in motion
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-400">
+              Short NASA visualizations that bring the ideas behind these lessons to life. Press play
+              to watch.
+            </p>
+
+            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
+              {HOME_VIDEO_IDS.map((id) => (
+                <MediaVideo key={id} video={VIDEOS[id]} />
+              ))}
             </div>
           </motion.div>
         </section>
