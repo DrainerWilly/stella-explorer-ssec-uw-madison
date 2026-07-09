@@ -44,7 +44,7 @@ export default function MethodologyPanel({ open, onClose, orbit }) {
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className={LABEL}>Mission Control</div>
+            <div className={LABEL}>Satellite Tracker</div>
             <h2 className="mt-0.5 text-lg font-light tracking-wide text-white">
               Sources & methodology
             </h2>

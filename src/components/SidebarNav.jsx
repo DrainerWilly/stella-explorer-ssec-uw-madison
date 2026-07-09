@@ -2,10 +2,10 @@ import Icon from './Icon.jsx'
 
 export const NAV = [
   { id: 'home', icon: 'home', label: 'Home' },
-  { id: 'mission-control', icon: 'globe', label: 'Mission Control' },
+  { id: 'mission-control', icon: 'globe', label: 'Satellite Tracker' },
   { id: 'animations', icon: 'animation', label: 'Animations' },
   { id: 'games', icon: 'games', label: 'Games' },
-  { id: 'lessons', icon: 'lessons', label: 'Lessons', dot: true },
+  { id: 'lessons', icon: 'lessons', label: 'Lessons' },
   { id: 'device', icon: 'device', label: 'STELLA device' },
   { id: 'data-viz', icon: 'viz', label: 'Data Visualizer' },
   { id: 'data', icon: 'data', label: 'Data & graphs' },
@@ -45,9 +45,6 @@ export default function SidebarNav({ className = '', active = 'home', onNavigate
                 }`}
             >
               <Icon name={item.icon} className="h-[22px] w-[22px]" />
-              {item.dot && (
-                <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-coral ring-2 ring-cream" />
-              )}
             </button>
           )
         })}

@@ -71,38 +71,40 @@ export default function HomePage({ onNavigate }) {
                 className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-indigo-500 px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_30px_-8px_rgba(56,189,248,0.6)] transition-transform hover:scale-[1.03]"
               >
                 <Icon name="globe" className="h-4 w-4" />
-                Launch Mission Control
+                Launch Satellite Tracker
               </button>
             </motion.div>
           </div>
         </section>
 
         {/* ---------- EXPLORE ---------- */}
-        <section className="bg-app px-5 pb-24 pt-4 sm:px-8 lg:px-16">
+        <section className="px-5 pb-24 pt-4 sm:px-8 lg:px-16">
           <motion.div
             initial={{ opacity: 0, y: reduce ? 0 : 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.6, ease: EASE }}
           >
-            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300/80">
+            <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300/80 [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
               Explore
             </span>
-            <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+            <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-white [text-shadow:0_1px_6px_rgba(0,0,0,0.6)] sm:text-3xl">
               Everywhere you can go
             </h2>
 
             <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
-              {NAV.map((item) => (
+              {NAV.filter((item) => item.id !== 'home').map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onNavigate?.(item.id)}
-                  className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-left backdrop-blur transition-colors hover:bg-white/10"
+                  className="group flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.03] p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors hover:border-white/25 hover:bg-white/10"
                 >
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-sky-200 transition-colors group-hover:bg-white/20">
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-sky-200 backdrop-blur-sm transition-colors group-hover:bg-white/20">
                     <Icon name={item.icon} className="h-[18px] w-[18px]" />
                   </span>
-                  <span className="text-sm font-bold text-white">{item.label}</span>
+                  <span className="text-sm font-bold text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
+                    {item.label}
+                  </span>
                 </button>
               ))}
             </div>

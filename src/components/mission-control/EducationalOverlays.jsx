@@ -36,7 +36,7 @@ export default function EducationalOverlays({ open, onClose, onOpenLesson }) {
       className="fixed inset-0 z-[70] flex items-end justify-center bg-black/70 p-0 backdrop-blur-sm sm:items-center sm:p-6"
       role="dialog"
       aria-modal="true"
-      aria-label="How to use Mission Control"
+      aria-label="How to use Satellite Tracker"
       onClick={onClose}
     >
       <div
@@ -45,7 +45,7 @@ export default function EducationalOverlays({ open, onClose, onOpenLesson }) {
       >
         <div className="flex items-start justify-between gap-4">
           <div>
-            <div className={LABEL}>Mission Control</div>
+            <div className={LABEL}>Satellite Tracker</div>
             <h2 className="mt-0.5 text-lg font-light tracking-wide text-white">
               Exploring the view
             </h2>

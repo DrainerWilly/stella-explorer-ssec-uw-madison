@@ -342,7 +342,7 @@ export default function MissionControlPage({ onNavigate }) {
     <div className="pointer-events-none">
       <div className={LABEL}>SSEC · Earth Science</div>
       <h1 className="mt-0.5 text-xl font-light uppercase tracking-[0.18em] text-white sm:text-2xl">
-        Mission Control
+        Satellite Tracker
       </h1>
       <p className="mt-1 hidden max-w-sm text-[11px] leading-snug text-white/45 sm:block">
         Explore modeled satellite orbits and discover how Earth-observing missions study our
@@ -373,7 +373,7 @@ export default function MissionControlPage({ onNavigate }) {
       <button
         onClick={() => setShowOverlay(true)}
         title="How to use"
-        aria-label="How to use Mission Control"
+        aria-label="How to use Satellite Tracker"
         className={GHOST_BTN}
       >
         <Icon name="book" className="h-4 w-4" />

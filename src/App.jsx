@@ -99,7 +99,7 @@ export default function App() {
           <Suspense
             fallback={
               <div className="order-1 grid flex-1 place-items-center bg-[#050b1f] text-sm font-semibold text-white/60">
-                Loading Mission Control…
+                Loading Satellite Tracker…
               </div>
             }
           >
