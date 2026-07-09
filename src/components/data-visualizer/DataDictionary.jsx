@@ -10,7 +10,7 @@ export default function DataDictionary({ dataset }) {
   const nms = [...new Set(dataset.records.flatMap((r) => r.spec.map((b) => b[0])))].sort((a, b) => a - b)
 
   return (
-    <div className="rounded-panel bg-surface shadow-soft">
+    <div className="rounded-2xl border border-white/10 bg-white/[0.035] shadow-soft">
       <button
         onClick={() => setOpen((o) => !o)}
         aria-expanded={open}
@@ -47,7 +47,7 @@ export default function DataDictionary({ dataset }) {
               </p>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {nms.map((nm) => (
-                  <span key={nm} className="inline-flex items-center gap-1 rounded-full bg-cream px-2 py-0.5 text-[10px] font-bold text-ink/75">
+                  <span key={nm} className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-bold text-ink/75">
                     <span className="h-2 w-2 rounded-full ring-1 ring-ink/20" style={{ background: wavelengthToColor(nm) }} />
                     {nm} nm
                   </span>

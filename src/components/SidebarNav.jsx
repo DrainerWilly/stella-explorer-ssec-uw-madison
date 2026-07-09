@@ -1,6 +1,6 @@
 import Icon from './Icon.jsx'
 
-const NAV = [
+export const NAV = [
   { id: 'home', icon: 'home', label: 'Home' },
   { id: 'mission-control', icon: 'globe', label: 'Mission Control' },
   { id: 'animations', icon: 'animation', label: 'Animations' },

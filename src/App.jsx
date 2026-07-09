@@ -2,6 +2,7 @@ import { Suspense, lazy, useMemo, useState } from 'react'
 import AppShell from './components/AppShell.jsx'
 import SidebarNav from './components/SidebarNav.jsx'
 import HomePage from './components/HomePage.jsx'
+import LessonsPage from './components/LessonsPage.jsx'
 import GamesPage from './components/games/GamesPage.jsx'
 import DataGraphsPage from './components/DataGraphsPage.jsx'
 import AnimationsPage from './components/animations/AnimationsPage.jsx'
@@ -57,7 +58,17 @@ export default function App() {
           }}
         />
 
-        {page === 'data' ? (
+        {page === 'lessons' ? (
+          /* Lessons & activities catalog — full width beside the sidebar */
+          <LessonsPage
+            category={category}
+            onCategory={setCategory}
+            grade={grade}
+            onGrade={setGrade}
+            lessons={visibleLessons}
+            onOpenLesson={openLesson}
+          />
+        ) : page === 'data' ? (
           /* Spectral Band Explorer — full width beside the sidebar */
           <DataGraphsPage />
         ) : page === 'animations' ? (
@@ -95,15 +106,7 @@ export default function App() {
             <MissionControlPage onNavigate={setPage} />
           </Suspense>
         ) : (
-          <HomePage
-            category={category}
-            onCategory={setCategory}
-            grade={grade}
-            onGrade={setGrade}
-            lessons={visibleLessons}
-            onOpenLesson={openLesson}
-            onNavigate={setPage}
-          />
+          <HomePage onNavigate={setPage} />
         )}
       </div>
     </AppShell>

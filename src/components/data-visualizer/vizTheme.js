@@ -11,6 +11,32 @@ export const GRID = 'rgba(255,255,255,0.09)' // hairline gridlines
 export const AXIS = 'rgba(255,255,255,0.22)' // baseline / axis
 export const INK_MUTED = 'rgba(233,240,252,0.55)'
 export const INK_FAINT = 'rgba(233,240,252,0.38)'
+export const PANEL_BG = '#0a1730' // solid dark-navy behind glass, for mark strokes
+export const ACCENT = '#6ae0ff' // instrument cyan
+
+// Inferno — a perceptually-uniform, colorblind-safe scientific colormap (the
+// standard for spectrograms/heatmaps). Not a rainbow: lightness rises
+// monotonically from near-black to pale yellow.
+const INFERNO = [
+  [0, 0, 4], [20, 11, 52], [57, 15, 90], [100, 20, 96], [143, 27, 90],
+  [186, 41, 74], [220, 69, 45], [240, 105, 20], [248, 152, 10], [248, 203, 55], [252, 255, 164],
+]
+export function heatRGB(t) {
+  const x = Math.max(0, Math.min(1, t)) * (INFERNO.length - 1)
+  const i = Math.floor(x)
+  const f = x - i
+  const a = INFERNO[i]
+  const b = INFERNO[Math.min(i + 1, INFERNO.length - 1)]
+  return [
+    Math.round(a[0] + (b[0] - a[0]) * f),
+    Math.round(a[1] + (b[1] - a[1]) * f),
+    Math.round(a[2] + (b[2] - a[2]) * f),
+  ]
+}
+export function heatColor(t) {
+  const [r, g, b] = heatRGB(t)
+  return `rgb(${r},${g},${b})`
+}
 
 // Approximate visible-spectrum color for a wavelength (nm). Original
 // implementation of the standard piecewise mapping; beyond ~750 nm (NIR) we

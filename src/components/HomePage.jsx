@@ -1,29 +1,14 @@
 import { Suspense, lazy } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import Icon from './Icon.jsx'
-import CategoryFilters from './CategoryFilters.jsx'
-import LessonCardGrid from './LessonCardGrid.jsx'
-import FeaturedActivityCard from './FeaturedActivityCard.jsx'
-import MediaVideo from './MediaVideo.jsx'
-import { GRADES } from '../data/lessons.js'
-import { VIDEOS } from '../data/mediaLibrary.js'
-
-const HOME_VIDEO_IDS = ['goes-east-west', 'urban-heat-islands', 'tdrs-fleet-360']
+import { NAV } from './SidebarNav.jsx'
 
 // Heavy Three.js Earth loads after first paint (kept out of the initial bundle).
 const HomeEarthBackground = lazy(() => import('./HomeEarthBackground.jsx'))
 
 const EASE = [0.22, 1, 0.36, 1]
 
-export default function HomePage({
-  category,
-  onCategory,
-  grade,
-  onGrade,
-  lessons,
-  onOpenLesson,
-  onNavigate,
-}) {
+export default function HomePage({ onNavigate }) {
   const reduce = useReducedMotion()
 
   const fade = (i = 0) => ({
@@ -31,11 +16,6 @@ export default function HomePage({
     animate: { opacity: 1, y: 0 },
     transition: { duration: 0.6, delay: 0.08 * i, ease: EASE },
   })
-
-  const scrollToLessons = () =>
-    document
-      .getElementById('home-lessons')
-      ?.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' })
 
   return (
     <main className="relative order-1 flex-1 overflow-x-hidden overflow-y-auto scroll-soft bg-app lg:order-2">
@@ -87,15 +67,8 @@ export default function HomePage({
 
             <motion.div {...fade(3)} className="mt-8 flex flex-wrap items-center gap-3">
               <button
-                onClick={scrollToLessons}
-                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-indigo-500 px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_30px_-8px_rgba(56,189,248,0.6)] transition-transform hover:scale-[1.03]"
-              >
-                <Icon name="play" className="h-4 w-4" />
-                Start learning
-              </button>
-              <button
                 onClick={() => onNavigate?.('mission-control')}
-                className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-6 py-3.5 text-sm font-bold text-white backdrop-blur transition-colors hover:bg-white/10"
+                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-indigo-500 px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_30px_-8px_rgba(56,189,248,0.6)] transition-transform hover:scale-[1.03]"
               >
                 <Icon name="globe" className="h-4 w-4" />
                 Launch Mission Control
@@ -104,68 +77,8 @@ export default function HomePage({
           </div>
         </section>
 
-        {/* ---------- LESSONS / CONTENT ---------- */}
-        <section
-          id="home-lessons"
-          className="bg-gradient-to-b from-transparent via-app/90 to-app px-5 pb-20 pt-10 sm:px-8 lg:px-16"
-        >
-          <motion.div
-            initial={{ opacity: 0, y: reduce ? 0 : 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, margin: '-80px' }}
-            transition={{ duration: 0.6, ease: EASE }}
-          >
-            <div className="flex flex-wrap items-end justify-between gap-4">
-              <div>
-                <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300/80">
-                  Lessons & activities
-                </span>
-                <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-                  Start learning
-                </h2>
-              </div>
-
-              {/* grade-level selector */}
-              <div className="flex items-center gap-1 rounded-full border border-white/10 bg-white/5 p-1 backdrop-blur">
-                {GRADES.map((g) => {
-                  const active = grade === g.id
-                  return (
-                    <button
-                      key={g.id}
-                      onClick={() => onGrade(g.id)}
-                      className={`rounded-full px-3 py-1.5 text-xs font-bold transition-colors ${
-                        active ? 'bg-white text-[#04122b]' : 'text-slate-300 hover:text-white'
-                      }`}
-                    >
-                      {g.short}
-                    </button>
-                  )
-                })}
-              </div>
-            </div>
-
-            <div className="mt-5">
-              <CategoryFilters active={category} onChange={onCategory} />
-            </div>
-
-            <div className="mt-4 flex items-center justify-between">
-              <span className="text-sm font-semibold text-slate-400">
-                {lessons.length} {lessons.length === 1 ? 'lesson' : 'lessons'}
-              </span>
-            </div>
-
-            <div className="mt-4">
-              <LessonCardGrid lessons={lessons} onOpenLesson={onOpenLesson} />
-            </div>
-
-            <div className="mt-6">
-              <FeaturedActivityCard />
-            </div>
-          </motion.div>
-        </section>
-
-        {/* ---------- WATCH & LEARN ---------- */}
-        <section className="bg-app px-5 pb-24 sm:px-8 lg:px-16">
+        {/* ---------- EXPLORE ---------- */}
+        <section className="bg-app px-5 pb-24 pt-4 sm:px-8 lg:px-16">
           <motion.div
             initial={{ opacity: 0, y: reduce ? 0 : 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -173,19 +86,24 @@ export default function HomePage({
             transition={{ duration: 0.6, ease: EASE }}
           >
             <span className="text-[11px] font-bold uppercase tracking-[0.18em] text-sky-300/80">
-              Watch & learn
+              Explore
             </span>
             <h2 className="mt-1 text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
-              Earth science in motion
+              Everywhere you can go
             </h2>
-            <p className="mt-2 max-w-xl text-sm leading-relaxed text-slate-400">
-              Short NASA visualizations that bring the ideas behind these lessons to life. Press play
-              to watch.
-            </p>
 
-            <div className="mt-6 grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-              {HOME_VIDEO_IDS.map((id) => (
-                <MediaVideo key={id} video={VIDEOS[id]} />
+            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+              {NAV.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => onNavigate?.(item.id)}
+                  className="group flex items-center gap-3 rounded-2xl border border-white/10 bg-white/5 p-4 text-left backdrop-blur transition-colors hover:bg-white/10"
+                >
+                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-sky-200 transition-colors group-hover:bg-white/20">
+                    <Icon name={item.icon} className="h-[18px] w-[18px]" />
+                  </span>
+                  <span className="text-sm font-bold text-white">{item.label}</span>
+                </button>
               ))}
             </div>
           </motion.div>

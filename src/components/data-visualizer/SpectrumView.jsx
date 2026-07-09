@@ -99,12 +99,12 @@ export default function SpectrumView({ dataset, index, onIndex, reducedMotion })
 
   const btn = (active) =>
     `rounded-full px-3 py-1.5 text-xs font-bold transition-all ${
-      active ? 'bg-ink text-app shadow-soft' : 'bg-cream text-ink/70 hover:text-ink'
+      active ? 'bg-ink text-app shadow-soft' : 'bg-white/[0.06] text-ink/70 hover:text-ink'
     }`
 
   if (!rec || rec.spec.length === 0) {
     return (
-      <div className="rounded-panel bg-cream p-6 text-sm text-ink/70">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm text-ink/70">
         This instrument doesn’t record spectral bands — try the Time series or Field report views.
       </div>
     )
@@ -147,14 +147,14 @@ export default function SpectrumView({ dataset, index, onIndex, reducedMotion })
           Uncertainty {showUnc ? 'on' : 'off'}
         </button>
         {abDelta != null && (
-          <span className="rounded-full bg-cream px-3 py-1.5 text-xs font-bold text-ink/80">
+          <span className="rounded-full bg-white/[0.06] px-3 py-1.5 text-xs font-bold text-ink/80">
             B vs A: {abDelta >= 0 ? '+' : ''}{abDelta.toFixed(1)}% mean irradiance
           </span>
         )}
       </div>
 
       {/* chart */}
-      <div className="rounded-panel bg-surface p-3 shadow-soft sm:p-4">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-3 shadow-soft sm:p-4">
         <svg
           ref={svgRef}
           viewBox={`0 0 ${W} ${H}`}

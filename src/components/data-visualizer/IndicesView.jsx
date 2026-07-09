@@ -34,7 +34,7 @@ export default function IndicesView({ dataset, index, onIndex }) {
 
   if (!usable) {
     return (
-      <div className="rounded-panel bg-cream p-6 text-sm leading-relaxed text-ink/70">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm leading-relaxed text-ink/70">
         This dataset has no near-infrared band, so a greenness index can’t be computed.{' '}
         {dataset.instrument === 'Helio-STELLA'
           ? 'Helio-STELLA looks at the Sun, not at plants — try its lux and band data in the Time series view instead.'
@@ -56,7 +56,7 @@ export default function IndicesView({ dataset, index, onIndex }) {
     <div className="space-y-3">
       {/* live formula for the current measurement */}
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
-        <div className="rounded-panel bg-surface p-4 shadow-soft">
+        <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 shadow-soft">
           <p className="text-xs font-bold uppercase tracking-wide text-faint">
             Greenness estimate — measurement #{Math.min(index, dataset.records.length - 1) + 1}
           </p>
@@ -79,7 +79,7 @@ export default function IndicesView({ dataset, index, onIndex }) {
           </p>
         </div>
         {g != null && (
-          <div className="grid min-w-[130px] place-items-center rounded-panel p-4" style={{ backgroundColor: `${zoneFor(g).color}22` }}>
+          <div className="grid min-w-[130px] place-items-center rounded-2xl p-4" style={{ backgroundColor: `${zoneFor(g).color}22` }}>
             <span className="text-3xl font-extrabold tabular-nums" style={{ color: zoneFor(g).color }}>
               {g.toFixed(2)}
             </span>
@@ -89,7 +89,7 @@ export default function IndicesView({ dataset, index, onIndex }) {
       </div>
 
       {/* index over time */}
-      <div className="rounded-panel bg-surface p-3 shadow-soft sm:p-4">
+      <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-3 shadow-soft sm:p-4">
         <svg viewBox={`0 0 ${W} ${H}`} className="w-full" role="img" aria-label="Greenness estimate over time">
           {/* zone bands as recessive backdrop */}
           {ZONES.map((z, i) => {

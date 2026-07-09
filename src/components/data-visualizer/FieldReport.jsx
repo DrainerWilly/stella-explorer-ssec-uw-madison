@@ -34,7 +34,7 @@ export default function FieldReport({ dataset }) {
       {/* session summary tiles */}
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         {summary.map((s) => (
-          <div key={s.label} className="rounded-panel bg-surface p-4 text-center shadow-soft">
+          <div key={s.label} className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 text-center shadow-soft">
             <div className="text-2xl font-extrabold tabular-nums text-ink">{s.value}</div>
             <div className="mt-0.5 text-[11px] font-bold uppercase tracking-wide text-faint">{s.label}</div>
           </div>
@@ -48,7 +48,7 @@ export default function FieldReport({ dataset }) {
       </p>
 
       {/* stats table */}
-      <div className="overflow-x-auto rounded-panel bg-surface p-4 shadow-soft">
+      <div className="overflow-x-auto rounded-2xl border border-white/10 bg-white/[0.035] p-4 shadow-soft">
         <table className="w-full min-w-[520px] border-collapse text-left text-sm">
           <caption className="sr-only">Per-field statistics</caption>
           <thead>
