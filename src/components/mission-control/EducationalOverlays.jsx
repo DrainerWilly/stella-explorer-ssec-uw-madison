@@ -6,7 +6,7 @@ const SECTIONS = [
     title: 'How to read this view',
     body: [
       'Earth is in the center of the scene.',
-      'Colored markers are satellite missions — each color matches a science category.',
+      'Colored markers are satellite missions: each color matches a science category.',
       'Curved paths are modeled orbital paths; the bright line on Earth is the selected mission’s ground track.',
       'The time controls change the simulation time, moving every satellite together.',
     ],

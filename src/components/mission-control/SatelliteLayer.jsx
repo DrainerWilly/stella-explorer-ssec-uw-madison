@@ -11,7 +11,7 @@ const _tan = new THREE.Vector3()
 const _bit = new THREE.Vector3()
 
 // Small visual fan-out so spacecraft that share a host (e.g. ISS instruments)
-// are each individually visible instead of overlapping. Purely a display aid —
+// are each individually visible instead of overlapping. Purely a display aid;
 // the numeric position shown in the panel remains the true (host) position.
 const CO_LOCATED_OFFSET = 0.09
 
@@ -93,7 +93,7 @@ function SatelliteMarker({
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      {/* dot + halo — hidden when selected (the 3D model provides the body) */}
+      {/* dot + halo, hidden when selected (the 3D model provides the body) */}
       {!selected && (
         <>
           {/* soft halo */}

@@ -302,7 +302,7 @@ function RangeControl({ label, helper, min, max, value, onChange, minLabel, maxL
         max={max}
         value={value}
         onChange={(e) => onChange(Number(e.target.value))}
-        aria-label={`${label} — ${helper}`}
+        aria-label={`${label}, ${helper}`}
         aria-valuetext={`${Math.round(((value - min) / (max - min)) * 100)} percent`}
         className="mt-2 w-full accent-ink"
       />

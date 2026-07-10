@@ -6,7 +6,7 @@
 // Each entry is backed by official mission sources (see missionSources.js).
 // `expectedObjectName` and `noradId` were verified against CelesTrak's GP
 // catalog on 2026-07-02 and are used by the orbit service to fetch and
-// validate the correct object (some names — e.g. "PACE" — are shared by more
+// validate the correct object (some names, e.g. "PACE", are shared by more
 // than one object, so the NORAD id disambiguates).
 //
 // `markerColor` mirrors the mission's category color (see missionCategories.js)
@@ -98,7 +98,7 @@ const RAW_MISSIONS = [
     missionPageUrl: 'https://aqua.nasa.gov/',
     sourceUrl: 'https://www.nasa.gov/mission/aqua/',
     shortDescription:
-      'Focuses on Earth’s water cycle — evaporation, clouds, precipitation, sea ice, and ocean.',
+      'Focuses on Earth’s water cycle: evaporation, clouds, precipitation, sea ice, and ocean.',
     longDescription:
       'Aqua crosses the equator in the afternoon and gathers information about Earth’s water in all its forms. Its instruments measure water vapor, clouds, precipitation, sea-surface temperature, and sea ice, complementing Terra’s morning observations.',
     instruments: ['MODIS', 'AIRS', 'AMSU-A', 'CERES'],
@@ -206,7 +206,7 @@ const RAW_MISSIONS = [
     missionPageUrl: 'https://swot.jpl.nasa.gov/',
     sourceUrl: 'https://www.nasa.gov/mission/swot/',
     shortDescription:
-      'Surveys the height of nearly all of Earth’s surface water — oceans, lakes, and rivers.',
+      'Surveys the height of nearly all of Earth’s surface water: oceans, lakes, and rivers.',
     longDescription:
       'SWOT (Surface Water and Ocean Topography) uses a wide-swath radar interferometer to measure the elevation of water across oceans and fresh water. It reveals ocean features and tracks how much water flows through rivers and is stored in lakes.',
     instruments: [
@@ -332,7 +332,7 @@ const RAW_MISSIONS = [
     hostedOn: 'International Space Station',
     category: 'Land',
     agency: 'NASA / JPL',
-    orbitType: 'Aboard the ISS — low Earth orbit (~420 km), 51.6°',
+    orbitType: 'Aboard the ISS, low Earth orbit (~420 km), 51.6°',
     launchYear: 2018,
     missionPageUrl: 'https://ecostress.jpl.nasa.gov/',
     sourceUrl: 'https://www.jpl.nasa.gov/missions/ecostress/',
@@ -354,7 +354,7 @@ const RAW_MISSIONS = [
     hostedOn: 'International Space Station',
     category: 'Land',
     agency: 'NASA / JPL',
-    orbitType: 'Aboard the ISS — low Earth orbit (~420 km), 51.6°',
+    orbitType: 'Aboard the ISS, low Earth orbit (~420 km), 51.6°',
     launchYear: 2022,
     missionPageUrl: 'https://earth.jpl.nasa.gov/emit/',
     sourceUrl: 'https://www.jpl.nasa.gov/missions/emit/',
@@ -376,7 +376,7 @@ const RAW_MISSIONS = [
     hostedOn: 'International Space Station',
     category: 'Climate and Radiation',
     agency: 'NASA / JPL',
-    orbitType: 'Aboard the ISS — low Earth orbit (~420 km), 51.6°',
+    orbitType: 'Aboard the ISS, low Earth orbit (~420 km), 51.6°',
     launchYear: 2019,
     missionPageUrl: 'https://ocov3.jpl.nasa.gov/',
     sourceUrl: 'https://www.jpl.nasa.gov/missions/orbiting-carbon-observatory-3-oco-3/',
@@ -398,7 +398,7 @@ const RAW_MISSIONS = [
     hostedOn: 'International Space Station',
     category: 'Weather and Precipitation',
     agency: 'NASA / JPL / U.S. Space Force',
-    orbitType: 'Aboard the ISS — low Earth orbit (~420 km), 51.6°',
+    orbitType: 'Aboard the ISS, low Earth orbit (~420 km), 51.6°',
     launchYear: 2021,
     missionPageUrl: 'https://www.jpl.nasa.gov/missions/compact-ocean-wind-vector-radiometer-cowvr/',
     sourceUrl: 'https://weather.ndc.nasa.gov/cowvr/',
@@ -547,14 +547,14 @@ const RAW_MISSIONS = [
     noradId: 59965,
     category: 'Climate and Radiation',
     agency: 'NASA / UW–Madison',
-    orbitType: 'Near-polar low Earth orbit (~525 km) — CubeSat',
+    orbitType: 'Near-polar low Earth orbit (~525 km), CubeSat',
     launchYear: 2024,
     missionPageUrl: 'https://science.nasa.gov/mission/prefire/',
     sourceUrl: 'https://prefire.ssec.wisc.edu/',
     shortDescription:
       'A CubeSat measuring far-infrared heat lost to space from the Arctic and Antarctic.',
     longDescription:
-      'PREFIRE (Polar Radiant Energy in the Far-InfraRed Experiment) is a pair of CubeSats — this is the first — that measure far-infrared radiation escaping to space from the polar regions, a key but poorly measured part of Earth’s energy budget. PREFIRE is led by the University of Wisconsin–Madison.',
+      'PREFIRE (Polar Radiant Energy in the Far-InfraRed Experiment) is a pair of CubeSats (this is the first) that measure far-infrared radiation escaping to space from the polar regions, a key but poorly measured part of Earth’s energy budget. PREFIRE is led by the University of Wisconsin–Madison.',
     instruments: ['Thermal Infrared Spectrometer (TIRS)'],
     observes: ['Far-infrared radiation', 'Polar heat loss', 'Energy budget'],
     markerColor: c('Climate and Radiation'),
@@ -568,7 +568,7 @@ const RAW_MISSIONS = [
     noradId: 59881,
     category: 'Climate and Radiation',
     agency: 'NASA / UW–Madison',
-    orbitType: 'Near-polar low Earth orbit (~525 km) — CubeSat',
+    orbitType: 'Near-polar low Earth orbit (~525 km), CubeSat',
     launchYear: 2024,
     missionPageUrl: 'https://science.nasa.gov/mission/prefire/',
     sourceUrl: 'https://prefire.ssec.wisc.edu/',
@@ -651,7 +651,7 @@ const CYGNSS_FLEET = [
   missionPageUrl: 'https://www.nasa.gov/mission/cygnss/',
   sourceUrl: 'https://clasp-research.engin.umich.edu/missions/cygnss/',
   shortDescription: `One of eight CYGNSS microsatellites measuring ocean-surface winds inside tropical cyclones.`,
-  longDescription: `CYGNSS (Cyclone Global Navigation Satellite System) is a constellation of eight small satellites that measure ocean-surface wind speed from GPS signals reflected off the sea — even through the heavy rain of a hurricane. This is flight model FM${fm} of the eight.`,
+  longDescription: `CYGNSS (Cyclone Global Navigation Satellite System) is a constellation of eight small satellites that measure ocean-surface wind speed from GPS signals reflected off the sea, even through the heavy rain of a hurricane. This is flight model FM${fm} of the eight.`,
   instruments: ['Delay Doppler Mapping Instrument (DDMI)'],
   observes: ['Ocean surface wind', 'Tropical cyclones', 'Hurricane intensity'],
   markerColor: c('Weather and Precipitation'),
@@ -692,7 +692,7 @@ const LAUNCH_DATES = {
   'prefire-2': '2024-05-25',
   tempo: '2023-04-07',
   // CYGNSS flight models carry their launchDate inline (all 2016-12-15).
-  // sentinel-6b: precise date not confirmed — falls back to launchYear (2025)
+  // sentinel-6b: precise date not confirmed, so falls back to launchYear (2025)
 }
 
 export const MISSIONS = [...RAW_MISSIONS, ...CYGNSS_FLEET].map((m) => ({

@@ -3,7 +3,7 @@ import Icon from '../Icon.jsx'
 import { fieldMeta } from '../../utils/stellaData.ts'
 import { wavelengthToColor } from './vizTheme.js'
 
-// Collapsible reference describing every field in the active dataset — the
+// Collapsible reference describing every field in the active dataset: the
 // bridge between the raw CSV headers and what each number physically means.
 export default function DataDictionary({ dataset }) {
   const [open, setOpen] = useState(false)
@@ -18,7 +18,7 @@ export default function DataDictionary({ dataset }) {
       >
         <span className="flex items-center gap-2 text-sm font-extrabold text-ink">
           <Icon name="book" className="h-4 w-4" />
-          Data dictionary — what every field means
+          Data dictionary: what every field means
         </span>
         <Icon name="chevron" className={`h-4 w-4 text-muted transition-transform ${open ? 'rotate-90' : ''}`} />
       </button>
@@ -43,7 +43,7 @@ export default function DataDictionary({ dataset }) {
               </div>
               <p className="text-[12px] leading-snug text-muted">
                 Irradiance measured in {nms.length} wavelength bands. Values above ~750 nm are
-                near-infrared — invisible to eyes, loud to plants.
+                near-infrared: invisible to eyes, loud to plants.
               </p>
               <div className="mt-1.5 flex flex-wrap gap-1.5">
                 {nms.map((nm) => (

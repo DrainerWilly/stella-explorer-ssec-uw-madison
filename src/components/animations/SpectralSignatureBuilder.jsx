@@ -13,10 +13,10 @@ const CURVES = {
   ], note: 'Like a healthy leaf but a little less near-infrared reflectance.' },
   dryLeaf: { label: 'Dry leaf', color: '#c79a3f', points: [
     { w: 450, r: 9 }, { w: 550, r: 18 }, { w: 650, r: 20 }, { w: 700, r: 26 }, { w: 750, r: 33 }, { w: 800, r: 36 }, { w: 865, r: 38 }, { w: 950, r: 39 },
-  ], note: 'No strong red edge — a dried leaf has lost the chlorophyll that creates it.' },
-  soil: { label: 'Soil', color: '#b07a45', points: clip(SIGNATURES.soil.points), note: 'A gradual, steady rise — no red edge, no sharp features.' },
-  pavement: { label: 'Pavement', color: '#8a8f96', points: clip(SIGNATURES.pavement.points), note: 'Nearly flat across the whole range — manmade surfaces lack the vegetation jump.' },
-  water: { label: 'Water', color: '#3b7fd6', points: clip(SIGNATURES.water.points), note: 'Low everywhere and nearly zero in the near-infrared — water absorbs it.' },
+  ], note: 'No strong red edge: a dried leaf has lost the chlorophyll that creates it.' },
+  soil: { label: 'Soil', color: '#b07a45', points: clip(SIGNATURES.soil.points), note: 'A gradual, steady rise: no red edge, no sharp features.' },
+  pavement: { label: 'Pavement', color: '#8a8f96', points: clip(SIGNATURES.pavement.points), note: 'Nearly flat across the whole range: manmade surfaces lack the vegetation jump.' },
+  water: { label: 'Water', color: '#3b7fd6', points: clip(SIGNATURES.water.points), note: 'Low everywhere and nearly zero in the near-infrared: water absorbs it.' },
 }
 
 const ORDER = ['healthyLeaf', 'dryLeaf', 'grass', 'soil', 'pavement', 'water']

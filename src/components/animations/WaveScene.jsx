@@ -31,7 +31,7 @@ export default function WaveScene({ amplitude, wavelength, isPlaying, showLabels
   const [cycles, setCycles] = useState(0)
 
   wlRef.current = wavelength
-  speedRef.current = 28 + freqNorm * 130 // px/sec — shorter wavelength scrolls faster
+  speedRef.current = 28 + freqNorm * 130 // px/sec: shorter wavelength scrolls faster
 
   // static geometry recomputed only when amplitude/wavelength change
   const { path, particles, anchorCrestX } = useMemo(() => {
@@ -48,7 +48,7 @@ export default function WaveScene({ amplitude, wavelength, isPlaying, showLabels
   const crestY = CY - amplitude
   const troughX = anchorCrestX + wavelength / 2
 
-  // animation loop — imperatively translates the wave + marker groups (1–2 attr
+  // animation loop: imperatively translates the wave + marker groups (1-2 attr
   // writes/frame), so the React tree does not re-render at 60fps.
   useEffect(() => {
     if (reduced) {
@@ -140,7 +140,7 @@ export default function WaveScene({ amplitude, wavelength, isPlaying, showLabels
             ))}
         </g>
 
-        {/* measurement markers — ride the wave, stay centered */}
+        {/* measurement markers: ride the wave, stay centered */}
         <g ref={markerRef}>
           {/* wavelength arrow (crest → crest) */}
           <line x1={anchorCrestX} y1={crestY - 16} x2={troughX + wavelength / 2} y2={crestY - 16} stroke="#7c3aed" strokeWidth="1.6" markerStart="url(#wsArrow)" markerEnd="url(#wsArrow)" />

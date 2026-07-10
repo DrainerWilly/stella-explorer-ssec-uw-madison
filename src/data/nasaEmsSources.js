@@ -43,7 +43,7 @@ export const SOURCES = [
   },
   {
     id: 'ems-diagram',
-    title: 'NASA Science — “The Electromagnetic Spectrum” diagram',
+    title: 'NASA Science: “The Electromagnetic Spectrum” diagram',
     organization: 'NASA Science',
     url: DIAGRAM_URL,
     credits: ['NASA Science (science.nasa.gov)'],

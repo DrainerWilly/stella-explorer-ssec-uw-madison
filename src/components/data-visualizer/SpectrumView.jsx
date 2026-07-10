@@ -35,7 +35,7 @@ export default function SpectrumView({ dataset, index, onIndex, reducedMotion })
     return () => clearInterval(id)
   }, [playing, records.length, onIndex, reducedMotion])
 
-  // scales — y fixed across the whole dataset so playback is comparable
+  // scales: y fixed across the whole dataset so playback is comparable
   const { nmMin, nmMax, yMax } = useMemo(() => {
     let nmLo = Infinity
     let nmHi = -Infinity
@@ -105,7 +105,7 @@ export default function SpectrumView({ dataset, index, onIndex, reducedMotion })
   if (!rec || rec.spec.length === 0) {
     return (
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm text-ink/70">
-        This instrument doesn’t record spectral bands — try the Time series or Field report views.
+        This instrument doesn’t record spectral bands. Try the Time series or Field report views.
       </div>
     )
   }
@@ -181,7 +181,7 @@ export default function SpectrumView({ dataset, index, onIndex, reducedMotion })
             </text>
           ))}
           <text x={(M.l + W - M.r) / 2} y={H - 6} textAnchor="middle" fontSize="10" fill={INK_FAINT}>
-            wavelength (nm) — dot color ≈ the light's real color; gray-red = near-infrared
+            wavelength (nm): dot color ≈ the light's real color; gray-red = near-infrared
           </text>
           <text x={14} y={(M.t + H - M.b) / 2} textAnchor="middle" fontSize="10" fill={INK_FAINT} transform={`rotate(-90 14 ${(M.t + H - M.b) / 2})`}>
             irradiance ({dataset.specUnit})

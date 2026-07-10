@@ -18,7 +18,7 @@ export const MISSION_CATEGORIES = [
     icon: 'rays',
     color: '#6FA8DC',
     description:
-      'Missions that study the composition of the air — ozone, aerosols, and atmospheric chemistry.',
+      'Missions that study the composition of the air: ozone, aerosols, and atmospheric chemistry.',
   },
   {
     id: 'Water and Oceans',

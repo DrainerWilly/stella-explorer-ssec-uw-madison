@@ -10,7 +10,7 @@ export const PROGRESS = {
   title: "Today's activity",
   value: '3.5h',
   badge: 'Great progress',
-  // mini bar chart — value is a 0..1 fraction of the tallest bar
+  // mini bar chart: value is a 0..1 fraction of the tallest bar
   bars: [
     { label: 'Spectrum', value: 0.55, color: '#F7BFC4' },
     { label: 'STELLA', value: 0.8, color: '#FFE2AC' },

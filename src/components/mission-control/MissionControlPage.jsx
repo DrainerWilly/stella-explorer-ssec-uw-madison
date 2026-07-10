@@ -84,7 +84,7 @@ export default function MissionControlPage({ onNavigate }) {
   const prop = useOrbitPropagation(data)
   const reducedMotion = useReducedMotion()
   // Auto-hides the floating time bar after mouse/keyboard inactivity, and
-  // brings it back on the next pointer/key event — like a video player's
+  // brings it back on the next pointer/key event, like a video player's
   // control bar. Only used on the desktop floating overlay layout.
   const controlsActive = useAutoHide(5000)
 
@@ -112,7 +112,7 @@ export default function MissionControlPage({ onNavigate }) {
   const [railOpen, setRailOpen] = useState(true)
   const [mobilePanel, setMobilePanel] = useState('catalog') // catalog | mission
 
-  // simulation transport (mirrored into the clock object) — defaults to Live
+  // simulation transport (mirrored into the clock object), defaults to Live
   const [playing, setPlaying] = useState(true)
   const [speed, setSpeed] = useState(1)
   const [following, setFollowing] = useState(true)
@@ -390,7 +390,7 @@ export default function MissionControlPage({ onNavigate }) {
   const staleBanner = isStale(cacheStatus) && (
     <div className="pointer-events-auto flex items-center gap-3 rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-[11px] text-amber-100 backdrop-blur-md">
       <span>
-        <strong className="font-bold uppercase tracking-wider">{statusInfo.label}</strong> —{' '}
+        <strong className="font-bold uppercase tracking-wider">{statusInfo.label}</strong>:{' '}
         {statusInfo.note}
       </span>
       <button
@@ -514,7 +514,7 @@ export default function MissionControlPage({ onNavigate }) {
           Sources & methodology
         </button>
 
-        {/* time bar — auto-hides after inactivity, returns on mouse/key activity */}
+        {/* time bar: auto-hides after inactivity, returns on mouse/key activity */}
         <div
           className={`absolute bottom-4 left-1/2 z-10 w-[min(680px,calc(100%-380px))] -translate-x-1/2 ${
             reducedMotion ? '' : 'transition-all duration-500 ease-out'

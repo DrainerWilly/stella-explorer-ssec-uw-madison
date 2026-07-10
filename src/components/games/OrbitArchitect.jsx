@@ -54,7 +54,7 @@ export default function OrbitArchitect({ game, onExit }) {
       game={game}
       questions={questions}
       onExit={onExit}
-      resultDetail="Choosing the right orbit is one of the first decisions in designing a real Earth-observing mission — it shapes what the satellite can see and how often."
+      resultDetail="Choosing the right orbit is one of the first decisions in designing a real Earth-observing mission: it shapes what the satellite can see and how often."
     />
   )
 }

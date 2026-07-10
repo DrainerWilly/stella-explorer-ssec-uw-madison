@@ -83,7 +83,7 @@ export default function DatasetPicker({ datasets, uploads, activeId, onSelect, o
         <Icon name="download" className="mx-auto h-5 w-5 rotate-180 text-white/45" />
         <p className="mt-1.5 text-xs font-bold text-white/80">Drop your STELLA CSV</p>
         <p className="mt-0.5 text-[11px] leading-snug text-white/45">
-          Straight off the SD card — parsed in your browser, never uploaded.
+          Straight off the SD card, parsed in your browser, never uploaded.
         </p>
         <button
           onClick={() => fileRef.current?.click()}

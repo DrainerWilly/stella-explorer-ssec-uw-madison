@@ -10,7 +10,7 @@ import {
   getInstrument,
 } from '../data/instruments.js'
 
-// Spectral Band Explorer — the Data & Graphs page. Students pick a satellite
+// Spectral Band Explorer: the Data & Graphs page. Students pick a satellite
 // mission or field instrument and compare how its bands sample the spectrum.
 export default function DataGraphsPage() {
   const [instrumentId, setInstrumentId] = useState(DEFAULT_INSTRUMENT_ID)

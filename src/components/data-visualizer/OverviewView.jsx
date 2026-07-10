@@ -5,7 +5,7 @@ import { fieldMeta } from '../../utils/stellaData.ts'
 
 const FIELDH = 40 // px per environmental sensor strip
 
-// The session at a glance — EVERY cell of the dataset rendered at once:
+// The session at a glance, EVERY cell of the dataset rendered at once:
 // a spectrogram (wavelength × time, colored by irradiance) stacked over
 // time-aligned environmental sensor traces, wired to one moving readout cursor.
 export default function OverviewView({ dataset }) {
@@ -189,7 +189,7 @@ export default function OverviewView({ dataset }) {
                   aria-label="Spectrogram: irradiance for every band across the whole session"
                 />
                 <div className="pointer-events-none flex justify-between px-0.5 pt-0.5 text-[8px] font-bold uppercase tracking-wide text-white/30">
-                  <span>wavelength × time — brighter = more irradiance</span>
+                  <span>wavelength × time: brighter = more irradiance</span>
                   <span style={{ height: 18 }} />
                 </div>
               </>
@@ -232,7 +232,7 @@ export default function OverviewView({ dataset }) {
         </div>
       </div>
 
-      {/* live column readout — every cell at the cursor */}
+      {/* live column readout: every cell at the cursor */}
       <div className={`${PANEL} p-3 sm:p-4`}>
         <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
           <span className={LABEL}>Readout</span>

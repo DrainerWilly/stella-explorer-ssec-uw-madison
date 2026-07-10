@@ -1,4 +1,4 @@
-// Shared domain types for the app. The codebase is being typed gradually — these
+// Shared domain types for the app. The codebase is being typed gradually; these
 // describe the core data shapes (missions, orbit responses, sim clock, games)
 // so newly-converted TypeScript modules get real type safety.
 

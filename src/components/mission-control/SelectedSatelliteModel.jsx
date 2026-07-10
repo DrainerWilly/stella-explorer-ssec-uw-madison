@@ -6,7 +6,7 @@ import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment
 import { propagateAt, geodeticToVec3 } from '../../utils/orbitMath.js'
 import { getSatelliteModel } from '../../data/satelliteModels.js'
 
-// Visual (symbolic) size of the spacecraft in scene units — satellites are not
+// Visual (symbolic) size of the spacecraft in scene units. Satellites are not
 // drawn to physical scale, the same way the marker dots aren't. Normalizing
 // every craft to one size keeps a cubesat and the ISS equally visible.
 const MODEL_TARGET_SIZE = 0.6

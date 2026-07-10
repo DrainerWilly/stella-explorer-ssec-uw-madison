@@ -14,7 +14,7 @@ export const INK_FAINT = 'rgba(233,240,252,0.38)'
 export const PANEL_BG = '#0a1730' // solid dark-navy behind glass, for mark strokes
 export const ACCENT = '#6ae0ff' // instrument cyan
 
-// Inferno — a perceptually-uniform, colorblind-safe scientific colormap (the
+// Inferno: a perceptually-uniform, colorblind-safe scientific colormap (the
 // standard for spectrograms/heatmaps). Not a rainbow: lightness rises
 // monotonically from near-black to pale yellow.
 const INFERNO = [

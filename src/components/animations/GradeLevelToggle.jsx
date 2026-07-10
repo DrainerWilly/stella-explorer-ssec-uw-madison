@@ -1,6 +1,6 @@
 import { GRADE_LEVELS } from '../../data/animationContent.js'
 
-// Elementary / Middle / High pill group — styled like the Hero grade selector.
+// Elementary / Middle / High pill group, styled like the Hero grade selector.
 export default function GradeLevelToggle({ value, onChange }) {
   return (
     <div className="inline-flex items-center gap-1 rounded-full bg-cream p-1">

@@ -8,7 +8,7 @@
 // prefers fresh data and clearly labels responses served from this file as
 // "fallback".
 //
-// Entries are keyed by ORBITAL OBJECT (NORAD catalog number), not by mission —
+// Entries are keyed by ORBITAL OBJECT (NORAD catalog number), not by mission,
 // several catalog missions are instruments hosted on a shared object (e.g. the
 // ISS), so they reuse the same object here.
 

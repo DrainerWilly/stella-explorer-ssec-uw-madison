@@ -125,7 +125,7 @@ export default function MissionPanel({
         )}
       </div>
 
-      {/* headline stats — time in orbit ticks with the simulation clock */}
+      {/* headline stats: time in orbit ticks with the simulation clock */}
       <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg border border-white/10 bg-white/5 p-2.5">
         <Stat label="Time in orbit" value={tio} />
         <Stat label="Launched" value={launchDisplay} />

@@ -87,7 +87,7 @@ export default function SpectralBandChart({ bands, instrumentName }) {
                       }}
                       onMouseEnter={(e) => move(e, b)}
                       onMouseMove={(e) => move(e, b)}
-                      title={`${b.band} — ${b.colorOrPurpose} (${b.minNm}–${b.maxNm} nm)`}
+                      title={`${b.band}: ${b.colorOrPurpose} (${b.minNm}–${b.maxNm} nm)`}
                     />
                   </div>
                 </div>

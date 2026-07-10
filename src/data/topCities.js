@@ -2,7 +2,7 @@
 // "Cities" reference layer (off by default), inspired by NASA Eyes on the
 // Earth's city-lights layer. Coordinates are each city's well-known downtown
 // reference point; populations are rounded, approximate metro-area figures
-// for relative label sizing only — this is an educational reference layer,
+// for relative label sizing only, this is an educational reference layer,
 // not a demographic dataset.
 
 export const TOP_CITIES = [

@@ -123,7 +123,7 @@ export default function MultipleChoiceGame({ game, questions, onExit, resultDeta
                   className="h-4 w-4"
                   style={{ color: accent }}
                 />
-                {selected === q.correct ? 'Correct!' : 'Not quite —'}
+                {selected === q.correct ? 'Correct!' : 'Not quite'}
               </div>
               <p className="mt-1.5 text-sm leading-relaxed text-ink/80">{q.explain}</p>
               <button

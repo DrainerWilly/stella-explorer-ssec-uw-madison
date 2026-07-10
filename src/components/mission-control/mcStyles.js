@@ -1,7 +1,7 @@
 // Shared style tokens for the Mission Control "flight software" UI.
 //
-// Mission Control is intentionally ALWAYS dark — a cinematic, planetarium-style
-// view — regardless of the site-wide theme. Panels therefore use fixed colors
+// Mission Control is intentionally ALWAYS dark, a cinematic, planetarium-style
+// view, regardless of the site-wide theme. Panels therefore use fixed colors
 // instead of the theme CSS variables used elsewhere in the app.
 
 export const ACCENT = '#67d1ff' // cyan highlight

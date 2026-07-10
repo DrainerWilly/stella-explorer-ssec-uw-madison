@@ -26,12 +26,12 @@ export const ANIMATIONS = [
       elementary:
         'Light comes in many types. Some light we can see, and a lot of it is invisible to our eyes!',
       middle:
-        'The electromagnetic spectrum is the whole family of light, sorted by wavelength — from long radio waves to tiny gamma rays.',
+        'The electromagnetic spectrum is the whole family of light, sorted by wavelength: from long radio waves to tiny gamma rays.',
       high:
-        'Across the electromagnetic spectrum, as wavelength decreases, frequency and photon energy increase — from low-energy radio waves to high-energy gamma rays.',
+        'Across the electromagnetic spectrum, as wavelength decreases, frequency and photon energy increase: from low-energy radio waves to high-energy gamma rays.',
     },
     remoteSensing:
-      'Satellites carry sensors tuned to specific parts of this spectrum — visible, infrared, microwave — to study different things about Earth.',
+      'Satellites carry sensors tuned to specific parts of this spectrum (visible, infrared, microwave) to study different things about Earth.',
     tryThis:
       "Slide all the way to each end. Where does visible light sit compared to the whole spectrum? (Hint: it's a tiny slice!)",
   },
@@ -72,10 +72,10 @@ export const ANIMATIONS = [
       middle:
         'Light can reflect, be absorbed, transmit, refract, scatter, or diffract depending on the material it meets.',
       high:
-        "How light interacts with matter — reflection, absorption, transmission, refraction, scattering, and diffraction — depends on wavelength and the material's properties.",
+        "How light interacts with matter (reflection, absorption, transmission, refraction, scattering, and diffraction) depends on wavelength and the material's properties.",
     },
     remoteSensing:
-      'Remote sensing works because every surface reflects and absorbs light differently — that pattern is its fingerprint.',
+      'Remote sensing works because every surface reflects and absorbs light differently: that pattern is its fingerprint.',
     tryThis:
       'Click through each behavior. Which one explains why the daytime sky is blue? (Scattering!)',
   },
@@ -94,7 +94,7 @@ export const ANIMATIONS = [
       middle:
         'Satellites detect near-infrared light. Healthy plants reflect a lot of it, so they glow bright in false-color images.',
       high:
-        'In the near-infrared, healthy vegetation reflects strongly while water absorbs almost everything — the basis of indices like NDVI.',
+        'In the near-infrared, healthy vegetation reflects strongly while water absorbs almost everything: the basis of indices like NDVI.',
     },
     remoteSensing:
       'Switching to the infrared view is exactly what satellites like Landsat do to map vegetation and water.',
@@ -115,7 +115,7 @@ export const ANIMATIONS = [
       middle:
         'A spectral signature is the pattern of how much light an object reflects at each wavelength.',
       high:
-        "Each material has a characteristic reflectance spectrum; vegetation's sharp rise near 700 nm — the 'red edge' — is a key diagnostic feature.",
+        "Each material has a characteristic reflectance spectrum; vegetation's sharp rise near 700 nm (the 'red edge') is a key diagnostic feature.",
     },
     remoteSensing:
       "Satellites match these signatures to identify what's on the ground without ever touching it.",
@@ -133,7 +133,7 @@ export const ANIMATIONS = [
       "See which wavelengths pass through Earth's atmosphere and which are blocked.",
     explain: {
       elementary:
-        "Earth's air lets some light through and blocks other light — like sunscreen for the whole planet.",
+        "Earth's air lets some light through and blocks other light, like sunscreen for the whole planet.",
       middle:
         "The atmosphere has 'windows' that let visible light and radio waves through, but it blocks most UV, X-rays, and gamma rays.",
       high:

@@ -61,7 +61,7 @@ export default function OrbitLoadingState({ label = 'Loading orbital data…' })
         </div>
 
         <p className="text-[10px] text-sky-200/35">
-          Earth imagery: NASA Earth Observatory — Blue Marble: Next Generation.
+          Earth imagery: NASA Earth Observatory, Blue Marble: Next Generation.
         </p>
       </div>
     </div>

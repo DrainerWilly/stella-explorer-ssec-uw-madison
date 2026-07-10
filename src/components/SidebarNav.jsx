@@ -6,7 +6,7 @@ export const NAV = [
   { id: 'animations', icon: 'animation', label: 'Animations' },
   { id: 'games', icon: 'games', label: 'Games' },
   { id: 'lessons', icon: 'lessons', label: 'Lessons' },
-  { id: 'device', icon: 'device', label: 'STELLA device' },
+  { id: 'device', icon: 'device', label: 'STELLA Device Lab' },
   { id: 'data-viz', icon: 'viz', label: 'Data Visualizer' },
   { id: 'data', icon: 'data', label: 'Data & graphs' },
 ]
@@ -18,7 +18,7 @@ export default function SidebarNav({ className = '', active = 'home', onNavigate
                  lg:m-3 lg:w-[88px] lg:flex-col lg:gap-2 lg:rounded-panel lg:border-t-0 lg:px-0 lg:py-5 ${className}`}
       aria-label="Primary"
     >
-      {/* logo — desktop only at top */}
+      {/* logo: desktop only at top */}
       <div className="hidden lg:mb-3 lg:grid lg:h-11 lg:w-11 lg:place-items-center lg:overflow-hidden lg:rounded-2xl lg:bg-white lg:p-1.5 lg:shadow-soft">
         <img
           src={`${import.meta.env.BASE_URL}assets/brand/ssec-logo.png`}

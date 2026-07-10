@@ -4,7 +4,7 @@
 //   • REAL physical calculations use kilometres and radians (via satellite.js).
 //   • VISUAL display scaling converts km → scene units for Three.js.
 //   • Orbit-height exaggeration is applied ONLY at the display step and is always
-//     surfaced in the UI — never silently.
+//     surfaced in the UI, never silently.
 
 import { twoline2satrec, propagate, gstime, eciToGeodetic } from 'satellite.js'
 
@@ -60,7 +60,7 @@ export function orbitalPeriodMinutes(satrec) {
 
 /**
  * Propagate to `date`. Returns geodetic lat/lon (radians), altitude (km), and
- * speed (km/s). Returns { ok:false } for any propagation error or NaN — callers
+ * speed (km/s). Returns { ok:false } for any propagation error or NaN; callers
  * must handle malformed/degenerate elements gracefully.
  */
 export function propagateAt(satrec, date) {

@@ -2,13 +2,13 @@ import { useState } from 'react'
 
 // pass = reaches the ground · partial = some gets through · blocked = stopped high up
 const REGIONS = [
-  { id: 'radio', name: 'Radio', color: '#c94f4f', status: 'pass', text: 'Radio waves pass straight through — this is the "radio window" that lets radio telescopes work from the ground.' },
+  { id: 'radio', name: 'Radio', color: '#c94f4f', status: 'pass', text: 'Radio waves pass straight through: this is the "radio window" that lets radio telescopes work from the ground.' },
   { id: 'microwave', name: 'Microwave', color: '#e08a3f', status: 'partial', text: 'Many microwaves get through (even through clouds), but water vapor absorbs some. Radar satellites use this.' },
   { id: 'infrared', name: 'Infrared', color: '#d6c23f', status: 'partial', text: 'Only certain infrared "windows" pass; water vapor and CO₂ absorb the rest.' },
-  { id: 'visible', name: 'Visible', color: '#46c25a', status: 'pass', text: 'Visible light passes through the "optical window" — the same light our eyes and cameras use.' },
-  { id: 'uv', name: 'Ultraviolet', color: '#3f9bd6', status: 'blocked', text: 'Mostly absorbed by the ozone layer — which is good, because UV is harmful.' },
+  { id: 'visible', name: 'Visible', color: '#46c25a', status: 'pass', text: 'Visible light passes through the "optical window", the same light our eyes and cameras use.' },
+  { id: 'uv', name: 'Ultraviolet', color: '#3f9bd6', status: 'blocked', text: 'Mostly absorbed by the ozone layer, which is good, because UV is harmful.' },
   { id: 'xray', name: 'X-ray', color: '#4a6fe0', status: 'blocked', text: 'Blocked high in the atmosphere, so X-ray telescopes must observe from space.' },
-  { id: 'gamma', name: 'Gamma ray', color: '#7d5bd6', status: 'blocked', text: 'Blocked high up — gamma-ray observatories have to orbit above the atmosphere.' },
+  { id: 'gamma', name: 'Gamma ray', color: '#7d5bd6', status: 'blocked', text: 'Blocked high up: gamma-ray observatories have to orbit above the atmosphere.' },
 ]
 
 const STATUS_LABEL = { pass: 'Mostly passes through', partial: 'Partially passes', blocked: 'Mostly blocked' }

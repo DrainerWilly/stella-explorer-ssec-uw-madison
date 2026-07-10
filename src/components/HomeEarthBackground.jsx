@@ -23,7 +23,7 @@ function SpinningEarth({ reducedMotion }) {
   )
 }
 
-// Live 3D Earth for the home hero background — the same photoreal globe used in
+// Live 3D Earth for the home hero background: the same photoreal globe used in
 // Mission Control (Blue Marble day, city lights at night, drifting clouds,
 // atmosphere), slowly rotating over a starfield. Non-interactive.
 export default function HomeEarthBackground() {

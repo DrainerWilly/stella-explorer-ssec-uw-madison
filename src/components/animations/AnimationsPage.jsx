@@ -54,7 +54,7 @@ export default function AnimationsPage({ initialId = null }) {
           ))}
         </div>
       ) : selected.standalone ? (
-        /* standalone module — owns its full detail layout */
+        /* standalone module: owns its full detail layout */
         <div className="mt-6">
           <button
             onClick={() => setSelectedId(null)}

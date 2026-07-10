@@ -12,9 +12,9 @@ import { formatDayClock } from './vizTheme.js'
 import samples from '../../data/stellaSamples.json'
 
 const VIEWS = [
-  { id: 'overview', label: 'Session', icon: 'grid', hint: 'Every measurement at once — the spectrogram shows irradiance for every band across time; sensor traces sit on the same clock. Sweep the cursor to read any moment.' },
+  { id: 'overview', label: 'Session', icon: 'grid', hint: 'Every measurement at once: the spectrogram shows irradiance for every band across time; sensor traces sit on the same clock. Sweep the cursor to read any moment.' },
   { id: 'spectrum', label: 'Spectrum', icon: 'spectrum', hint: 'One measurement’s spectral signature. Play through time, then pin A vs B to compare two moments.' },
-  { id: 'indices', label: 'Greenness', icon: 'leaf', hint: '(NIR − red)/(NIR + red) per measurement — an irradiance-based vegetation estimate.' },
+  { id: 'indices', label: 'Greenness', icon: 'leaf', hint: '(NIR − red)/(NIR + red) per measurement: an irradiance-based vegetation estimate.' },
   { id: 'report', label: 'Report', icon: 'lessons', hint: 'Per-field statistics for the whole session; export a derived CSV.' },
 ]
 
@@ -68,7 +68,7 @@ export default function DataVisualizerPage() {
           </span>
           <h1 className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">Data Visualizer</h1>
           <p className="mt-1.5 max-w-xl text-sm text-white/55">
-            Explore real STELLA field instruments — or drop in your own device’s CSV and analyze it
+            Explore real STELLA field instruments, or drop in your own device’s CSV and analyze it
             the same way.
           </p>
         </div>

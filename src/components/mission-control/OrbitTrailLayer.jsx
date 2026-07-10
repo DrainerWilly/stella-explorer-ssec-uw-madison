@@ -35,7 +35,7 @@ function TrailLine({ geometry, color, opacity }) {
 /**
  * Orbit trails. Faint loops for every mission plus a stronger loop for the
  * selected mission. Trails are cached (useMemo) and recomputed only when the
- * mission set, the selection, or the exaggeration changes — never per frame.
+ * mission set, the selection, or the exaggeration changes, never per frame.
  */
 export default function OrbitTrailLayer({
   items,

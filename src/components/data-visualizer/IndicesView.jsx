@@ -37,7 +37,7 @@ export default function IndicesView({ dataset, index, onIndex }) {
       <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-6 text-sm leading-relaxed text-ink/70">
         This dataset has no near-infrared band, so a greenness index can’t be computed.{' '}
         {dataset.instrument === 'Helio-STELLA'
-          ? 'Helio-STELLA looks at the Sun, not at plants — try its lux and band data in the Time series view instead.'
+          ? 'Helio-STELLA looks at the Sun, not at plants. Try its lux and band data in the Time series view instead.'
           : 'Try the Time series or Field report views instead.'}
       </div>
     )
@@ -58,7 +58,7 @@ export default function IndicesView({ dataset, index, onIndex }) {
       <div className="grid gap-3 sm:grid-cols-[1fr_auto]">
         <div className="rounded-2xl border border-white/10 bg-white/[0.035] p-4 shadow-soft">
           <p className="text-xs font-bold uppercase tracking-wide text-faint">
-            Greenness estimate — measurement #{Math.min(index, dataset.records.length - 1) + 1}
+            Greenness estimate: measurement #{Math.min(index, dataset.records.length - 1) + 1}
           </p>
           <p className="mt-2 font-mono text-sm text-ink/85">
             (NIR − red) / (NIR + red) ={' '}
@@ -75,7 +75,7 @@ export default function IndicesView({ dataset, index, onIndex }) {
           </p>
           <p className="mt-1.5 text-[11px] leading-snug text-faint">
             red = band nearest 650 nm ({red ? `${red[0]} nm` : '—'}) · NIR = band nearest 860 nm ({nir ? `${nir[0]} nm` : '—'}).
-            Computed from raw irradiance — true NDVI first converts to reflectance with a white-reference calibration.
+            Computed from raw irradiance. True NDVI first converts to reflectance with a white-reference calibration.
           </p>
         </div>
         {g != null && (

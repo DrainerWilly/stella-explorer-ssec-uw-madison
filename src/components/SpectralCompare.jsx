@@ -64,7 +64,7 @@ export default function SpectralCompare() {
             rx="2"
           />
 
-          {/* infrared region — dimmed when in "what your eyes see" mode */}
+          {/* infrared region: dimmed when in "what your eyes see" mode */}
           {visibleOnly && (
             <rect
               x={xScale(VISIBLE_MAX_NM)}
@@ -87,7 +87,7 @@ export default function SpectralCompare() {
             strokeDasharray="3 3"
           />
 
-          {/* Landsat reflective band markers — shown in satellite mode */}
+          {/* Landsat reflective band markers: shown in satellite mode */}
           {!visibleOnly &&
             LANDSAT_REFLECTIVE.map((b) => (
               <line
@@ -141,7 +141,7 @@ export default function SpectralCompare() {
         <p className="text-xs leading-relaxed text-muted">
           {visibleOnly
             ? 'Your eyes only see 400–700 nm. The leaf looks green because it reflects green light.'
-            : 'Landsat also reads near-infrared. The leaf reflects ~50% of NIR — invisible to you, but it reveals plant health.'}
+            : 'Landsat also reads near-infrared. The leaf reflects ~50% of NIR, invisible to you, but it reveals plant health.'}
         </p>
 
         {/* legend */}
@@ -154,11 +154,11 @@ export default function SpectralCompare() {
           ))}
         </div>
 
-        {/* NDVI readout — only meaningful with NIR */}
+        {/* NDVI readout: only meaningful with NIR */}
         <div className="rounded-2xl bg-cardmint px-3 py-2.5">
           <div className="text-[11px] font-semibold text-cink/60">Leaf NDVI (vegetation health)</div>
           <div className="text-lg font-extrabold text-cink">
-            {visibleOnly ? '— needs NIR' : vegNdvi}
+            {visibleOnly ? 'Needs NIR' : vegNdvi}
           </div>
         </div>
       </div>

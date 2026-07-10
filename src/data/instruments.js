@@ -1,7 +1,7 @@
 // Spectral band reference data for satellite missions and STELLA field
 // instruments, transcribed from the "STELLA Spectral Bands" spreadsheet.
 // Wavelengths in nanometers (nm). This powers the Spectral Band Explorer
-// (Data & Graphs page) — a broad K–12 remote-sensing comparison tool where
+// (Data & Graphs page): a broad K–12 remote-sensing comparison tool where
 // STELLA is one *field instrument* category alongside satellite sensors.
 
 // --- spectral regions -------------------------------------------------------
@@ -90,7 +90,7 @@ const DATA = [
       ['Band 8', 'NIR', 784.5, 899.5, 842, 115, 10],
       ['Band 8a', 'Narrow NIR', 855, 875, 865, 20, 20],
       ['Band 9', 'Water vapour', 935, 955, 945, 20, 60],
-      ['Band 10', 'SWIR — Cirrus', 1360, 1390, 1375, 30, 60],
+      ['Band 10', 'SWIR / Cirrus', 1360, 1390, 1375, 30, 60],
       ['Band 11', 'SWIR', 1565, 1655, 1610, 90, 20],
       ['Band 12', 'SWIR', 2100, 2280, 2190, 180, 20],
     ],
@@ -112,7 +112,7 @@ const DATA = [
       ['Band 8', 'NIR', 775.4, 890.4, 832.9, 115, 10],
       ['Band 8a', 'Narrow NIR', 854, 874, 864, 20, 20],
       ['Band 9', 'Water vapour', 933.2, 953.2, 943.2, 20, 60],
-      ['Band 10', 'SWIR — Cirrus', 1361.9, 1391.9, 1376.9, 30, 60],
+      ['Band 10', 'SWIR / Cirrus', 1361.9, 1391.9, 1376.9, 30, 60],
       ['Band 11', 'SWIR', 1563.9, 1656.9, 1610.4, 93, 20],
       ['Band 12', 'SWIR', 2095.2, 2276.2, 2185.7, 181, 20],
     ],
@@ -139,12 +139,12 @@ const DATA = [
       ['I3', 'Binary Snow Map', 1580, 1640, 1610, 60, 375],
       ['M10', 'Snow Fraction', 1580, 1640, 1610, 60, 750],
       ['M11', 'Clouds', 2225, 2275, 2250, 50, 750],
-      ['I4', 'Imagery band — Clouds', 3550, 3930, 3740, 380, 375],
+      ['I4', 'Imagery band / Clouds', 3550, 3930, 3740, 380, 375],
       ['M12', 'Sea Surface Temperature', 3610, 3790, 3700, 180, 750],
       ['M13', 'Sea Surface Temperature / Fires', 3972.5, 4127.4, 4050, 155, 750],
       ['M14', 'Cloud Top Properties', 8400, 8700, 8550, 300, 750],
       ['M15', 'Sea Surface Temperature', 10263, 11263, 10763, 1000, 750],
-      ['I5', 'Imagery band — Clouds', 10500, 12400, 11450, 1900, 375],
+      ['I5', 'Imagery band / Clouds', 10500, 12400, 11450, 1900, 375],
       ['M16', 'Sea Surface Temperature', 11538, 12488, 12013, 950, 750],
     ],
   },

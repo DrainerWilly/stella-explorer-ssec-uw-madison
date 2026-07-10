@@ -110,7 +110,7 @@ export default function ElectromagneticSpectrumSlider({ gradeLevel = 'middle' })
           />
         </div>
         <p className="mt-1.5 text-center text-[11px] font-semibold text-faint">
-          The <span className="text-ink">visible</span> band is just a tiny slice — everything else is invisible to us.
+          The <span className="text-ink">visible</span> band is just a tiny slice: everything else is invisible to us.
         </p>
 
         {/* keyboard / drag control */}

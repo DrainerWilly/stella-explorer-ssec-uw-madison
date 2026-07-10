@@ -63,7 +63,7 @@ export default function RemoteSensingConnections() {
                 {pick != null && (
                   <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className="overflow-hidden">
                     <p className={`mt-2 rounded-xl p-3 text-sm leading-relaxed ${correct ? 'bg-emerald-500/10 text-ink/80' : 'bg-cream text-ink/80'}`}>
-                      <span className="font-extrabold">{correct ? 'Great choice! ' : 'Good thinking — '}</span>{s.feedback}
+                      <span className="font-extrabold">{correct ? 'Great choice! ' : 'Good thinking: '}</span>{s.feedback}
                     </p>
                     <p className="mt-1 text-[11px] font-semibold text-faint">{CITATION.adapted(`${s.page}`)}</p>
                   </motion.div>

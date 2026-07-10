@@ -18,7 +18,7 @@ export const VIDEOS = {
     poster: 'assets/videos/posters/electromagnetic-spectrum.jpg',
     title: 'The electromagnetic spectrum',
     blurb:
-      'A tour from radio waves to gamma rays — how wavelength and energy change across the spectrum, and what each region reveals.',
+      'A tour from radio waves to gamma rays: how wavelength and energy change across the spectrum, and what each region reveals.',
     credit: 'Video: NASA’s Scientific Visualization Studio.',
     sourceUrl: 'https://svs.gsfc.nasa.gov/',
   },
@@ -27,7 +27,7 @@ export const VIDEOS = {
     poster: 'assets/videos/posters/urban-heat-islands.jpg',
     title: 'Urban heat islands',
     blurb:
-      'Why cities run hotter than the green land around them — and how satellites measure the difference from space.',
+      'Why cities run hotter than the green land around them, and how satellites measure the difference from space.',
     credit: 'Video: NASA.',
     sourceUrl: 'https://svs.gsfc.nasa.gov/',
   },

@@ -87,7 +87,7 @@ export const ENV_FIELDS: Record<string, FieldMeta> = {
   altitude_m: {
     label: 'Altitude (uncalibrated)',
     unit: 'm',
-    note: 'Estimated from pressure — relative changes are meaningful, absolute values are not.',
+    note: 'Estimated from pressure: relative changes are meaningful, absolute values are not.',
   },
   lidar_m: {
     label: 'LiDAR range',
@@ -97,7 +97,7 @@ export const ENV_FIELDS: Record<string, FieldMeta> = {
   battery_v: {
     label: 'Battery voltage',
     unit: 'V',
-    note: 'Instrument health — useful for spotting when readings degrade.',
+    note: 'Instrument health: useful for spotting when readings degrade.',
   },
   aqi: { label: 'Air-quality index (PM)', unit: '', note: 'Particulate-based air-quality index.' },
   co2_ppm: {
@@ -109,7 +109,7 @@ export const ENV_FIELDS: Record<string, FieldMeta> = {
   pm25_ugm3: {
     label: 'PM2.5 concentration',
     unit: 'µg/m³',
-    note: 'Fine particles under 2.5 µm — the key health metric.',
+    note: 'Fine particles under 2.5 µm: the key health metric.',
   },
   pm10_ugm3: { label: 'PM10 concentration', unit: 'µg/m³', note: 'Coarse particles under 10 µm.' },
   cnt03_p100ml: { label: 'Particles ≥0.3 µm', unit: '/100 mL', note: 'Raw particle count.' },
@@ -226,7 +226,7 @@ function extractRecords(
  */
 export function parseStellaCsv(text: string, fileName: string): StellaDataset {
   const rows = parseCsv(text)
-  if (rows.length < 2) throw new Error('That file looks empty — it needs a header row plus data rows.')
+  if (rows.length < 2) throw new Error('That file looks empty: it needs a header row plus data rows.')
   const header = rows[0]
   const body = rows.slice(1)
   const kind = detectInstrument(header)
@@ -400,7 +400,7 @@ function bandNearest(spec: SpecTriplet[], target: number, lo: number, hi: number
 /**
  * Irradiance-based greenness estimate for one record: (NIR − red)/(NIR + red)
  * using the bands nearest 650 nm (red) and 860 nm (NIR). Proper NDVI requires
- * reflectance (white-reference calibration) — this is a teaching estimate.
+ * reflectance (white-reference calibration); this is a teaching estimate.
  * Returns null when the instrument lacks a NIR band (e.g. Helio-STELLA).
  */
 export function greennessForRecord(r: StellaRecord): number | null {

@@ -1,4 +1,4 @@
-// Shared style tokens for the Data Visualizer — a precise, dark-glass
+// Shared style tokens for the Data Visualizer: a precise, dark-glass
 // "instrument dashboard" aesthetic layered over the app's navy background.
 
 export const ACCENT = '#6ae0ff'

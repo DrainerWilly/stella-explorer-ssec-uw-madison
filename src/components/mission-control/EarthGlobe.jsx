@@ -224,7 +224,7 @@ export default function EarthGlobe({ quality = 'balanced', showGrid = false, clo
 
   // Atmosphere: raymarched single-scattering (Rayleigh + Mie). This is what
   // produces the bright blue haze wrapping the whole disc and the thick glowing
-  // limb (the NASA-Eyes look) — not just a rim highlight. Deliberately
+  // limb (the NASA-Eyes look), not just a rim highlight. Deliberately
   // perf-heavy: ~16 view samples × 8 light samples per pixel of the shell.
   const atmosphereMaterial = useMemo(
     () =>

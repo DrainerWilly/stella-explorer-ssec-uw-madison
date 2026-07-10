@@ -15,7 +15,7 @@ export function cacheStatusInfo(status: CacheStatus | null | undefined): CacheSt
       return {
         label: 'Stale',
         tone: 'warn',
-        note: 'CelesTrak could not be reached — showing the last cached data.',
+        note: 'CelesTrak could not be reached. Showing the last cached data.',
       }
     case 'fallback':
       return {

@@ -1,9 +1,8 @@
 import CategoryFilters from './CategoryFilters.jsx'
 import LessonCardGrid from './LessonCardGrid.jsx'
-import FeaturedActivityCard from './FeaturedActivityCard.jsx'
 import { GRADES } from '../data/lessons.js'
 
-// Lessons & activities — the full catalog, moved off the home page so home
+// Lessons & activities: the full catalog, moved off the home page so home
 // stays a short landing screen and this becomes the dedicated browse/filter view.
 export default function LessonsPage({ category, onCategory, grade, onGrade, lessons, onOpenLesson }) {
   return (
@@ -49,10 +48,6 @@ export default function LessonsPage({ category, onCategory, grade, onGrade, less
 
       <div className="mt-4">
         <LessonCardGrid lessons={lessons} onOpenLesson={onOpenLesson} />
-      </div>
-
-      <div className="mt-6">
-        <FeaturedActivityCard />
       </div>
     </main>
   )

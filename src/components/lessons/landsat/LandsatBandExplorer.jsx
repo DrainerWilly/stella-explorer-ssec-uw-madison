@@ -40,7 +40,7 @@ export default function LandsatBandExplorer({ band }) {
           })}
         </div>
         <p className="mt-1.5 text-[11px] font-semibold text-faint">
-          Visible light is only a small slice — Landsat also measures infrared we cannot see. (Not drawn to scale.)
+          Visible light is only a small slice: Landsat also measures infrared we cannot see. (Not drawn to scale.)
         </p>
       </div>
 
@@ -112,7 +112,7 @@ export default function LandsatBandExplorer({ band }) {
                 <span className="text-xs font-bold uppercase tracking-wide text-faint">{REGION_LABEL[b.region]}</span>
               </div>
               <h3 className="mt-1 text-2xl font-extrabold tracking-tight text-ink">
-                Band {b.band} — {b.name}
+                Band {b.band}: {b.name}
               </h3>
               <div className="mt-3 flex flex-wrap gap-2">
                 <Chip>{b.range}</Chip>

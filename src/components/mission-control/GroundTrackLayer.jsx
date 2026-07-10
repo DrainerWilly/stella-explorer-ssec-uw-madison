@@ -26,7 +26,7 @@ function buildSegmentGeometries(satrec, centerDate) {
     .filter(Boolean)
 }
 
-// The selected mission's ground track — its path projected onto Earth's surface.
+// The selected mission's ground track: its path projected onto Earth's surface.
 export default function GroundTrackLayer({ selected, clock, show }) {
   const geometries = useMemo(() => {
     if (!show || !selected?.valid) return []

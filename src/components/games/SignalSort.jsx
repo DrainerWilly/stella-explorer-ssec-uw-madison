@@ -152,7 +152,7 @@ export default function SignalSort({ game, onExit }) {
               total={total}
               onReplay={reset}
               onExit={onExit}
-              detail="This is the electromagnetic spectrum — every Earth-observing instrument is tuned to one of these bands to reveal something different about the planet."
+              detail="This is the electromagnetic spectrum: every Earth-observing instrument is tuned to one of these bands to reveal something different about the planet."
             />
           </div>
         </>

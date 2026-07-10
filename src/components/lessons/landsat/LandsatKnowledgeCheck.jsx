@@ -59,7 +59,7 @@ export default function LandsatKnowledgeCheck() {
                   className="overflow-hidden"
                 >
                   <p className={`mt-3 rounded-xl p-3 text-sm leading-relaxed ${correct ? 'bg-emerald-500/10 text-ink/80' : 'bg-cream text-ink/80'}`}>
-                    <span className="font-extrabold">{correct ? 'Nice work! ' : 'Good try — '}</span>
+                    <span className="font-extrabold">{correct ? 'Nice work! ' : 'Good try: '}</span>
                     {q.feedback}
                   </p>
                 </motion.div>

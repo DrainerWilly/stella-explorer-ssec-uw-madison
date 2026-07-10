@@ -18,7 +18,7 @@ export const GAMES = [
     title: 'Spectral Detective',
     tagline: 'Identify surfaces from their light fingerprint',
     description:
-      'Every surface reflects sunlight in its own pattern across the spectrum. Read the reflectance curve and name the surface — just like a satellite scientist.',
+      'Every surface reflects sunlight in its own pattern across the spectrum. Read the reflectance curve and name the surface, just like a satellite scientist.',
     icon: 'spectrum',
     color: 'blue',
     category: 'Remote Sensing',
@@ -42,7 +42,7 @@ export const GAMES = [
     title: 'Signal Sort',
     tagline: 'Put the electromagnetic spectrum in order',
     description:
-      'Radio to gamma rays — order the bands of light from the longest wavelength to the shortest and learn what each one reveals about Earth.',
+      'Radio to gamma rays: order the bands of light from the longest wavelength to the shortest and learn what each one reveals about Earth.',
     icon: 'wave',
     color: 'coral',
     category: 'EM Spectrum',
@@ -96,13 +96,13 @@ export const SPECTRAL_SURFACES = [
     id: 'soil',
     name: 'Bare soil',
     refl: [0.1, 0.14, 0.18, 0.26, 0.3, 0.25],
-    tell: 'Soil reflectance rises steadily from blue toward the infrared with no red edge — a smooth, gently climbing curve.',
+    tell: 'Soil reflectance rises steadily from blue toward the infrared with no red edge: a smooth, gently climbing curve.',
   },
   {
     id: 'snow',
     name: 'Snow & ice',
     refl: [0.92, 0.9, 0.87, 0.72, 0.08, 0.04],
-    tell: 'Snow is dazzlingly bright in visible light but drops sharply in the shortwave infrared — that contrast is how satellites map it.',
+    tell: 'Snow is dazzlingly bright in visible light but drops sharply in the shortwave infrared. That contrast is how satellites map it.',
   },
   {
     id: 'dry-veg',
@@ -114,7 +114,7 @@ export const SPECTRAL_SURFACES = [
     id: 'urban',
     name: 'Asphalt / urban',
     refl: [0.1, 0.11, 0.12, 0.13, 0.14, 0.12],
-    tell: 'Built surfaces reflect a low, nearly flat amount across all bands — no bumps, no red edge.',
+    tell: 'Built surfaces reflect a low, nearly flat amount across all bands: no bumps, no red edge.',
   },
 ]
 
@@ -133,14 +133,14 @@ export const ORBIT_QUESTIONS = [
       'Image the same location at the same local sun-time every day, so lighting stays consistent for comparing images over the years.',
     answer: 'sso',
     explain:
-      'A sun-synchronous orbit is tuned so the satellite crosses each latitude at the same local solar time — perfect for consistent land imaging (Landsat, Terra).',
+      'A sun-synchronous orbit is tuned so the satellite crosses each latitude at the same local solar time, perfect for consistent land imaging (Landsat, Terra).',
   },
   {
     brief:
       'Watch a developing hurricane continuously, keeping the same face of Earth in view all day and night.',
     answer: 'geo',
     explain:
-      'A geostationary orbit (~35,786 km) circles Earth once per day, so the satellite appears fixed over one spot — ideal for weather watch (GOES).',
+      'A geostationary orbit (~35,786 km) circles Earth once per day, so the satellite appears fixed over one spot, ideal for weather watch (GOES).',
   },
   {
     brief:
@@ -154,7 +154,7 @@ export const ORBIT_QUESTIONS = [
       'Measure sea-surface height along repeating ground tracks, revisiting the same oceans every few days without needing polar coverage.',
     answer: 'inclined-leo',
     explain:
-      'An inclined (non-polar) low Earth orbit trades polar coverage for a tighter revisit of mid-latitude oceans — the choice for altimetry missions like Jason.',
+      'An inclined (non-polar) low Earth orbit trades polar coverage for a tighter revisit of mid-latitude oceans: the choice for altimetry missions like Jason.',
   },
   {
     brief:
@@ -195,7 +195,7 @@ export const EM_REGIONS = [
   {
     id: 'xray',
     name: 'X-ray',
-    fact: 'Very short, high-energy waves — mostly used to observe the Sun and the high-energy universe.',
+    fact: 'Very short, high-energy waves: mostly used to observe the Sun and the high-energy universe.',
   },
 ]
 
@@ -221,7 +221,7 @@ export const NDVI_TARGETS = [
     label: 'Grass & shrubs',
     min: 0.25,
     max: 0.5,
-    hint: 'Some leaves means NIR climbs above red — a moderate NDVI.',
+    hint: 'Some leaves means NIR climbs above red: a moderate NDVI.',
   },
   {
     id: 'healthy',
@@ -235,7 +235,7 @@ export const NDVI_TARGETS = [
     label: 'Dense forest',
     min: 0.8,
     max: 1,
-    hint: 'A thick canopy reflects near-infrared powerfully while soaking up red light — the highest NDVI.',
+    hint: 'A thick canopy reflects near-infrared powerfully while soaking up red light: the highest NDVI.',
   },
 ]
 

@@ -51,7 +51,7 @@ export default function EmsReview() {
           })}
         </div>
         <button onClick={() => setCheckedMatch(true)} className="mt-3 rounded-full bg-ink px-4 py-2 text-xs font-bold text-app transition-all hover:opacity-90">Check matches</button>
-        {checkedMatch && <p className="mt-2 text-sm font-semibold text-muted">Green means matched. Adjust any others and check again — every region pairs with one use.</p>}
+        {checkedMatch && <p className="mt-2 text-sm font-semibold text-muted">Green means matched. Adjust any others and check again. Every region pairs with one use.</p>}
       </div>
 
       {/* ordering */}
@@ -73,7 +73,7 @@ export default function EmsReview() {
           })}
         </ol>
         <button onClick={() => setCheckedOrder(true)} className="mt-3 rounded-full bg-ink px-4 py-2 text-xs font-bold text-app transition-all hover:opacity-90">Check order</button>
-        {checkedOrder && <p className="mt-2 text-sm font-semibold text-muted">{orderCorrect ? 'Perfect — radio is longest, gamma is shortest. 🌈' : 'Almost! Radio waves are longest and gamma rays are shortest. Keep adjusting.'}</p>}
+        {checkedOrder && <p className="mt-2 text-sm font-semibold text-muted">{orderCorrect ? 'Perfect: radio is longest, gamma is shortest. 🌈' : 'Almost! Radio waves are longest and gamma rays are shortest. Keep adjusting.'}</p>}
       </div>
 
       {/* quiz */}
@@ -101,7 +101,7 @@ export default function EmsReview() {
               <AnimatePresence>
                 {answered && (
                   <motion.p initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: 'auto' }} exit={{ opacity: 0, height: 0 }} className={`mt-3 overflow-hidden rounded-xl p-3 text-sm leading-relaxed ${correct ? 'bg-emerald-500/10 text-ink/80' : 'bg-cream text-ink/80'}`}>
-                    <span className="font-extrabold">{correct ? 'Correct! ' : 'Good try — '}</span>{q.feedback}
+                    <span className="font-extrabold">{correct ? 'Correct! ' : 'Good try: '}</span>{q.feedback}
                     <span className="mt-1 block text-[11px] font-semibold text-faint">NASA, Tour of the Electromagnetic Spectrum, Third Edition, p. {q.page}.</span>
                   </motion.p>
                 )}

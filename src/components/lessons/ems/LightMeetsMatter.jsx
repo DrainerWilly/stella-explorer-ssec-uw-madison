@@ -64,7 +64,7 @@ export default function LightMeetsMatter({ band, onOpenAnimation }) {
     <div>
       <h2 className="text-2xl font-extrabold tracking-tight text-ink sm:text-3xl">When light meets matter</h2>
       <p className="mt-3 max-w-3xl text-sm leading-relaxed text-ink/80 sm:text-base">
-        Light waves across the spectrum behave in similar ways when they hit an object — and NASA instruments record those behaviors to learn what matter is made of.
+        Light waves across the spectrum behave in similar ways when they hit an object, and NASA instruments record those behaviors to learn what matter is made of.
       </p>
       <NasaSourceCredit variant="quote" page={QUOTES.behaviors.page}>{QUOTES.behaviors.text}</NasaSourceCredit>
 

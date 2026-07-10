@@ -1,6 +1,6 @@
 // Representative spectral reflectance signatures (percent reflectance vs.
 // wavelength in nm). Curves follow the well-established shapes published in
-// USGS / ECOSTRESS-style spectral libraries — used here as accurate teaching
+// USGS / ECOSTRESS-style spectral libraries: used here as accurate teaching
 // references, not a single field measurement.
 //
 // Each point: { w: wavelength_nm, r: reflectance_percent }
@@ -88,7 +88,7 @@ export const SIGNATURES = {
       { w: 700, r: 21 },
       { w: 750, r: 22 },
       { w: 800, r: 22 },
-      { w: 865, r: 23 }, // fairly flat — no red edge, no NIR jump
+      { w: 865, r: 23 }, // fairly flat: no red edge, no NIR jump
       { w: 950, r: 23 },
       { w: 1100, r: 24 },
       { w: 1300, r: 24 },
@@ -102,7 +102,7 @@ export const SIGNATURES = {
 
 // STELLA-Q2 style channels. The DIY spectrometer (NASA STELLA) uses an
 // AMS AS7341 11-channel sensor for the visible range plus a dedicated NIR
-// photodiode — these are the wavelengths students actually read in the field.
+// photodiode: these are the wavelengths students actually read in the field.
 export const STELLA_CHANNELS = [
   { w: 415, band: 'Violet', color: '#7d5bd6' },
   { w: 445, band: 'Blue', color: '#4a6fe0' },
@@ -119,7 +119,7 @@ export const STELLA_CHANNELS = [
 // see" toggle. Wavelengths above this are invisible to the human eye.
 export const VISIBLE_MAX_NM = 700
 
-// Helper: NDVI from red & NIR reflectance — the workhorse vegetation index.
+// Helper: NDVI from red & NIR reflectance, the workhorse vegetation index.
 export function ndvi(redPct, nirPct) {
   const red = redPct / 100
   const nir = nirPct / 100

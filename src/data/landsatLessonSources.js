@@ -170,12 +170,12 @@ export const IMAGES = {
   },
 }
 
-// Real per-band grayscale crops for the band-measurement activity — all seven
+// Real per-band grayscale crops for the band-measurement activity: all seven
 // rendered from ONE verified Landsat 8 Collection 2 Level-2 scene
 // (LC08_L2SP_016042_20240222_02_T1, acquired 2024-02-22, 0.04% cloud cover,
 // over Cape Coral–Fort Myers, Florida, on the Caloosahatchee River). Each crop
 // is that band's real reflectance (or, for Band 10, surface-temperature) data
-// stretched to an 8-bit grayscale image — not an illustration and not a channel
+// stretched to an 8-bit grayscale image: not an illustration and not a channel
 // split of an RGB composite.
 const BAND_SCENE_CREDIT =
   'Image: USGS/NASA Landsat 8 (Collection 2 Level-2), scene LC08_L2SP_016042_20240222, 2024-02-22.'

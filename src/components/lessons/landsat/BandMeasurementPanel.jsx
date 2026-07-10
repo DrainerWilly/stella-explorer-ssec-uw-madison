@@ -43,7 +43,7 @@ export default function BandMeasurementPanel() {
             </AnimatePresence>
           </div>
           <p className="mt-2 text-center text-[11px] font-bold uppercase tracking-wide text-faint">
-            Real Landsat 8 measurement — Cape Coral–Fort Myers, FL (2024-02-22)
+            Real Landsat 8 measurement: Cape Coral–Fort Myers, FL (2024-02-22)
           </p>
           {image && (
             <p className="mt-1 text-center text-[10px] leading-snug text-faint/80">
@@ -82,18 +82,18 @@ export default function BandMeasurementPanel() {
           </div>
           <AnimatePresence mode="wait">
             <motion.div key={sel} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -8 }} transition={{ duration: 0.2 }} className="mt-4">
-              <h3 className="text-lg font-extrabold tracking-tight text-ink">Band {tile.band} — {tile.name}</h3>
+              <h3 className="text-lg font-extrabold tracking-tight text-ink">Band {tile.band}: {tile.name}</h3>
               <p className="mt-1 text-sm leading-relaxed text-muted">{tile.use}</p>
               {sel === 5 && (
                 <p className="mt-3 rounded-xl bg-cream p-3 text-xs leading-relaxed text-ink/70">
-                  Notice how the river and bay turn almost black — water absorbs near-infrared light
-                  — while golf courses, lawns, and other vegetation turn bright.
+                  Notice how the river and bay turn almost black (water absorbs near-infrared light)
+                  while golf courses, lawns, and other vegetation turn bright.
                 </p>
               )}
               {sel === 10 && (
                 <p className="mt-3 rounded-xl bg-cream p-3 text-xs leading-relaxed text-ink/70">
                   A few small dark patches (mostly large flat rooftops) show where the
-                  surface-temperature algorithm couldn’t confidently retrieve a reading — a real
+                  surface-temperature algorithm couldn’t confidently retrieve a reading, a real
                   limitation of this data product, not a rendering error.
                 </p>
               )}

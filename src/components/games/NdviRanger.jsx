@@ -86,7 +86,7 @@ export default function NdviRanger({ game, onExit }) {
           total={total}
           onReplay={restart}
           onExit={onExit}
-          detail="NDVI turns two numbers — red and near-infrared reflectance — into a global map of where plants are growing and how healthy they are."
+          detail="NDVI turns two numbers (red and near-infrared reflectance) into a global map of where plants are growing and how healthy they are."
         />
       </GameShell>
     )
@@ -184,7 +184,7 @@ export default function NdviRanger({ game, onExit }) {
         >
           <div className="flex items-center gap-2 text-sm font-bold text-ink">
             <Icon name={inRange ? 'star' : 'rays'} className="h-4 w-4" style={{ color: accent }} />
-            {inRange ? `Locked in — that's ${target.label}!` : 'Off target —'}
+            {inRange ? `Locked in: that's ${target.label}!` : 'Off target'}
           </div>
           <p className="mt-1.5 text-sm leading-relaxed text-ink/80">
             {target.hint}

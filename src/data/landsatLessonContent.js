@@ -84,7 +84,7 @@ export const LANDSAT_BANDS = [
     '9-12': 'Second thermal band supporting split-window surface-temperature retrieval.' },
 ]
 
-// Chapter 2 — surface interactions
+// Chapter 2: surface interactions
 export const SURFACES = [
   {
     id: 'vegetation', name: 'Healthy vegetation', color: '#4caf6b',
@@ -98,7 +98,7 @@ export const SURFACES = [
     reflected: 2, absorbed: 8, emitted: 2,
     '6-8': 'Water absorbs most near-infrared light, so it often looks dark to a satellite. It can stay cooler than pavement.',
     '9-12': 'Absorbs most near-infrared energy (often dark in NIR) and changes temperature slowly relative to pavement.',
-    key: 'Absorbs near-infrared — often dark in NIR.',
+    key: 'Absorbs near-infrared: often dark in NIR.',
   },
   {
     id: 'soil', name: 'Soil', color: '#b07a45',
@@ -118,7 +118,7 @@ export const SURFACES = [
 
 export const SURFACE_NOTE = 'Landsat can tell surfaces apart because they interact with light differently.'
 
-// Chapter 3 — illustrative band tiles
+// Chapter 3: illustrative band tiles
 export const BAND_TILES = [
   { band: 2, name: 'Blue', brightness: 0.45, use: 'Useful for coastal and aerosol studies.' },
   { band: 3, name: 'Green', brightness: 0.5, use: 'Helps emphasize vegetation vigor.' },
@@ -129,7 +129,7 @@ export const BAND_TILES = [
   { band: 10, name: 'Thermal', brightness: 0.66, use: 'Useful for studying emitted thermal energy and surface temperature products.' },
 ]
 
-// Chapter 4 — processing pipeline
+// Chapter 4: processing pipeline
 export const PIPELINE = [
   { id: 'measure', label: 'Satellite measurement', icon: 'satellite' },
   { id: 'dn', label: 'Digital numbers', icon: 'data' },
@@ -145,7 +145,7 @@ export const PIPELINE_TEXT = {
 export const ATMOSPHERE_NOTE =
   'Atmospheric scattering and thin clouds can affect observations. Surface-reflectance processing corrects for much of the atmosphere, but not every image is automatically cloud-free.'
 
-// Chapter 5 — RGB composite presets (Landsat 8/9)
+// Chapter 5: RGB composite presets (Landsat 8/9)
 export const RGB_PRESETS = [
   {
     id: 'natural', label: 'Natural color', r: 4, g: 3, b: 2,
@@ -165,7 +165,7 @@ export const BAND_PREVIEW_COLOR = {
   2: '#3b6fd6', 3: '#3fae5e', 4: '#e0533d', 5: '#b14de0', 6: '#e08a3c', 7: '#a9662b',
 }
 
-// Chapter 6 — comparison callouts
+// Chapter 6: comparison callouts
 export const COMPARISON = {
   natural: { label: 'Natural color', bands: '4 · 3 · 2' },
   false: { label: 'Color infrared', bands: '5 · 4 · 3' },
@@ -186,9 +186,9 @@ export const QUIZ = [
   {
     id: 'q1',
     question: 'Which Landsat band is commonly used with red and green bands to create a color-infrared vegetation image?',
-    options: ['Band 2 — Blue', 'Band 4 — Red', 'Band 5 — Near-infrared', 'Band 10 — Thermal infrared'],
+    options: ['Band 2: Blue', 'Band 4: Red', 'Band 5: Near-infrared', 'Band 10: Thermal infrared'],
     answer: 2,
-    feedback: 'Band 5 (near-infrared) is assigned to red in color-infrared images — healthy vegetation reflects NIR strongly, so it appears red.',
+    feedback: 'Band 5 (near-infrared) is assigned to red in color-infrared images: healthy vegetation reflects NIR strongly, so it appears red.',
   },
   {
     id: 'q2',

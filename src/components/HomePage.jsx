@@ -61,19 +61,11 @@ export default function HomePage({ onNavigate }) {
               {...fade(2)}
               className="mt-5 max-w-xl text-[15px] leading-relaxed text-slate-300/90 sm:text-lg"
             >
-              Collect real field measurements, compare them with live satellite orbits and Landsat
-              imagery, and discover how scientists observe our changing planet from space.
+              Track real satellites in orbit, build your own STELLA instrument, play hands-on
+              science games, and explore real field and Landsat data. It's a full toolkit for
+              learning how scientists observe our changing planet from space.
             </motion.p>
 
-            <motion.div {...fade(3)} className="mt-8 flex flex-wrap items-center gap-3">
-              <button
-                onClick={() => onNavigate?.('mission-control')}
-                className="group inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-sky-400 to-indigo-500 px-6 py-3.5 text-sm font-bold text-white shadow-[0_8px_30px_-8px_rgba(56,189,248,0.6)] transition-transform hover:scale-[1.03]"
-              >
-                <Icon name="globe" className="h-4 w-4" />
-                Launch Satellite Tracker
-              </button>
-            </motion.div>
           </div>
         </section>
 

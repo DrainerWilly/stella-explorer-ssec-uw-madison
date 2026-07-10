@@ -15,8 +15,7 @@
     "noFallthroughCasesInSwitch": true,
     "skipLibCheck": true,
 
-    // Gradual adoption: JS files still run and resolve, but only .ts/.tsx are
-    // type-checked. Convert modules to .ts incrementally.
+    
     "allowJs": true,
     "checkJs": false
   },

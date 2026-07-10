@@ -50,8 +50,8 @@ export const QUOTES = {
 // ── The spectrum around us ────────────────────────────────────────────────
 export const AROUND_US = {
   intro: {
-    '6-8': 'When you tune a radio, watch TV, send a text, or pop popcorn in a microwave oven, you are using electromagnetic energy. We use it every hour of every day. This energy travels in waves, from very long radio waves to very short gamma rays — but our eyes only see a small slice called visible light.',
-    '9-12': 'Electromagnetic energy is part of daily life — tuning a radio, watching television, sending a text message, running a microwave oven, taking a medical X-ray, or sensing heat with an infrared instrument. It travels in waves spanning a broad spectrum from very long radio waves to very short gamma rays, yet the human eye detects only the narrow band we call visible light. A radio detects one portion; an X-ray machine uses another.',
+    '6-8': 'When you tune a radio, watch TV, send a text, or pop popcorn in a microwave oven, you are using electromagnetic energy. We use it every hour of every day. This energy travels in waves, from very long radio waves to very short gamma rays, but our eyes only see a small slice called visible light.',
+    '9-12': 'Electromagnetic energy is part of daily life: tuning a radio, watching television, sending a text message, running a microwave oven, taking a medical X-ray, or sensing heat with an infrared instrument. It travels in waves spanning a broad spectrum from very long radio waves to very short gamma rays, yet the human eye detects only the narrow band we call visible light. A radio detects one portion; an X-ray machine uses another.',
   },
   pages: '2–3',
 }
@@ -71,9 +71,9 @@ export const HOTSPOTS = [
     nasaExample: 'Infrared lets telescopes see through dust and reveal cool objects hidden in visible light.',
     blurb: { '6-8': 'Some infrared we feel as heat. Special cameras can “see” the heat coming off warm things.', '9-12': 'Infrared lies just beyond red; thermal infrared (≈8–15 µm) is used to study longwave heat radiating from Earth.' } },
   { id: 'visible', name: 'Visible light', left: 56, width: 5, region: 'visible', wavelength: 'short', energy: 'medium',
-    everyday: 'The only light human eyes can see — all the colors of the rainbow.',
+    everyday: 'The only light human eyes can see: all the colors of the rainbow.',
     nasaExample: 'Instruments capture visible bands to build natural-color images of Earth and space.',
-    blurb: { '6-8': 'Visible light is the tiny part of the spectrum our eyes can see.', '9-12': 'Visible light spans roughly 380 nm (violet) to 700 nm (red) — a very narrow band of the full spectrum.' } },
+    blurb: { '6-8': 'Visible light is the tiny part of the spectrum our eyes can see.', '9-12': 'Visible light spans roughly 380 nm (violet) to 700 nm (red), a very narrow band of the full spectrum.' } },
   { id: 'uv', name: 'Ultraviolet', left: 62, width: 11, region: 'uv', wavelength: 'short', energy: 'high',
     everyday: 'UV from the Sun causes sunburn.',
     nasaExample: 'UV observations from space study hot young stars, the Sun, and the ozone layer.',
@@ -84,23 +84,23 @@ export const HOTSPOTS = [
     blurb: { '6-8': 'X-rays are high-energy waves that can pass through some materials. Earth’s air blocks most space X-rays.', '9-12': 'X-rays (≈0.03–3 nm) come from objects millions of degrees hot; the atmosphere blocks them, so detectors must orbit above it.' } },
   { id: 'gamma', name: 'Gamma rays', left: 88, width: 10, region: 'gamma', wavelength: 'shortest', energy: 'highest',
     everyday: 'Produced on Earth by nuclear reactions, lightning, and radioactive decay.',
-    nasaExample: 'Gamma rays come from the universe’s most energetic objects — neutron stars, pulsars, supernovae, and black holes.',
+    nasaExample: 'Gamma rays come from the universe’s most energetic objects: neutron stars, pulsars, supernovae, and black holes.',
     blurb: { '6-8': 'Gamma rays have the shortest waves and the most energy of all.', '9-12': 'Gamma rays carry the highest energy in the spectrum; they pass through ordinary mirrors and must be observed above the atmosphere.' } },
 ]
 
 // ── How electromagnetic waves work ────────────────────────────────────────
 export const WAVES = {
   mechanicalVsEm: {
-    '6-8': 'Sound and water waves are mechanical waves — they need a material, called a medium, to travel through. That is why sound cannot travel through the empty vacuum of space. Electromagnetic waves are different: they do not need a medium, so light from the Sun can cross empty space to reach us.',
-    '9-12': 'Mechanical waves (sound, water) are caused by a disturbance in a medium and transfer energy by making molecules bump into one another; they cannot travel through a vacuum. Electromagnetic waves differ in that they require no medium — a changing magnetic field induces a changing electric field and vice-versa, and these linked fields propagate through air, solids, and the vacuum of space.',
+    '6-8': 'Sound and water waves are mechanical waves, which need a material, called a medium, to travel through. That is why sound cannot travel through the empty vacuum of space. Electromagnetic waves are different: they do not need a medium, so light from the Sun can cross empty space to reach us.',
+    '9-12': 'Mechanical waves (sound, water) are caused by a disturbance in a medium and transfer energy by making molecules bump into one another; they cannot travel through a vacuum. Electromagnetic waves differ in that they require no medium: a changing magnetic field induces a changing electric field and vice-versa, and these linked fields propagate through air, solids, and the vacuum of space.',
   },
   fieldsEnergy: {
     '6-8': 'An electromagnetic wave is made of an electric field and a magnetic field. The distance between two crests is the wavelength, and the number of crests passing a point each second is the frequency. As wavelength gets shorter, the energy gets higher.',
-    '9-12': 'Electromagnetic energy can be described by frequency (Hz), wavelength (m), or energy (eV) — all mathematically related. The distance between crests is the wavelength; the number of crests passing a point per second is the frequency (Hertz). Energy increases as wavelength shortens.',
+    '9-12': 'Electromagnetic energy can be described by frequency (Hz), wavelength (m), or energy (eV), all mathematically related. The distance between crests is the wavelength; the number of crests passing a point per second is the frequency (Hertz). Energy increases as wavelength shortens.',
   },
   photonView: {
-    '6-8': 'Light also behaves like tiny packets of energy called photons. When photons hit a detector — like the sensor in a digital camera — they free electrons that the instrument turns into picture data.',
-    '9-12': 'Light has both wave-like and particle-like properties; which is observed depends on the instrument. A diffraction spectrometer reveals the wave nature, while digital-camera detectors reveal the particle nature — individual photons liberate electrons used to store image data.',
+    '6-8': 'Light also behaves like tiny packets of energy called photons. When photons hit a detector, like the sensor in a digital camera, they free electrons that the instrument turns into picture data.',
+    '9-12': 'Light has both wave-like and particle-like properties; which is observed depends on the instrument. A diffraction spectrometer reveals the wave nature, while digital-camera detectors reveal the particle nature: individual photons liberate electrons used to store image data.',
   },
   polarization: {
     '6-8': 'Light can also be polarized, meaning its waves line up in a certain direction. Polarized sunglasses cut glare by blocking light with one alignment.',
@@ -117,12 +117,12 @@ export const BEHAVIORS = [
     nasaExample: 'Lasers on NASA’s Lunar Reconnaissance Orbiter time how long a pulse takes to return, mapping the Moon’s topography by reflection.',
     why: 'Reflection timing reveals distance and elevation.', remoteSensing: 'Most of what satellites measure is reflected sunlight from Earth’s surface.', page: 6 },
   { id: 'absorption', name: 'Absorption',
-    explain: { '6-8': 'Some light is taken in by an object instead of bouncing off. Dark pavement absorbs more energy than light concrete, so it gets hotter — and later gives that heat off as infrared.', '9-12': 'Absorption occurs when photons hit atoms and molecules and make them vibrate; the more they vibrate, the hotter the object becomes. Black pavement absorbs most visible and UV energy and re-radiates it as longer-wavelength infrared.' },
-    nasaExample: 'Thermal radiation from asphalt and roofs can raise a city’s surface temperature by as much as 10 °C — the “urban heat island” effect, seen in a Landsat 7 image of Atlanta.',
+    explain: { '6-8': 'Some light is taken in by an object instead of bouncing off. Dark pavement absorbs more energy than light concrete, so it gets hotter, and later gives that heat off as infrared.', '9-12': 'Absorption occurs when photons hit atoms and molecules and make them vibrate; the more they vibrate, the hotter the object becomes. Black pavement absorbs most visible and UV energy and re-radiates it as longer-wavelength infrared.' },
+    nasaExample: 'Thermal radiation from asphalt and roofs can raise a city’s surface temperature by as much as 10 °C: the “urban heat island” effect, seen in a Landsat 7 image of Atlanta.',
     why: 'Absorbed energy becomes heat that can be measured.', remoteSensing: 'Thermal infrared sensors detect this emitted heat to compare surfaces.', page: 6 },
   { id: 'transmission', name: 'Transmission',
     explain: { '6-8': 'Some light passes straight through a material, like sunlight through clear air or water.', '9-12': 'Transmission occurs when electromagnetic energy passes through a material; whether light is transmitted, reflected, or absorbed depends on the object’s composition and the wavelength of the light.' },
-    nasaExample: 'Visible light is largely transmitted through the atmosphere — an “atmospheric window.”',
+    nasaExample: 'Visible light is largely transmitted through the atmosphere: an “atmospheric window.”',
     why: 'Transmission lets energy reach a sensor through a medium.', remoteSensing: 'Atmospheric windows determine which wavelengths satellites can use.', page: 6 },
   { id: 'refraction', name: 'Refraction',
     explain: { '6-8': 'Light bends when it moves from one material into another, like air into glass or water. Different colors bend by different amounts.', '9-12': 'Refraction is the change in direction as light passes between media; it travels slower in denser media, and different wavelengths slow at different rates, bending at different angles.' },
@@ -130,7 +130,7 @@ export const BEHAVIORS = [
     why: 'Different wavelengths separate, revealing composition.', remoteSensing: 'Refraction underlies how prisms and gratings split light for analysis.', page: 7 },
   { id: 'scattering', name: 'Scattering',
     explain: { '6-8': 'Light can bounce off tiny particles in many directions. Shorter blue and violet waves scatter the most in our air, which is why the sky looks blue.', '9-12': 'Scattering redirects light in many directions depending on wavelength and particle size; shorter (blue/violet) wavelengths scatter strongly off nitrogen and oxygen, illuminating the sky with blue light.' },
-    nasaExample: 'NASA’s CALIPSO satellite observes scattering of laser pulses to map aerosols such as dust, smoke, and volcanic ash — for example, ash from Iceland’s Eyjafjallajökull in 2010.',
+    nasaExample: 'NASA’s CALIPSO satellite observes scattering of laser pulses to map aerosols such as dust, smoke, and volcanic ash, for example ash from Iceland’s Eyjafjallajökull in 2010.',
     why: 'Scattering reveals particles in the atmosphere.', remoteSensing: 'Aerosol, smoke, and ash distributions can be tracked from space.', page: 7 },
   { id: 'diffraction', name: 'Diffraction',
     explain: { '6-8': 'Waves bend and spread when they pass an edge or a narrow opening. Instruments use this to split light into a rainbow of wavelengths.', '9-12': 'Diffraction is the bending and spreading of waves around an obstacle, most pronounced when the obstacle is comparable to the wavelength; a spectrometer uses diffraction to separate light into a spectrum.' },
@@ -173,7 +173,7 @@ export const ENERGY_IMAGE = {
     'Natural- or false-color',
   ],
   intro: {
-    '6-8': 'A scientific instrument aims energy onto a detector, where photons free electrons. That becomes numbers — “data” — that are sent to Earth and processed into images.',
+    '6-8': 'A scientific instrument aims energy onto a detector, where photons free electrons. That becomes numbers, called “data,” that are sent to Earth and processed into images.',
     '9-12': 'Instruments direct electromagnetic energy onto a detector where individual photons yield electrons related to the incoming energy. The energy is now “data,” which can be transmitted to Earth and processed into images.',
   },
   camera: {
@@ -195,7 +195,7 @@ export const ENERGY_IMAGE = {
 // ── Explore each region in detail ─────────────────────────────────────────
 export const REGIONS = [
   { id: 'radio', name: 'Radio waves', page: 10,
-    distinct: { '6-8': 'The longest waves in the spectrum — from the size of a football to bigger than our planet.', '9-12': 'The longest wavelengths in the spectrum, described in terms of frequency (Hertz).' },
+    distinct: { '6-8': 'The longest waves in the spectrum: from the size of a football to bigger than our planet.', '9-12': 'The longest wavelengths in the spectrum, described in terms of frequency (Hertz).' },
     uses: 'Communication, television, and radio astronomy.',
     nasaExample: 'The Very Large Array combines 27 antennas to make sharp radio images; radio astronomy is not affected by sunlight, clouds, or rain.',
     atmosphere: 'The upper atmosphere can reflect very low-energy radio waves from space.',
@@ -207,7 +207,7 @@ export const REGIONS = [
     nasaExample: 'NASA’s SMAP and AMSR instruments map soil moisture and sea ice; radar altimeters measure sea-surface height to within centimeters.',
     atmosphere: 'C-band microwaves penetrate clouds, dust, smoke, snow, and rain to reveal the surface.',
     remoteSensing: 'Active (radar) and passive (radiometer) microwave sensing support weather, sea-ice, and soil-moisture study.',
-    learnMore: 'In 1965 Penzias and Wilson detected the cosmic microwave background — a clue to the Big Bang — later mapped in detail by WMAP.' },
+    learnMore: 'In 1965 Penzias and Wilson detected the cosmic microwave background, a clue to the Big Bang, later mapped in detail by WMAP.' },
   { id: 'infrared', name: 'Infrared waves', page: 14,
     distinct: { '6-8': 'Light just beyond red that we often feel as heat.', '9-12': 'Divided into near-, mid-, and far-infrared; the 8–15 µm thermal-infrared region studies longwave heat radiating from Earth.' },
     uses: 'TV remotes; thermal/night-vision cameras; studying heat.',
@@ -216,7 +216,7 @@ export const REGIONS = [
     remoteSensing: 'Earth-observing satellites sense emitted infrared to study land and sea surface temperatures.',
     learnMore: 'William Herschel discovered infrared in 1800 when a thermometer just beyond red read warmer than the visible colors.' },
   { id: 'nearIr', name: 'Reflected near-infrared waves', page: 16,
-    distinct: { '6-8': 'Near-infrared is just past visible light. Plants reflect a lot of it — even though we can’t see it.', '9-12': 'Rather than emitted heat, near-infrared studies how surfaces reflect, transmit, and absorb the Sun’s near-infrared radiation.' },
+    distinct: { '6-8': 'Near-infrared is just past visible light. Plants reflect a lot of it, even though we can’t see it.', '9-12': 'Rather than emitted heat, near-infrared studies how surfaces reflect, transmit, and absorb the Sun’s near-infrared radiation.' },
     uses: 'Studying vegetation health and soil composition.',
     nasaExample: 'Landsat 7 near-infrared images of Minnesota help farmers assess crop health; USDA uses Landsat to forecast agricultural productivity.',
     atmosphere: 'Reflected near-infrared sunlight can be sensed by satellites to study vegetation from space.',
@@ -259,7 +259,7 @@ export const WAVELENGTH_ORDER = ['radio', 'micro', 'infrared', 'visible', 'uv', 
 export const RADIATION_BUDGET = {
   intro: {
     '6-8': 'Earth’s radiation budget is the balance between energy coming in from the Sun and energy going back out to space. Earth reflects some sunlight, absorbs some (warming the land, ocean, and air), and then emits that heat as infrared. When the budget is out of balance, temperatures can rise or fall.',
-    '9-12': 'The energy entering, reflected, absorbed, and emitted by the Earth system makes up Earth’s radiation budget. Based on conservation of energy, it balances incoming (mostly solar) radiation against outgoing radiation — partly reflected sunlight and partly infrared emitted by the Earth system. An imbalance can change atmospheric temperature and, eventually, climate.',
+    '9-12': 'The energy entering, reflected, absorbed, and emitted by the Earth system makes up Earth’s radiation budget. Based on conservation of energy, it balances incoming (mostly solar) radiation against outgoing radiation: partly reflected sunlight and partly infrared emitted by the Earth system. An imbalance can change atmospheric temperature and, eventually, climate.',
   },
   parts: [
     { id: 'incoming', label: 'Incoming solar', text: 'Ultraviolet, visible, and some infrared “shortwave” energy arrives from the Sun.' },
@@ -274,7 +274,7 @@ export const RADIATION_BUDGET = {
   pages: '26–27',
 }
 
-// ── Remote sensing connections — "choose the best wavelength" ─────────────
+// ── Remote sensing connections: "choose the best wavelength" ─────────────
 export const SCENARIOS = [
   { id: 's1', prompt: 'Study healthy versus stressed vegetation', answer: 'nearIr',
     feedback: 'Near-infrared. Healthier plants with more chlorophyll reflect more near-infrared, so the response separates healthy from stressed vegetation.', page: 16 },
@@ -311,7 +311,7 @@ export const REVIEW = {
   quiz: [
     { id: 'r1', question: 'Which part of the spectrum can human eyes detect?',
       options: ['Infrared', 'Visible light', 'Microwaves', 'Gamma rays'], answer: 1,
-      feedback: 'Human eyes detect only visible light — a small portion of the full spectrum.', page: 18 },
+      feedback: 'Human eyes detect only visible light, a small portion of the full spectrum.', page: 18 },
     { id: 'r2', question: 'Why do scientists use false color?',
       options: [
         'To make images more colorful',

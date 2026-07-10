@@ -4,7 +4,7 @@
 // metadata placeholder describing a layer that could be added later. Placeholder
 // layers are marked `available: false` and must never render as if they were on.
 //
-// When real layers are added, NASA GIBS is the intended source — but only after
+// When real layers are added, NASA GIBS is the intended source, but only after
 // verifying each layer's identifier, available dates, legend, and usage terms:
 // https://www.earthdata.nasa.gov/engage/open-data-services-software/earthdata-developer-portal/gibs-api
 
@@ -22,7 +22,7 @@ export const BASE_EARTH_LAYER = {
     'Earth textures (8K day, night lights, clouds): Solar System Scope (solarsystemscope.com), derived from NASA imagery, licensed CC BY 4.0.',
 }
 
-// Future layers — descriptive placeholders only. `available: false` everywhere.
+// Future layers: descriptive placeholders only. `available: false` everywhere.
 export const FUTURE_LAYERS = [
   { id: 'natural-color', label: 'Natural-color imagery', available: false, plannedSource: 'NASA GIBS' },
   { id: 'cloud-cover', label: 'Cloud cover', available: false, plannedSource: 'NASA GIBS' },

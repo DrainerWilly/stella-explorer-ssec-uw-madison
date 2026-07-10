@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 /* Single NASA dark-blue theme. Tokens are RGB channels so Tailwind's /opacity
-   modifiers keep working (e.g. text-ink/70). There is no light/dark toggle —
+   modifiers keep working (e.g. text-ink/70). There is no light/dark toggle;
    the whole site uses this one deep-navy palette. */
 :root {
   color-scheme: dark;

@@ -119,7 +119,7 @@ export default function WhatIsTheEMS({ onBack, onOpenAnimation }) {
           {/* intro video: a tour of the spectrum */}
           <div className="rounded-panel bg-surface p-4 shadow-soft sm:p-5">
             <p className="mb-3 text-xs font-bold uppercase tracking-wide text-faint">
-              Watch first — a tour of the spectrum
+              Watch first: a tour of the spectrum
             </p>
             <MediaVideo video={VIDEOS['electromagnetic-spectrum']} />
           </div>

@@ -74,7 +74,7 @@ function CityMarker({ city, alwaysLabel }) {
   )
 }
 
-// A static reference layer of major world cities — off by default, toggled
+// A static reference layer of major world cities, off by default, toggled
 // from Scene settings. Purely educational/orientation; not tied to any
 // satellite or orbital data.
 export default function CityLabelsLayer({ show, quality }) {

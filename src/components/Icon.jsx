@@ -2,7 +2,7 @@
 // Usage: <Icon name="home" className="h-5 w-5" />
 
 const paths = {
-  // brand mark — abstract satellite / spectrum "S"
+  // brand mark: abstract satellite / spectrum "S"
   logo: (
     <>
       <path d="M5 8.5C5 6.6 6.6 5 8.5 5H15a4 4 0 0 1 0 8H9a4 4 0 0 0 0 8h6.5c1.9 0 3.5-1.6 3.5-3.5" />
@@ -159,7 +159,7 @@ const paths = {
     </>
   ),
   moon: <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />,
-  // animations nav — sparkle / motion
+  // animations nav: sparkle / motion
   animation: (
     <>
       <path d="M5 6c0 3-2 5-2 5s2 2 2 5c0-3 2-5 2-5s-2-2-2-5z" />
@@ -167,7 +167,7 @@ const paths = {
       <circle cx="19" cy="17.5" r="1.4" fill="currentColor" stroke="none" />
     </>
   ),
-  // mission control — a satellite orbiting a planet
+  // mission control: a satellite orbiting a planet
   orbit: (
     <>
       <circle cx="12" cy="12" r="3.4" />
@@ -184,7 +184,7 @@ const paths = {
       <path d="M12 3l-2 2m2-2 2 2M12 21l-2-2m2 2 2-2" />
     </>
   ),
-  // data visualizer — pulse line over scatter dots
+  // data visualizer: pulse line over scatter dots
   viz: (
     <>
       <path d="M3 13.5 7 9l3.5 5L14 6.5l2.5 4.5H21" />

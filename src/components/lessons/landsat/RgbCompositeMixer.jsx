@@ -134,7 +134,7 @@ export default function RgbCompositeMixer() {
             </svg>
           </div>
           <p className="mt-2 text-[11px] font-bold uppercase tracking-wide text-faint">
-            Illustrative only — shows how the combination looks, not recomputed pixels
+            Illustrative only: shows how the combination looks, not recomputed pixels
           </p>
           <div className="mt-2 flex items-center justify-center gap-2 text-xs font-bold text-muted">
             <span>R {ch.r}</span><span>·</span><span>G {ch.g}</span><span>·</span><span>B {ch.b}</span>

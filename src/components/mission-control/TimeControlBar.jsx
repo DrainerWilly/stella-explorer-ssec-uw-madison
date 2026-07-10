@@ -142,7 +142,7 @@ export default function TimeControlBar({
       </div>
 
       <p className="mt-1.5 text-center text-[9px] uppercase tracking-[0.22em] text-white/25">
-        Simulated view · positions modeled from orbital elements — not live tracking
+        Simulated view · positions modeled from orbital elements · not live tracking
       </p>
     </div>
   )

@@ -8,7 +8,7 @@ export function createSimClock(): SimClock {
     time: Date.now(), // simulation time, ms since epoch
     playing: true,
     speed: 1, // default simulation speed (Live mode runs at real rate)
-    following: true, // Live/Now mode: snap to wall-clock at 1× — default view
+    following: true, // Live/Now mode: snap to wall-clock at 1× (default view)
 
     // Advance by a real elapsed time (seconds). Respects play/speed/following.
     advance(dtSeconds: number): void {
