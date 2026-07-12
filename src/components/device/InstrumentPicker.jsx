@@ -1,19 +1,6 @@
 import { motion, useReducedMotion } from 'framer-motion'
 import Icon from '../Icon.jsx'
-import { INSTRUMENTS, COMING_SOON, buildSteps } from '../../data/stellaBuilds.js'
-
-const GROUPS = [
-  {
-    id: 'platform',
-    title: 'STELLA-1.2 modular platform',
-    blurb: 'One base device, swappable magnetic sensor modules.',
-  },
-  {
-    id: 'spectral',
-    title: 'Spectral instruments',
-    blurb: 'Self-contained spectrometers with a fixed configuration. Grab and go.',
-  },
-]
+import { INSTRUMENTS, buildSteps } from '../../data/stellaBuilds.js'
 
 function InstrumentCard({ inst, index, onChoose, reduce }) {
   return (
@@ -23,7 +10,7 @@ function InstrumentCard({ inst, index, onChoose, reduce }) {
       transition={{ duration: 0.45, delay: 0.06 * index, ease: [0.22, 1, 0.36, 1] }}
       className="group flex flex-col overflow-hidden rounded-panel bg-cream shadow-soft ring-1 ring-ink/5 transition-shadow hover:shadow-lg"
     >
-      {/* NASA photo on a clean plate */}
+      {/* device / module render on a clean plate */}
       <div className="relative m-3 grid h-44 place-items-center overflow-hidden rounded-card bg-white">
         <img
           src={`${import.meta.env.BASE_URL}${inst.photo}`}
@@ -79,39 +66,24 @@ function InstrumentCard({ inst, index, onChoose, reduce }) {
   )
 }
 
-// Stage 1: choose your instrument. Real NASA photos, real specs.
+// Stage 1: choose your instrument. All builds sit together in one grid.
 export default function InstrumentPicker({ onChoose }) {
   const reduce = useReducedMotion()
 
   return (
-    <div className="space-y-7">
-      {GROUPS.map((group) => {
-        const members = INSTRUMENTS.filter((i) => i.group === group.id)
-        return (
-          <section key={group.id}>
-            <div className="mb-3">
-              <h2 className="text-lg font-extrabold tracking-tight text-ink">{group.title}</h2>
-              <p className="text-[13px] text-muted">{group.blurb}</p>
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {members.map((inst, i) => (
-                <InstrumentCard key={inst.id} inst={inst} index={i} onChoose={onChoose} reduce={reduce} />
-              ))}
+    <div>
+      <div className="mb-3">
+        <h2 className="text-lg font-extrabold tracking-tight text-ink">Choose an instrument</h2>
+        <p className="text-[13px] text-muted">
+          Real NASA STELLA builds. Pick one to assemble it from its actual parts.
+        </p>
+      </div>
 
-              {/* coming soon rides in the spectral group */}
-              {group.id === 'spectral' && (
-                <div className="flex min-h-[200px] flex-col items-center justify-center gap-2 rounded-panel border border-dashed border-ink/15 bg-cream/50 p-5 text-center">
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-ink/5 text-faint">
-                    <Icon name="spectrum" className="h-5 w-5" />
-                  </span>
-                  <p className="text-sm font-bold text-ink/70">{COMING_SOON.name}</p>
-                  <p className="text-xs text-faint">{COMING_SOON.tagline}</p>
-                </div>
-              )}
-            </div>
-          </section>
-        )
-      })}
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {INSTRUMENTS.map((inst, i) => (
+          <InstrumentCard key={inst.id} inst={inst} index={i} onChoose={onChoose} reduce={reduce} />
+        ))}
+      </div>
     </div>
   )
 }

@@ -14,6 +14,54 @@ export const GAME_ACCENT = {
 
 export const GAMES = [
   {
+    id: 'pixel-detective',
+    title: 'Pixel Detective',
+    tagline: 'Guess the scene before the picture sharpens',
+    description:
+      'Satellites see Earth in pixels. Study the blocky image and name what it shows. The earlier you guess, the more points you score!',
+    icon: 'grid',
+    color: 'yellow',
+    category: 'Satellite Vision',
+    difficulty: 'Easy',
+    minutes: 4,
+  },
+  {
+    id: 'false-color-painter',
+    title: 'False-Color Painter',
+    tagline: 'Paint with invisible light',
+    description:
+      'Load satellite bands into the red, green, and blue channels and watch the landscape transform. Recreate the famous composites real scientists use!',
+    icon: 'palette',
+    color: 'pink',
+    category: 'Satellite Vision',
+    difficulty: 'Medium',
+    minutes: 6,
+  },
+  {
+    id: 'window-watchers',
+    title: 'Window Watchers',
+    tagline: 'Which light makes it through the air?',
+    description:
+      'Earth’s atmosphere blocks some kinds of light and lets others through. Sort each wave: does it reach the ground, or do we need a space telescope?',
+    icon: 'telescope',
+    color: 'blue',
+    category: 'EM Spectrum',
+    difficulty: 'Easy',
+    minutes: 4,
+  },
+  {
+    id: 'satellite-match',
+    title: 'Satellite Match',
+    tagline: 'Flip cards, pair each satellite with its job',
+    description:
+      'A space memory game! Find the matching pairs: every Earth-watching satellite has a special mission, from mapping forests to measuring rain.',
+    icon: 'cards',
+    color: 'cardmint',
+    category: 'Missions',
+    difficulty: 'Easy',
+    minutes: 4,
+  },
+  {
     id: 'spectral-detective',
     title: 'Spectral Detective',
     tagline: 'Identify surfaces from their light fingerprint',
@@ -244,3 +292,69 @@ export function ndvi(red, nir) {
   if (denom <= 0) return 0
   return (nir - red) / denom
 }
+
+// --- Window Watchers (atmospheric windows) ------------------------------------
+// Does this kind of light reach the ground, or is it blocked by the atmosphere?
+// Facts follow NASA's Tour of the Electromagnetic Spectrum.
+export const WINDOW_CARDS = [
+  {
+    id: 'radio',
+    name: 'Radio waves',
+    emoji: '📻',
+    reaches: true,
+    fact: 'Radio waves sail right through the air. That is why giant radio telescopes can sit on the ground.',
+  },
+  {
+    id: 'microwave',
+    name: 'Microwaves',
+    emoji: '📡',
+    reaches: true,
+    fact: 'Most microwaves pass through, even through clouds and rain. Radar satellites use them to see in any weather.',
+  },
+  {
+    id: 'visible',
+    name: 'Visible light',
+    emoji: '🌈',
+    reaches: true,
+    fact: 'The light our eyes use passes through the "optical window." That is why we can stargaze from our backyard.',
+  },
+  {
+    id: 'infrared',
+    name: 'Most infrared',
+    emoji: '🔥',
+    reaches: false,
+    fact: 'Water vapor in the air soaks up most infrared. Infrared telescopes fly in space (or on very high mountains).',
+  },
+  {
+    id: 'uv',
+    name: 'Ultraviolet',
+    emoji: '🧴',
+    reaches: false,
+    fact: 'The ozone layer absorbs almost all UV. Great for your skin, but UV astronomy needs a space telescope.',
+  },
+  {
+    id: 'xray',
+    name: 'X-rays',
+    emoji: '🦴',
+    reaches: false,
+    fact: 'The atmosphere completely blocks X-rays from space. X-ray observatories like Chandra must orbit above it.',
+  },
+  {
+    id: 'gamma',
+    name: 'Gamma rays',
+    emoji: '💥',
+    reaches: false,
+    fact: 'Gamma rays are stopped high in the atmosphere. Telescopes like Fermi watch them from orbit.',
+  },
+]
+
+// --- Satellite Match (memory pairs) --------------------------------------------
+// Each entry becomes two cards: the satellite and its job.
+export const MATCH_PAIRS = [
+  { id: 'landsat', satellite: 'Landsat', emoji: '🌲', job: 'Maps land, forests & cities' },
+  { id: 'goes', satellite: 'GOES', emoji: '🌀', job: 'Watches storms nonstop' },
+  { id: 'gpm', satellite: 'GPM', emoji: '🌧️', job: 'Measures rain & snow' },
+  { id: 'icesat', satellite: 'ICESat-2', emoji: '🧊', job: 'Lasers measure ice height' },
+  { id: 'swot', satellite: 'SWOT', emoji: '🌊', job: 'Tracks rivers, lakes & seas' },
+  { id: 'stella', satellite: 'STELLA', emoji: '🔦', job: 'Your handheld field scientist' },
+]

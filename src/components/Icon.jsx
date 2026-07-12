@@ -218,6 +218,49 @@ const paths = {
       <path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M19.1 4.9 17 7M7 17l-2.1 2.1" />
     </>
   ),
+  // telescope on a tripod
+  telescope: (
+    <>
+      <path d="M4.5 11.5 17 5l2.5 4.5L7 16z" />
+      <path d="M17 5l1.2-.6 2.6 4.7-1.3.7" />
+      <path d="M9 15l-3 6M11.5 14.5 14 21M10.5 14.8v2.5" />
+      <circle cx="5.2" cy="12.6" r="1.3" />
+    </>
+  ),
+  // little rocket
+  rocket: (
+    <>
+      <path d="M12 3c2.8 1.8 4 4.6 4 7.6 0 2-.5 3.8-1.3 5.4h-5.4A11.9 11.9 0 0 1 8 10.6C8 7.6 9.2 4.8 12 3z" />
+      <circle cx="12" cy="9.5" r="1.7" />
+      <path d="M9.3 14.5 7 17.5l3-.5M14.7 14.5l2.3 3-3-.5" />
+      <path d="M11 18.5c0 1.2.4 2 1 2.5.6-.5 1-1.3 1-2.5" />
+    </>
+  ),
+  // paint palette
+  palette: (
+    <>
+      <path d="M12 3.5a8.5 8.5 0 1 0 0 17c1.4 0 1.9-.9 1.5-1.9-.5-1.3.2-2.6 1.7-2.6h1.8a3.5 3.5 0 0 0 3.5-3.6A8.7 8.7 0 0 0 12 3.5z" />
+      <circle cx="8" cy="9" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="12.5" cy="7.2" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="16.3" cy="9.6" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="7.5" cy="13.6" r="1.1" fill="currentColor" stroke="none" />
+    </>
+  ),
+  // two playing cards (memory game)
+  cards: (
+    <>
+      <rect x="4" y="6.5" width="9" height="12" rx="1.6" transform="rotate(-8 8.5 12.5)" />
+      <rect x="11" y="5.5" width="9" height="12" rx="1.6" transform="rotate(7 15.5 11.5)" />
+      <path d="M15 9.6c.5-1 2-1 2.3.2.2 1-1 1.8-1.7 2.4-.7-.5-2-1.1-1.9-2.1.1-1.2 1.6-1.4 1.3-.5z" fill="currentColor" stroke="none" />
+    </>
+  ),
+  // ringed planet
+  planet: (
+    <>
+      <circle cx="12" cy="12" r="5" />
+      <path d="M3.5 14.5c2.4 1.7 6.3 2.4 10.5 1.6 4.1-.8 7-2.7 6.5-4.6-.2-.9-1.3-1.5-2.9-1.8M6.6 9.7c-1.9.2-3.2.9-3.4 1.9" />
+    </>
+  ),
 }
 
 export default function Icon({ name, className = 'h-5 w-5', strokeWidth = 1.7, ...rest }) {

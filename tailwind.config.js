@@ -37,6 +37,8 @@ export default {
       },
       fontFamily: {
         sans: ['Manrope', 'Inter', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
+        // playful rounded display face for the kids' games arcade
+        game: ['"Baloo 2"', 'ui-rounded', 'Manrope', 'system-ui', 'sans-serif'],
       },
       borderRadius: {
         window: '32px',

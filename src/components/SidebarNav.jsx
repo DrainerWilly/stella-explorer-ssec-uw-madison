@@ -4,7 +4,7 @@ export const NAV = [
   { id: 'home', icon: 'home', label: 'Home' },
   { id: 'mission-control', icon: 'globe', label: 'Satellite Tracker' },
   { id: 'animations', icon: 'animation', label: 'Animations' },
-  { id: 'games', icon: 'games', label: 'Games' },
+  { id: 'games', icon: 'games', label: 'Space Arcade' },
   { id: 'lessons', icon: 'lessons', label: 'Lessons' },
   { id: 'device', icon: 'device', label: 'STELLA Device Lab' },
   { id: 'data-viz', icon: 'viz', label: 'Data Visualizer' },

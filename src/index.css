@@ -50,3 +50,25 @@ body {
 .scroll-soft::-webkit-scrollbar-track {
   background: transparent;
 }
+
+/* ---- Games arcade ambience (kids' section) -------------------------------- */
+/* Twinkling stars, gentle floats, and a slow wobble for doodle art. All of
+   these stop under prefers-reduced-motion. */
+@keyframes g-twinkle {
+  0%, 100% { opacity: 0.25; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.15); }
+}
+@keyframes g-float {
+  0%, 100% { transform: translateY(0) rotate(var(--tilt, 0deg)); }
+  50% { transform: translateY(-10px) rotate(var(--tilt, 0deg)); }
+}
+@keyframes g-wobble {
+  0%, 100% { transform: rotate(-2.5deg); }
+  50% { transform: rotate(2.5deg); }
+}
+.g-twinkle { animation: g-twinkle 2.6s ease-in-out infinite; }
+.g-float { animation: g-float 5.5s ease-in-out infinite; }
+.g-wobble { animation: g-wobble 4s ease-in-out infinite; transform-origin: 50% 90%; }
+@media (prefers-reduced-motion: reduce) {
+  .g-twinkle, .g-float, .g-wobble { animation: none; }
+}
