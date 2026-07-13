@@ -175,12 +175,6 @@ export default function GamesPage() {
             <GameCard key={g.id} game={g} index={i} record={progress[g.id]} onPlay={setSelectedId} />
           ))}
         </div>
-
-        <p className="mx-auto mt-10 max-w-xl text-center text-[11px] leading-relaxed text-white/30">
-          Made for young explorers, inspired by NASA education projects like StarChild and Imagine
-          the Universe. All the science here is real: it is the same remote sensing used by Landsat,
-          GOES, and your STELLA instrument.
-        </p>
       </div>
     </main>
   )

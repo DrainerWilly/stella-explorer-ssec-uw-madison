@@ -84,22 +84,38 @@ export default function HomePage({ onNavigate }) {
               Everywhere you can go
             </h2>
 
-            <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-4">
               {NAV.filter((item) => item.id !== 'home').map((item) => (
                 <button
                   key={item.id}
                   onClick={() => onNavigate?.(item.id)}
-                  className="group flex items-center gap-3 rounded-2xl border border-white/15 bg-white/[0.03] p-4 text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors hover:border-white/25 hover:bg-white/10"
+                  className="group overflow-hidden rounded-2xl border border-white/15 bg-white/[0.03] text-left shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] transition-colors hover:border-white/30 hover:bg-white/10"
                 >
-                  <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/10 text-sky-200 backdrop-blur-sm transition-colors group-hover:bg-white/20">
-                    <Icon name={item.icon} className="h-[18px] w-[18px]" />
-                  </span>
-                  <span className="text-sm font-bold text-white [text-shadow:0_1px_4px_rgba(0,0,0,0.6)]">
+                  {item.image && (
+                    <div className="relative h-24 w-full overflow-hidden sm:h-28">
+                      <img
+                        src={`${import.meta.env.BASE_URL}${item.image}`}
+                        alt={item.imageAlt}
+                        loading="lazy"
+                        className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-110"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-[#050b1f]/85 via-[#050b1f]/10 to-transparent" />
+                      <span className="absolute left-2 top-2 grid h-7 w-7 place-items-center rounded-lg bg-black/50 text-sky-200 backdrop-blur-sm">
+                        <Icon name={item.icon} className="h-[15px] w-[15px]" />
+                      </span>
+                    </div>
+                  )}
+                  <span className="block px-3 py-2.5 text-sm font-bold text-white">
                     {item.label}
                   </span>
                 </button>
               ))}
             </div>
+
+            <p className="mt-4 text-[10px] leading-relaxed text-white/25">
+              Photos: NASA (Landsat, Hubble Space Telescope, electromagnetic spectrum diagram, and
+              the STELLA field program) and the STELLA-1.2 / STELLA-Q2 instruments.
+            </p>
           </motion.div>
         </section>
       </div>

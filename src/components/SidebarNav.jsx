@@ -1,14 +1,65 @@
 import Icon from './Icon.jsx'
 
+// Each item also carries a real photo (official sources: NASA/USGS imagery,
+// the STELLA project site, and NASA's public Images API), used by the home
+// page's Explore grid. The sidebar itself shows only the line-icon glyph.
 export const NAV = [
-  { id: 'home', icon: 'home', label: 'Home' },
-  { id: 'mission-control', icon: 'globe', label: 'Satellite Tracker' },
-  { id: 'animations', icon: 'animation', label: 'Animations' },
-  { id: 'games', icon: 'games', label: 'Space Arcade' },
-  { id: 'lessons', icon: 'lessons', label: 'Lessons' },
-  { id: 'device', icon: 'device', label: 'STELLA Device Lab' },
-  { id: 'data-viz', icon: 'viz', label: 'Data Visualizer' },
-  { id: 'data', icon: 'data', label: 'Data & graphs' },
+  {
+    id: 'home',
+    icon: 'home',
+    label: 'Home',
+    image: 'assets/nasa/earth-day-8k.jpg',
+    imageAlt: 'NASA Blue Marble image of Earth from space',
+  },
+  {
+    id: 'mission-control',
+    icon: 'globe',
+    label: 'Satellite Tracker',
+    image: 'assets/media/landsat-in-orbit.jpg',
+    imageAlt: 'Rendered view of a Landsat satellite in orbit above a mountainous coastline',
+  },
+  {
+    id: 'animations',
+    icon: 'animation',
+    label: 'Animations',
+    image: 'assets/nasa/ems-diagram-09172025.jpg',
+    imageAlt: 'NASA diagram of the electromagnetic spectrum from radio waves to gamma rays',
+  },
+  {
+    id: 'games',
+    icon: 'games',
+    label: 'Space Arcade',
+    image: 'assets/home/pillars-of-creation.jpg',
+    imageAlt: 'The Pillars of Creation, imaged by the Hubble Space Telescope',
+  },
+  {
+    id: 'lessons',
+    icon: 'lessons',
+    label: 'Lessons',
+    image: 'assets/home/stella-field-lesson.jpg',
+    imageAlt: 'Students and an educator examining vegetation during a STELLA field session',
+  },
+  {
+    id: 'device',
+    icon: 'device',
+    label: 'STELLA Device Lab',
+    image: 'assets/stella/stella-1-2.png',
+    imageAlt: 'The white 3D-printed STELLA-1.2 instrument with its touchscreen and rotary knob',
+  },
+  {
+    id: 'data-viz',
+    icon: 'viz',
+    label: 'Data Visualizer',
+    image: 'assets/stella/stella-q2.png',
+    imageAlt: 'The STELLA-Q2 pocket spectrometer with a live spectrum on its display',
+  },
+  {
+    id: 'data',
+    icon: 'data',
+    label: 'Data & graphs',
+    image: 'landsat/false-color.jpg',
+    imageAlt: 'Near-infrared false-color Landsat image of Florida with vegetation shown in red',
+  },
 ]
 
 export default function SidebarNav({ className = '', active = 'home', onNavigate }) {

@@ -271,7 +271,7 @@ export const INSTRUMENTS = [
   },
   {
     id: 'rs',
-    name: 'STELLA-RS',
+    name: 'STELLA-1.2-RS',
     fullName: 'STELLA-1.2 · Remote Sensing module',
     group: 'platform',
     chassis: 'platform',
