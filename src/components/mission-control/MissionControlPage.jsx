@@ -465,11 +465,14 @@ export default function MissionControlPage({ onNavigate }) {
           <div className="absolute left-1/2 top-3.5 z-10 -translate-x-1/2">{staleBanner}</div>
         )}
 
-        {/* left satellite drawer: a slim tab that opens a capped-height panel */}
-        <div className="absolute left-4 top-16 z-10 w-[248px]">
+        {/* left satellite drawer: a slim tab that opens a scrollable panel.
+            The wrapper spans a definite height (top-16 → bottom-20) so the list
+            inside gets a bounded box to scroll within; it's pointer-events-none
+            so its empty area never blocks the globe. */}
+        <div className="pointer-events-none absolute bottom-20 left-4 top-16 z-10 flex w-[248px] flex-col">
           <button
             onClick={() => setRailOpen((v) => !v)}
-            className={`flex w-full items-center gap-2 rounded-xl border border-white/10 bg-[#0b1a3d]/85 px-3 py-2 text-[12px] font-bold uppercase tracking-[0.14em] text-white/80 backdrop-blur-xl transition-colors hover:text-white ${
+            className={`pointer-events-auto flex w-full shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-[#0b1a3d]/90 px-3 py-2 text-[12px] font-bold uppercase tracking-[0.14em] text-white/80 backdrop-blur-xl transition-colors hover:text-white ${
               railOpen ? 'rounded-b-none border-b-0' : ''
             }`}
           >
@@ -479,7 +482,7 @@ export default function MissionControlPage({ onNavigate }) {
             <Icon name="chevron" className={`h-3.5 w-3.5 transition-transform ${railOpen ? '-rotate-90' : 'rotate-90'}`} />
           </button>
           {railOpen && (
-            <div className="flex max-h-[calc(100vh-9rem)] flex-col rounded-b-xl border border-t-0 border-white/10 bg-[#0b1a3d]/85 p-2.5 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+            <div className="pointer-events-auto flex min-h-0 flex-1 flex-col rounded-b-xl border border-t-0 border-white/10 bg-[#0b1a3d]/90 p-2.5 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
               {catalogEl}
             </div>
           )}
