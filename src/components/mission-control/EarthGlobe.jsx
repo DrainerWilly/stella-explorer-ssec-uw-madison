@@ -96,7 +96,19 @@ function deriveSurfaceMaps(dayImg, topoImg) {
   }
 }
 
-export default function EarthGlobe({ quality = 'balanced', showGrid = false, clock, reducedMotion }) {
+// `cloudDrift` slowly spins the cloud shell relative to the surface. It is a
+// decorative flourish for the home-page hero (where the whole globe is already
+// spinning). It is OFF by default: this globe is drawn in an Earth-FIXED frame,
+// so the surface is deliberately static and a drifting cloud layer would look
+// detached. It is also driven by render time, not the simulation clock, so it
+// must never be used anywhere the sim clock can be paused or time-warped.
+export default function EarthGlobe({
+  quality = 'balanced',
+  showGrid = false,
+  clock,
+  reducedMotion,
+  cloudDrift = false,
+}) {
   const { camera, gl } = useThree()
   const earthRef = useRef()
   const cloudRef = useRef()
@@ -361,7 +373,8 @@ export default function EarthGlobe({ quality = 'balanced', showGrid = false, clo
 
   const segments = quality === 'high' ? 128 : quality === 'low' ? 64 : 96
 
-  // Drive the day/night terminator + drift the clouds.
+  // Drive the day/night terminator from the sim clock, and optionally drift the
+  // decorative cloud shell (see the cloudDrift note above).
   useFrame((_, delta) => {
     if (clock) {
       const [sx, sy, sz] = sunDirectionUnitVec(clock.getDate())
@@ -370,7 +383,9 @@ export default function EarthGlobe({ quality = 'balanced', showGrid = false, clo
       _sunView.copy(_sunWorld).transformDirection(camera.matrixWorldInverse)
       sunViewUniform.current.value.copy(_sunView)
     }
-    if (cloudRef.current && !reducedMotion) cloudRef.current.rotation.y += delta * 0.005
+    if (cloudDrift && cloudRef.current && !reducedMotion) {
+      cloudRef.current.rotation.y += delta * 0.005
+    }
   })
 
   return (

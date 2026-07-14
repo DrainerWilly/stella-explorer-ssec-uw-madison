@@ -17,7 +17,9 @@ function SpinningEarth({ reducedMotion }) {
   return (
     <group position={[1.15, -0.55, 0]} scale={1.4}>
       <group ref={ref} rotation={[0.38, 0, 0.12]}>
-        <EarthGlobe quality="high" clock={realClock} reducedMotion={reducedMotion} />
+        {/* cloudDrift is a decorative flourish that reads well here because the
+            whole globe is already spinning; the tracker leaves it off. */}
+        <EarthGlobe quality="high" clock={realClock} reducedMotion={reducedMotion} cloudDrift />
       </group>
     </group>
   )

@@ -35,7 +35,6 @@ export default function TimeControlBar({
   onPlayPause,
   onSpeed,
   onLive,
-  onReset,
   onScrub,
 }) {
   const [timeMs, setTimeMs] = useState(clock.time)
@@ -52,9 +51,13 @@ export default function TimeControlBar({
   const scrubValue = Math.min(max, Math.max(min, timeMs))
   const scrubPct = ((scrubValue - min) / (max - min)) * 100
 
-  const rateIdx = Math.max(0, RATES.indexOf(speed))
+  // Live is the bottom rung of the rate ladder (real rate, snapped to now), so
+  // the stepper treats it as 1× and ">" simply steps up out of it. The stepper
+  // only ever changes the rate: it never jumps the clock. Use Live to do that.
+  const effectiveIdx = following ? 0 : Math.max(0, RATES.indexOf(speed))
   const stepRate = (dir) => {
-    onSpeed(RATES[Math.min(RATES.length - 1, Math.max(0, rateIdx + dir))])
+    const next = Math.min(RATES.length - 1, Math.max(0, effectiveIdx + dir))
+    if (next !== effectiveIdx) onSpeed(RATES[next])
   }
 
   const iconBtn =
@@ -64,10 +67,7 @@ export default function TimeControlBar({
     <div className="overflow-hidden rounded-full border border-white/10 bg-[#0b1a3d]/85 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
       {/* control row */}
       <div className="flex items-center gap-1.5 px-2 py-1.5">
-        {/* reset + play/pause */}
-        <button onClick={onReset} title="Reset to now" aria-label="Reset simulation time to now" className={iconBtn}>
-          <Icon name="reset" className="h-4 w-4" />
-        </button>
+        {/* play/pause */}
         <button
           onClick={onPlayPause}
           aria-label={playing ? 'Pause' : 'Play'}
@@ -80,18 +80,18 @@ export default function TimeControlBar({
         <div className="flex items-center">
           <button
             onClick={() => stepRate(-1)}
-            disabled={following || rateIdx <= 0}
+            disabled={effectiveIdx <= 0}
             aria-label="Slower"
             className={iconBtn}
           >
             <Icon name="back" className="h-3.5 w-3.5" />
           </button>
           <span className="w-9 text-center font-mono text-[12px] font-bold tabular-nums text-white">
-            {following ? '1×' : rateLabel(speed)}
+            {rateLabel(RATES[effectiveIdx])}
           </span>
           <button
             onClick={() => stepRate(1)}
-            disabled={following || rateIdx >= RATES.length - 1}
+            disabled={effectiveIdx >= RATES.length - 1}
             aria-label="Faster"
             className={iconBtn}
           >

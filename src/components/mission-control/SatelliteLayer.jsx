@@ -2,13 +2,15 @@ import { useMemo, useRef } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
-import { propagateAt, geodeticToVec3 } from '../../utils/orbitMath.js'
+import { EARTH_RADIUS_UNITS, propagateAt, geodeticToVec3 } from '../../utils/orbitMath.js'
 
 // Scratch vectors reused across frames (single-threaded, so this is safe).
 const _base = new THREE.Vector3()
 const _up = new THREE.Vector3()
 const _tan = new THREE.Vector3()
 const _bit = new THREE.Vector3()
+const _toSat = new THREE.Vector3()
+const _closest = new THREE.Vector3()
 
 // Small visual fan-out so spacecraft that share a host (e.g. ISS instruments)
 // are each individually visible instead of overlapping. Purely a display aid;
@@ -19,9 +21,30 @@ const CO_LOCATED_OFFSET = 0.09
 const LABEL_SHADOW =
   '0 1px 3px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.6)'
 
-// One satellite marker: a tiny white anchor dot plus a plain white name label
-// (NASA-Eyes style). Position updates every frame via refs (no React state), so
-// movement stays smooth without re-rendering the tree.
+/**
+ * True when the solid Earth sits between the camera and this point, i.e. the
+ * satellite is round the back of the globe from the current viewpoint.
+ *
+ * The name labels are DOM (drei <Html>), so they get no depth testing and would
+ * otherwise show straight through the planet. Exact segment/sphere test: find
+ * where the camera→satellite segment passes closest to Earth's centre; if that
+ * point falls inside the globe, it's blocked.
+ */
+function hiddenBehindEarth(camPos, satPos) {
+  _toSat.subVectors(satPos, camPos)
+  const lenSq = _toSat.lengthSq()
+  if (lenSq === 0) return false
+  // Parameter (0..1 along the segment) of closest approach to Earth's centre.
+  const t = -camPos.dot(_toSat) / lenSq
+  if (t <= 0 || t >= 1) return false // closest approach lies outside the segment
+  _closest.copy(camPos).addScaledVector(_toSat, t)
+  return _closest.lengthSq() < EARTH_RADIUS_UNITS * EARTH_RADIUS_UNITS
+}
+
+// One satellite marker: the plain white name alone marks the spot (NASA-Eyes
+// style), over an invisible sphere that gives it a comfortable hit area.
+// Position updates every frame via refs (no React state), so movement stays
+// smooth without re-rendering the tree.
 function SatelliteMarker({
   item,
   clock,
@@ -34,6 +57,15 @@ function SatelliteMarker({
   offsetCount = 1,
 }) {
   const groupRef = useRef()
+  const labelRef = useRef()
+  // Mirrors the label's culling so a satellite behind the globe can't be
+  // hovered or clicked through it.
+  const occludedRef = useRef(false)
+  const { camera } = useThree()
+
+  const setLabelShown = (shown) => {
+    if (labelRef.current) labelRef.current.style.opacity = shown ? '1' : '0'
+  }
 
   useFrame(() => {
     const group = groupRef.current
@@ -41,6 +73,8 @@ function SatelliteMarker({
     const s = propagateAt(item.satrec, clock.getDate())
     if (!s.ok) {
       group.visible = false
+      occludedRef.current = true
+      setLabelShown(false)
       return
     }
     group.visible = true
@@ -65,6 +99,12 @@ function SatelliteMarker({
     } else {
       group.position.set(x, y, z)
     }
+
+    // Only label what the viewer can actually see; re-evaluated every frame, so
+    // names fade back in as the globe is dragged around.
+    const occluded = hiddenBehindEarth(camera.position, group.position)
+    occludedRef.current = occluded
+    setLabelShown(!occluded)
   })
 
   const name = item.mission?.displayName || item.id
@@ -75,6 +115,7 @@ function SatelliteMarker({
       {/* larger invisible hit area for easy selection */}
       <mesh
         onPointerOver={(e) => {
+          if (occludedRef.current) return
           e.stopPropagation()
           onHover(item.id)
           document.body.style.cursor = 'pointer'
@@ -85,6 +126,7 @@ function SatelliteMarker({
           document.body.style.cursor = 'auto'
         }}
         onClick={(e) => {
+          if (occludedRef.current) return
           e.stopPropagation()
           onSelect(item.id)
         }}
@@ -93,18 +135,13 @@ function SatelliteMarker({
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      {/* tiny white anchor dot (hidden when selected: the 3D model marks it) */}
-      {!selected && (
-        <mesh scale={hovered ? 1.6 : 1}>
-          <sphereGeometry args={[0.016, 12, 12]} />
-          <meshBasicMaterial color="#ffffff" />
-        </mesh>
-      )}
-
       {/* plain white name label, no box. zIndexRange stays below the page's
-          floating chrome (z-10+) so panels like the satellite drawer cover it. */}
+          floating chrome (z-10+) so panels like the satellite drawer cover it.
+          Opacity is driven imperatively from useFrame (see setLabelShown), so
+          it is deliberately not part of the React style prop. */}
       <Html center zIndexRange={[9, 0]} style={{ pointerEvents: 'none' }}>
         <span
+          ref={labelRef}
           className={`block translate-x-[10px] whitespace-nowrap leading-none tracking-wide transition-all duration-150 ${
             active ? 'text-[12px] font-bold text-white' : 'text-[11px] font-semibold text-white/85'
           }`}

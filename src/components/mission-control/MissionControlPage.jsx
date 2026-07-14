@@ -232,10 +232,6 @@ export default function MissionControlPage({ onNavigate }) {
     setSpeed(1)
     setPlaying(true)
   }
-  const onReset = () => {
-    clock.time = Date.now()
-    setFollowing(false)
-  }
   const onScrub = (t) => {
     clock.time = t
     setPlaying(false)
@@ -316,7 +312,6 @@ export default function MissionControlPage({ onNavigate }) {
       onPlayPause={onPlayPause}
       onSpeed={onSpeed}
       onLive={onLive}
-      onReset={onReset}
       onScrub={onScrub}
     />
   )
