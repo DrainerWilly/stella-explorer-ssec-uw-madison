@@ -101,8 +101,9 @@ function SatelliteMarker({
         </mesh>
       )}
 
-      {/* plain white name label, no box */}
-      <Html center zIndexRange={[16, 0]} style={{ pointerEvents: 'none' }}>
+      {/* plain white name label, no box. zIndexRange stays below the page's
+          floating chrome (z-10+) so panels like the satellite drawer cover it. */}
+      <Html center zIndexRange={[9, 0]} style={{ pointerEvents: 'none' }}>
         <span
           className={`block translate-x-[10px] whitespace-nowrap leading-none tracking-wide transition-all duration-150 ${
             active ? 'text-[12px] font-bold text-white' : 'text-[11px] font-semibold text-white/85'

@@ -38,14 +38,16 @@ export default function MissionCatalog({ missions, byId, cacheStatus, selectedId
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase()
-    return missions.filter((m) => {
-      if (category !== 'all' && m.category !== category) return false
-      if (!q) return true
-      const hay = [m.displayName, m.agency, m.category, m.orbitType, ...(m.observes || []), ...(m.instruments || [])]
-        .join(' ')
-        .toLowerCase()
-      return hay.includes(q)
-    })
+    return missions
+      .filter((m) => {
+        if (category !== 'all' && m.category !== category) return false
+        if (!q) return true
+        const hay = [m.displayName, m.agency, m.category, m.orbitType, ...(m.observes || []), ...(m.instruments || [])]
+          .join(' ')
+          .toLowerCase()
+        return hay.includes(q)
+      })
+      .sort((a, b) => a.displayName.localeCompare(b.displayName))
   }, [missions, query, category])
 
   return (
