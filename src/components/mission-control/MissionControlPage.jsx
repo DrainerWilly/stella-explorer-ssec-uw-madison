@@ -12,7 +12,7 @@ import {
   formatUtc,
   MODELED_POSITION_DISCLAIMER,
 } from './orbitStatus'
-import { PANEL, LABEL, GHOST_BTN, CHIP } from './mcStyles.js'
+import { PANEL, GHOST_BTN, CHIP } from './mcStyles.js'
 
 import MissionCatalog from './MissionCatalog.jsx'
 import MissionPanel from './MissionPanel.jsx'
@@ -37,7 +37,6 @@ const DEFAULT_SETTINGS = {
   grid: false,
   earthRotation: false,
   exaggeration: 2,
-  showAllLabels: false,
   cities: false,
 }
 
@@ -109,7 +108,8 @@ export default function MissionControlPage({ onNavigate }) {
   const [modelScale, setModelScale] = useState(1)
   const [showMethodology, setShowMethodology] = useState(false)
   const [showOverlay, setShowOverlay] = useState(false)
-  const [railOpen, setRailOpen] = useState(true)
+  // Globe-first: the satellite drawer starts closed so the Earth is fully visible.
+  const [railOpen, setRailOpen] = useState(false)
   const [mobilePanel, setMobilePanel] = useState('catalog') // catalog | mission
 
   // simulation transport (mirrored into the clock object), defaults to Live
@@ -339,35 +339,29 @@ export default function MissionControlPage({ onNavigate }) {
 
   // --- title block + top-right cluster (shared) ---
   const titleBlock = (
-    <div className="pointer-events-none">
-      <div className={LABEL}>SSEC · Earth Science</div>
-      <h1 className="mt-0.5 text-xl font-light uppercase tracking-[0.18em] text-white sm:text-2xl">
-        Satellite Tracker
-      </h1>
-      <p className="mt-1 hidden max-w-sm text-[11px] leading-snug text-white/45 sm:block">
-        Explore modeled satellite orbits and discover how Earth-observing missions study our
-        changing planet.
-      </p>
+    <div className="pointer-events-none flex items-center gap-2">
+      <Icon name="globe" className="h-5 w-5 text-[#67d1ff]" />
+      <div>
+        <h1 className="text-sm font-bold uppercase tracking-[0.2em] text-white">Satellite Tracker</h1>
+        <div className="text-[9px] font-semibold uppercase tracking-[0.15em] text-white/40">
+          SSEC · Earth Science
+        </div>
+      </div>
     </div>
   )
 
   const topRightCluster = (
     <div className="flex flex-wrap items-center justify-end gap-2">
-      <span className={CHIP}>
-        <span
-          className={`h-1.5 w-1.5 rounded-full ${
-            statusInfo.tone === 'ok' ? 'bg-emerald-400' : 'bg-amber-400'
-          }`}
-        />
-        <span className="hidden sm:inline">Orbit data updated:&nbsp;</span>
-        {formatUtc(data?.generatedAt)}
-      </span>
-      <button
-        onClick={refetch}
-        title="Refresh orbital data"
-        aria-label="Refresh orbital data"
-        className={GHOST_BTN}
+      <span
+        className={`${CHIP} !px-2.5 !py-1`}
+        title={`Orbit data updated ${formatUtc(data?.generatedAt)}`}
       >
+        <span
+          className={`h-1.5 w-1.5 rounded-full ${statusInfo.tone === 'ok' ? 'bg-emerald-400' : 'bg-amber-400'}`}
+        />
+        <span className="hidden text-[10px] sm:inline">{statusInfo.label}</span>
+      </span>
+      <button onClick={refetch} title="Refresh orbital data" aria-label="Refresh orbital data" className={GHOST_BTN}>
         <Icon name="reset" className="h-4 w-4" />
       </button>
       <button
@@ -456,67 +450,60 @@ export default function MissionControlPage({ onNavigate }) {
           {sceneEl}
         </div>
 
-        {/* cinematic vignette + top legibility gradient (never intercept input) */}
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_58%,rgba(0,0,0,0.55)_100%)]" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-black/70 to-transparent" />
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-black/70 to-transparent" />
+        {/* light legibility gradients only at top/bottom edges (keep the globe visible) */}
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/45 to-transparent" />
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 to-transparent" />
 
         {/* title */}
-        <div className="absolute left-5 top-4 z-10">{titleBlock}</div>
+        <div className="absolute left-4 top-4 z-10">{titleBlock}</div>
 
         {/* top-right cluster */}
         <div className="absolute right-4 top-4 z-20">{topRightCluster}</div>
 
         {/* stale banner */}
         {staleBanner && (
-          <div className="absolute left-1/2 top-4 z-10 -translate-x-1/2">{staleBanner}</div>
+          <div className="absolute left-1/2 top-3.5 z-10 -translate-x-1/2">{staleBanner}</div>
         )}
 
-        {/* left mission rail */}
-        {railOpen ? (
-          <div className={`absolute bottom-32 left-4 top-28 z-10 flex w-[280px] flex-col ${PANEL} p-3`}>
-            <div className="mb-2 flex items-center justify-between">
-              <span className={LABEL}>Missions</span>
-              <button
-                onClick={() => setRailOpen(false)}
-                aria-label="Collapse mission list"
-                className="grid h-7 w-7 place-items-center rounded-md bg-white/5 text-white/60 hover:bg-white/10 hover:text-white"
-              >
-                <Icon name="back" className="h-4 w-4" />
-              </button>
-            </div>
-            <div className="min-h-0 flex-1">{catalogEl}</div>
-          </div>
-        ) : (
+        {/* left satellite drawer: a slim tab that opens a capped-height panel */}
+        <div className="absolute left-4 top-16 z-10 w-[248px]">
           <button
-            onClick={() => setRailOpen(true)}
-            className={`absolute left-4 top-28 z-10 ${PANEL} flex items-center gap-2 px-3 py-2 text-[11px] font-bold uppercase tracking-[0.15em] text-white/70 hover:text-white`}
+            onClick={() => setRailOpen((v) => !v)}
+            className={`flex w-full items-center gap-2 rounded-xl border border-white/10 bg-[#0b1a3d]/85 px-3 py-2 text-[12px] font-bold uppercase tracking-[0.14em] text-white/80 backdrop-blur-xl transition-colors hover:text-white ${
+              railOpen ? 'rounded-b-none border-b-0' : ''
+            }`}
           >
-            <Icon name="orbit" className="h-4 w-4" />
-            Missions
-            <Icon name="chevron" className="h-3.5 w-3.5" />
+            <Icon name="orbit" className="h-4 w-4 text-[#67d1ff]" />
+            Satellites
+            <span className="ml-auto rounded-full bg-white/10 px-1.5 text-[10px] tabular-nums">{prop.valid.length}</span>
+            <Icon name="chevron" className={`h-3.5 w-3.5 transition-transform ${railOpen ? '-rotate-90' : 'rotate-90'}`} />
           </button>
-        )}
+          {railOpen && (
+            <div className="flex max-h-[calc(100vh-9rem)] flex-col rounded-b-xl border border-t-0 border-white/10 bg-[#0b1a3d]/85 p-2.5 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+              {catalogEl}
+            </div>
+          )}
+        </div>
 
-        {/* mission info card */}
+        {/* selected satellite info card: compact, bottom-right, hugs its content */}
         {selectedItem && (
-          <div className={`absolute bottom-32 right-4 top-28 z-10 flex w-[340px] flex-col ${PANEL} p-4`}>
+          <div className={`absolute bottom-16 right-4 z-10 flex max-h-[calc(100vh-7rem)] w-[336px] flex-col ${PANEL} p-3.5`}>
             {panelEl}
           </div>
         )}
 
-        {/* sources & methodology */}
+        {/* sources & methodology: tiny text link, bottom-left */}
         <button
           onClick={() => setShowMethodology(true)}
-          className={`absolute bottom-4 left-4 z-10 ${PANEL} flex items-center gap-1.5 px-3 py-2 text-[10px] font-bold uppercase tracking-[0.15em] text-white/60 hover:text-white`}
+          className="absolute bottom-4 left-4 z-10 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white/40 transition-colors hover:text-white/80"
         >
           <Icon name="book" className="h-3.5 w-3.5" />
           Sources & methodology
         </button>
 
-        {/* time bar: auto-hides after inactivity, returns on mouse/key activity */}
+        {/* slim time ribbon: auto-hides after inactivity, returns on activity */}
         <div
-          className={`absolute bottom-4 left-1/2 z-10 w-[min(680px,calc(100%-380px))] -translate-x-1/2 ${
+          className={`absolute bottom-3.5 left-1/2 z-10 w-[min(560px,calc(100%-420px))] -translate-x-1/2 ${
             reducedMotion ? '' : 'transition-all duration-500 ease-out'
           } ${
             controlsActive

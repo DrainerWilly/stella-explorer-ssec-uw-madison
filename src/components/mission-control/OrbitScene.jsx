@@ -155,7 +155,6 @@ function SceneContents({
         onSelect={onSelect}
         hoveredId={hoveredId}
         onHover={onHover}
-        showAllLabels={settings.showAllLabels}
       />
 
       <OrbitControls

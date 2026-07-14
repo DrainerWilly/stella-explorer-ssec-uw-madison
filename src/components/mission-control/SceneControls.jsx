@@ -57,7 +57,6 @@ export default function SceneControls({ settings, onChange, reducedMotion, onRes
             <Row label="Orbit trails" checked={settings.trails} onChange={(v) => onChange('trails', v)} />
             <Row label="Ground track" checked={settings.groundTrack} onChange={(v) => onChange('groundTrack', v)} />
             <Row label="Lat/lon grid" checked={settings.grid} onChange={(v) => onChange('grid', v)} />
-            <Row label="Show all labels" checked={settings.showAllLabels} onChange={(v) => onChange('showAllLabels', v)} />
             <Row label="Cities" checked={settings.cities} onChange={(v) => onChange('cities', v)} />
           </div>
 

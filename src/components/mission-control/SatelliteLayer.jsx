@@ -15,14 +15,18 @@ const _bit = new THREE.Vector3()
 // the numeric position shown in the panel remains the true (host) position.
 const CO_LOCATED_OFFSET = 0.09
 
-// One satellite marker. Position updates every frame via refs (no React state),
-// so movement stays smooth without re-rendering the tree.
+// Legibility shadow so plain white names stay readable over the bright Earth.
+const LABEL_SHADOW =
+  '0 1px 3px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.6)'
+
+// One satellite marker: a tiny white anchor dot plus a plain white name label
+// (NASA-Eyes style). Position updates every frame via refs (no React state), so
+// movement stays smooth without re-rendering the tree.
 function SatelliteMarker({
   item,
   clock,
   exaggeration,
   selected,
-  showLabel,
   hovered,
   onHover,
   onSelect,
@@ -30,9 +34,6 @@ function SatelliteMarker({
   offsetCount = 1,
 }) {
   const groupRef = useRef()
-  const ringRef = useRef()
-  const { camera } = useThree()
-  const color = item.mission?.markerColor || '#cbd5e1'
 
   useFrame(() => {
     const group = groupRef.current
@@ -45,7 +46,7 @@ function SatelliteMarker({
     group.visible = true
     const [x, y, z] = geodeticToVec3(s.latRad, s.lonRad, s.altKm, exaggeration)
     // The selected craft renders as a full 3D model at its true position, so it
-    // skips the co-located fan-out (keeps its ring/label aligned with the model).
+    // skips the co-located fan-out (keeps its label aligned with the model).
     if (offsetCount > 1 && !selected) {
       // Fan co-located spacecraft evenly around their shared point.
       _base.set(x, y, z)
@@ -64,11 +65,10 @@ function SatelliteMarker({
     } else {
       group.position.set(x, y, z)
     }
-    // Keep the selection ring facing the camera.
-    if (ringRef.current) ringRef.current.quaternion.copy(camera.quaternion)
   })
 
-  const dotScale = selected ? 1.9 : hovered ? 1.4 : 1
+  const name = item.mission?.displayName || item.id
+  const active = selected || hovered
 
   return (
     <group ref={groupRef}>
@@ -89,49 +89,29 @@ function SatelliteMarker({
           onSelect(item.id)
         }}
       >
-        <sphereGeometry args={[0.12, 12, 12]} />
+        <sphereGeometry args={[0.13, 12, 12]} />
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      {/* dot + halo, hidden when selected (the 3D model provides the body) */}
+      {/* tiny white anchor dot (hidden when selected: the 3D model marks it) */}
       {!selected && (
-        <>
-          {/* soft halo */}
-          <mesh scale={dotScale * 2.2}>
-            <sphereGeometry args={[0.03, 12, 12]} />
-            <meshBasicMaterial color={color} transparent opacity={0.22} depthWrite={false} />
-          </mesh>
-
-          {/* the glowing marker */}
-          <mesh scale={dotScale}>
-            <sphereGeometry args={[0.03, 14, 14]} />
-            <meshBasicMaterial color={color} />
-          </mesh>
-        </>
-      )}
-
-      {/* selection focus ring */}
-      {selected && (
-        <mesh ref={ringRef}>
-          <ringGeometry args={[0.075, 0.095, 40]} />
-          <meshBasicMaterial color={color} transparent opacity={0.9} side={THREE.DoubleSide} />
+        <mesh scale={hovered ? 1.6 : 1}>
+          <sphereGeometry args={[0.016, 12, 12]} />
+          <meshBasicMaterial color="#ffffff" />
         </mesh>
       )}
 
-      {showLabel && (
-        <Html center zIndexRange={[20, 0]} style={{ pointerEvents: 'none' }}>
-          <div
-            className="translate-y-[-18px] whitespace-nowrap rounded-full px-2 py-0.5 text-[11px] font-bold"
-            style={{
-              background: 'rgba(10,14,25,0.82)',
-              color: '#e6edf7',
-              border: `1px solid ${color}`,
-            }}
-          >
-            {item.mission?.displayName || item.id}
-          </div>
-        </Html>
-      )}
+      {/* plain white name label, no box */}
+      <Html center zIndexRange={[16, 0]} style={{ pointerEvents: 'none' }}>
+        <span
+          className={`block translate-x-[10px] whitespace-nowrap leading-none tracking-wide transition-all duration-150 ${
+            active ? 'text-[12px] font-bold text-white' : 'text-[11px] font-semibold text-white/85'
+          }`}
+          style={{ textShadow: LABEL_SHADOW }}
+        >
+          {name}
+        </span>
+      </Html>
     </group>
   )
 }
@@ -145,7 +125,6 @@ export default function SatelliteLayer({
   onSelect,
   hoveredId,
   onHover,
-  showAllLabels,
 }) {
   // Stable list so markers aren't recreated every render.
   const list = useMemo(() => items.filter((i) => i.valid), [items])
@@ -181,7 +160,6 @@ export default function SatelliteLayer({
             exaggeration={exaggeration}
             selected={selected}
             hovered={hovered}
-            showLabel={showAllLabels || hovered}
             onHover={onHover}
             onSelect={onSelect}
             offsetIndex={off.index}
