@@ -100,8 +100,9 @@ export default function MissionControlPage({ onNavigate }) {
     ...DEFAULT_SETTINGS,
     quality: lowPowerDevice() ? 'low' : 'balanced',
   }))
-  const [follow, setFollow] = useState(false)
-  const [focusSignal, setFocusSignal] = useState(null)
+  // Spacecraft view (NASA Eyes): the camera rides with the selected satellite,
+  // Earth below. On by default whenever a mission is selected.
+  const [follow, setFollow] = useState(true)
   const [resetSignal, setResetSignal] = useState(0)
   // While a satellite is selected, the scroll wheel resizes ITS model instead of
   // dollying the camera, so the Earth's apparent size never changes.
@@ -189,18 +190,11 @@ export default function MissionControlPage({ onNavigate }) {
     return () => clearInterval(id)
   }, [prop.valid, clock])
 
-  // Follow mode: gently re-frame the selected mission as it moves.
-  useEffect(() => {
-    if (!follow || !selectedId || reducedMotion) return
-    const id = setInterval(() => setFocusSignal({ id: selectedId, ts: Date.now() }), 2600)
-    return () => clearInterval(id)
-  }, [follow, selectedId, reducedMotion])
-
   // --- handlers ---
   function selectMission(id) {
     setSelectedId(id)
     setModelScale(1) // start each mission at its default model size
-    setFocusSignal({ id, ts: Date.now() })
+    setFollow(true) // clicking a satellite always enters the spacecraft view
     if (!isDesktop) setMobilePanel('mission')
   }
   const changeSetting = (key, value) => setSettings((s) => ({ ...s, [key]: value }))
@@ -265,7 +259,7 @@ export default function MissionControlPage({ onNavigate }) {
         onHover={setHoveredId}
         theme="dark"
         reducedMotion={reducedMotion}
-        focusSignal={focusSignal}
+        follow={follow}
         resetSignal={resetSignal}
         modelScale={modelScale}
         maxDpr={isDesktop ? 2 : 1.5}
@@ -371,7 +365,12 @@ export default function MissionControlPage({ onNavigate }) {
         settings={settings}
         onChange={changeSetting}
         reducedMotion={reducedMotion}
-        onResetCamera={() => setResetSignal((n) => n + 1)}
+        onResetCamera={() => {
+          // Back to the whole-Earth framing: leave the spacecraft view first so
+          // the follow camera doesn't immediately re-capture the reset position.
+          setFollow(false)
+          setResetSignal((n) => n + 1)
+        }}
       />
     </div>
   )

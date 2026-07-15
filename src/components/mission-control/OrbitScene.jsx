@@ -1,14 +1,14 @@
 import { Suspense, useEffect, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
-import * as THREE from 'three'
 import EarthGlobe from './EarthGlobe.jsx'
 import SatelliteLayer from './SatelliteLayer.jsx'
 import SelectedSatelliteModel from './SelectedSatelliteModel.jsx'
+import SatelliteViewControls from './SatelliteViewControls.jsx'
 import OrbitTrailLayer from './OrbitTrailLayer.jsx'
 import GroundTrackLayer from './GroundTrackLayer.jsx'
 import CityLabelsLayer from './CityLabelsLayer.jsx'
-import { sunDirectionUnitVec, geodeticToVec3, propagateAt } from '../../utils/orbitMath.js'
+import { sunDirectionUnitVec } from '../../utils/orbitMath.js'
 
 function SceneContents({
   items,
@@ -20,7 +20,7 @@ function SceneContents({
   onHover,
   theme,
   reducedMotion,
-  focusSignal,
+  follow,
   resetSignal,
   modelScale = 1,
 }) {
@@ -28,40 +28,19 @@ function SceneContents({
   const controlsRef = useRef()
   const { camera } = useThree()
 
-  // Camera focus animation state.
-  const focus = useRef({ active: false, target: new THREE.Vector3(), t: 0 })
+  const selected = items.find((i) => i.id === selectedId && i.valid) || null
+  // Spacecraft view: camera rides with the selected satellite (NASA Eyes).
+  const followView = Boolean(follow && selected)
 
   // Reset camera to the default framing when requested.
   useEffect(() => {
     if (!resetSignal) return
-    focus.current.active = false
+    camera.up.set(0, 1, 0)
     camera.position.set(0, 1.6, 6.4)
     controlsRef.current?.target.set(0, 0, 0)
     controlsRef.current?.update?.()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [resetSignal])
-
-  useEffect(() => {
-    if (!focusSignal?.id) return
-    const item = items.find((i) => i.id === focusSignal.id && i.valid)
-    if (!item) return
-    const s = propagateAt(item.satrec, clock.getDate())
-    if (!s.ok) return
-    const [x, y, z] = geodeticToVec3(s.latRad, s.lonRad, s.altKm, settings.exaggeration)
-    const dir = new THREE.Vector3(x, y, z).normalize()
-    // Frame the spacecraft close, so its 3D model reads large against Earth's
-    // limb (NASA-Eyes style). Upper clamp still frames geostationary (TEMPO).
-    const dist = THREE.MathUtils.clamp(new THREE.Vector3(x, y, z).length() + 1.6, 3.2, 55)
-    const target = dir.multiplyScalar(dist)
-    target.y += 0.4
-    if (reducedMotion) {
-      camera.position.copy(target)
-      controlsRef.current?.update?.()
-    } else {
-      focus.current = { active: true, target, t: 0 }
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [focusSignal])
 
   useFrame((_, delta) => {
     // advance the simulation clock (single driver for the whole scene)
@@ -71,16 +50,6 @@ function SceneContents({
     if (sunRef.current) {
       const [sx, sy, sz] = sunDirectionUnitVec(clock.getDate())
       sunRef.current.position.set(sx * 12, sy * 12, sz * 12)
-    }
-
-    // camera focus lerp
-    if (focus.current.active) {
-      focus.current.t += delta
-      camera.position.lerp(focus.current.target, Math.min(1, delta * 2.2))
-      controlsRef.current?.update?.()
-      if (focus.current.t > 1.1 || camera.position.distanceTo(focus.current.target) < 0.15) {
-        focus.current.active = false
-      }
     }
   })
 
@@ -128,22 +97,25 @@ function SceneContents({
       />
 
       {/* the selected spacecraft's 3D model, floating at its orbital position */}
-      {(() => {
-        const sel = items.find((i) => i.id === selectedId)
-        if (!sel?.valid) return null
-        return (
-          <Suspense fallback={null}>
-            <SelectedSatelliteModel
-              key={sel.id}
-              item={sel}
-              clock={clock}
-              exaggeration={settings.exaggeration}
-              reducedMotion={reducedMotion}
-              modelScale={modelScale}
-            />
-          </Suspense>
-        )
-      })()}
+      {selected && (
+        <Suspense fallback={null}>
+          <SelectedSatelliteModel
+            key={selected.id}
+            item={selected}
+            clock={clock}
+            exaggeration={settings.exaggeration}
+            modelScale={modelScale}
+          />
+        </Suspense>
+      )}
+
+      <SatelliteViewControls
+        item={selected}
+        clock={clock}
+        exaggeration={settings.exaggeration}
+        reducedMotion={reducedMotion}
+        active={followView}
+      />
 
       <CityLabelsLayer show={settings.cities} quality={settings.quality} />
 
@@ -159,6 +131,9 @@ function SceneContents({
 
       <OrbitControls
         ref={controlsRef}
+        // SatelliteViewControls owns the camera in the spacecraft view; these
+        // Earth-centred controls take back over when follow is off.
+        enabled={!followView}
         enablePan={false}
         enableDamping
         dampingFactor={0.08}
@@ -168,7 +143,7 @@ function SceneContents({
         enableZoom={!selectedId}
         minDistance={2.6}
         maxDistance={60}
-        autoRotate={settings.earthRotation && !reducedMotion}
+        autoRotate={settings.earthRotation && !reducedMotion && !followView}
         autoRotateSpeed={0.35}
       />
     </>

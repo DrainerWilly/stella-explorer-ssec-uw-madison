@@ -10,7 +10,6 @@ import { getSatelliteModel } from '../../data/satelliteModels.js'
 // drawn to physical scale, the same way the marker dots aren't. Normalizing
 // every craft to one size keeps a cubesat and the ISS equally visible.
 const MODEL_TARGET_SIZE = 0.6
-const SPIN_SPEED = 0.3 // rad/s, slow turntable feel
 const ENV_INTENSITY = 1.6 // image-based lighting strength on the spacecraft
 
 // Build a studio environment (PMREM) once per renderer and reuse it. This gives
@@ -247,15 +246,14 @@ function RepresentativeBody({ envMap }) {
 
 // The selected spacecraft, rendered as a 3D model floating at its modeled
 // orbital position on the globe (à la NASA Eyes). Moves along the orbit as the
-// simulation clock advances and gently rotates for legibility.
-export default function SelectedSatelliteModel({ item, clock, exaggeration, reducedMotion, modelScale = 1 }) {
+// simulation clock advances; it holds a steady attitude rather than spinning.
+export default function SelectedSatelliteModel({ item, clock, exaggeration, modelScale = 1 }) {
   const posRef = useRef() // outer group: orbital position
-  const spinRef = useRef() // inner group: rotation
   const envMap = useStudioEnvMap()
   const model = getSatelliteModel(item.id)
   const url = model.file ? `${import.meta.env.BASE_URL}${model.file}` : null
 
-  useFrame((_, delta) => {
+  useFrame(() => {
     const g = posRef.current
     if (!g) return
     const s = propagateAt(item.satrec, clock.getDate())
@@ -266,13 +264,12 @@ export default function SelectedSatelliteModel({ item, clock, exaggeration, redu
     g.visible = true
     const [x, y, z] = geodeticToVec3(s.latRad, s.lonRad, s.altKm, exaggeration)
     g.position.set(x, y, z)
-    if (spinRef.current && !reducedMotion) spinRef.current.rotation.y += delta * SPIN_SPEED
   })
 
   return (
     <group ref={posRef}>
       {/* scale is driven by the scroll wheel while this mission is selected */}
-      <group ref={spinRef} scale={modelScale}>
+      <group scale={modelScale}>
         {url ? <GltfBody url={url} envMap={envMap} /> : <RepresentativeBody envMap={envMap} />}
       </group>
     </group>
