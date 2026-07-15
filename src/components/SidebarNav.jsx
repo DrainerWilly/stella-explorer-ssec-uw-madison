@@ -13,7 +13,7 @@ export const NAV = [
   },
   {
     id: 'mission-control',
-    icon: 'globe',
+    icon: 'tracker',
     label: 'Satellite Tracker',
     image: 'assets/media/landsat-in-orbit.jpg',
     imageAlt: 'Rendered view of a Landsat satellite in orbit above a mountainous coastline',

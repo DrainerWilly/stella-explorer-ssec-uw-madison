@@ -11,14 +11,17 @@ const paths = {
   ),
   home: (
     <>
-      <path d="M3 11.5 12 4l9 7.5" />
-      <path d="M5.5 10v9.5h13V10" />
+      <path d="M3.6 10.9 12 4.3l8.4 6.6" />
+      <path d="M5.9 9.8v8.9a1.6 1.6 0 0 0 1.6 1.6h9a1.6 1.6 0 0 0 1.6-1.6V9.8" />
+      <path d="M9.7 20.3v-4.6a2.3 2.3 0 0 1 4.6 0v4.6" />
     </>
   ),
+  // lessons: an open book, i.e. something to read through
   lessons: (
     <>
-      <rect x="4" y="4" width="16" height="16" rx="2.5" />
-      <path d="M9 9h6M9 13h6M9 17h3" />
+      <path d="M12 7.4v11.9" />
+      <path d="M12 7.4C10.3 6 8.1 5.4 5.4 5.7a1.1 1.1 0 0 0-1 1.1v9.6a1.1 1.1 0 0 0 1.2 1.1c2.4-.3 4.5.3 6.4 1.8" />
+      <path d="M12 7.4c1.7-1.4 3.9-2 6.6-1.7a1.1 1.1 0 0 1 1 1.1v9.6a1.1 1.1 0 0 1-1.2 1.1c-2.4-.3-4.5.3-6.4 1.8" />
     </>
   ),
   book: (
@@ -27,19 +30,24 @@ const paths = {
       <path d="M5 18.5A1.5 1.5 0 0 1 6.5 17H19" />
     </>
   ),
-  // STELLA handheld device / spectrometer
+  // STELLA handheld device: the real instrument's screen over its rotary knob
   device: (
     <>
-      <rect x="6" y="3.5" width="12" height="17" rx="2.5" />
-      <circle cx="12" cy="9" r="2.4" />
-      <path d="M9 14.5h6M9 17h4" />
+      <rect x="7" y="3.3" width="10" height="17.4" rx="2.4" />
+      <rect x="9.1" y="5.9" width="5.8" height="4.6" rx="0.9" />
+      <circle cx="12" cy="14.6" r="2" />
+      <path d="M9.8 18.6h4.4" />
     </>
   ),
+  // data & graphs: a plotted line over axes, with its data points
   data: (
     <>
-      <path d="M4 20V4" />
-      <path d="M4 20h16" />
-      <path d="M8 16v-3M12 16V8M16 16v-6M20 16v-9" />
+      <path d="M4.2 3.9v14.9a1.4 1.4 0 0 0 1.4 1.4h14.4" />
+      <path d="M7.6 15.6 11 11.4l3.1 2.5 4.8-6.1" />
+      <circle cx="7.6" cy="15.6" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="11" cy="11.4" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="14.1" cy="13.9" r="1.1" fill="currentColor" stroke="none" />
+      <circle cx="18.9" cy="7.8" r="1.1" fill="currentColor" stroke="none" />
     </>
   ),
   satellite: (
@@ -139,6 +147,17 @@ const paths = {
       <path d="M3.5 12h17M12 3.5c2.5 2.4 2.5 14.6 0 17M12 3.5c-2.5 2.4-2.5 14.6 0 17" />
     </>
   ),
+  // satellite tracker: a spacecraft riding a tilted orbit around the globe.
+  // Distinct from `globe`, which stays a plain planet for generic use.
+  tracker: (
+    <>
+      <circle cx="12" cy="12" r="5.2" />
+      <path d="M6.8 12h10.4" />
+      <ellipse cx="12" cy="12" rx="2.5" ry="5.2" />
+      <ellipse cx="12" cy="12" rx="9.1" ry="3.7" transform="rotate(-30 12 12)" />
+      <circle cx="20.1" cy="8.3" r="1.5" fill="currentColor" stroke="none" />
+    </>
+  ),
   download: (
     <>
       <path d="M12 4v10m0 0 3.5-3.5M12 14l-3.5-3.5" />
@@ -159,13 +178,10 @@ const paths = {
     </>
   ),
   moon: <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />,
-  // animations nav: sparkle / motion
+  // animations nav: one wave tightening left to right at constant amplitude,
+  // which is the electromagnetic spectrum these animations walk through.
   animation: (
-    <>
-      <path d="M5 6c0 3-2 5-2 5s2 2 2 5c0-3 2-5 2-5s-2-2-2-5z" />
-      <path d="M14 4c0 4-3 7-3 7s3 3 3 7c0-4 3-7 3-7s-3-3-3-7z" />
-      <circle cx="19" cy="17.5" r="1.4" fill="currentColor" stroke="none" />
-    </>
+    <path d="M2.6 12c2.07-5.4 4.13-5.4 6.2 0s3.27 5.4 4.9 0 2.67-5.4 4 0 2.2 5.4 3.3 0" />
   ),
   // mission control: a satellite orbiting a planet
   orbit: (
@@ -184,22 +200,20 @@ const paths = {
       <path d="M12 3l-2 2m2-2 2 2M12 21l-2-2m2 2 2-2" />
     </>
   ),
-  // data visualizer: pulse line over scatter dots
+  // data visualizer: a spectrum, i.e. the wavelength bands STELLA reads
   viz: (
     <>
-      <path d="M3 13.5 7 9l3.5 5L14 6.5l2.5 4.5H21" />
-      <circle cx="6" cy="18.5" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="11" cy="19.5" r="1.2" fill="currentColor" stroke="none" />
-      <circle cx="16.5" cy="18" r="1.2" fill="currentColor" stroke="none" />
+      <path d="M3.2 20.3h17.6" />
+      <path d="M5.6 20.3v-4.6M9.2 20.3v-8.4M12.8 20.3v-12.2M16.4 20.3v-6.8M20 20.3v-9.6" />
     </>
   ),
   // game controller
   games: (
     <>
-      <path d="M8 9.5H5.8A2.8 2.8 0 0 0 3 12.3v1.4A2.8 2.8 0 0 0 5.8 16.5c1.2 0 1.8-.8 2.6-1.6.5-.5 1-.9 1.6-.9h4c.6 0 1.1.4 1.6.9.8.8 1.4 1.6 2.6 1.6A2.8 2.8 0 0 0 21 13.7v-1.4a2.8 2.8 0 0 0-2.8-2.8H16" />
-      <path d="M6.5 12v2M5.5 13h2" />
-      <circle cx="16" cy="12" r="0.9" fill="currentColor" stroke="none" />
-      <circle cx="17.6" cy="13.6" r="0.9" fill="currentColor" stroke="none" />
+      <rect x="2.6" y="8" width="18.8" height="10" rx="5" />
+      <path d="M7.4 11.6v3M5.9 13.1h3" />
+      <circle cx="15.7" cy="11.9" r="1.05" fill="currentColor" stroke="none" />
+      <circle cx="18.1" cy="14.2" r="1.05" fill="currentColor" stroke="none" />
     </>
   ),
   trophy: (
