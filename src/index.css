@@ -88,6 +88,23 @@ body {
   font-weight: 400;
 }
 .cm-wrapper { margin: 0 auto; max-width: 1250px; padding: 0 24px; width: 100%; }
+.cm-masthead-inner {
+  width: 100%;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+@media (min-width: 640px) {
+  .cm-masthead-inner {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+@media (min-width: 1024px) {
+  .cm-masthead-inner {
+    padding-left: 2.5rem;
+    padding-right: 2.5rem;
+  }
+}
 
 /* smooth in-page scrolling (disabled for reduced-motion below) */
 html { scroll-behavior: smooth; }
@@ -101,6 +118,17 @@ html { scroll-behavior: smooth; }
   animation: cm-hero-video-zoom 22.5s ease-out forwards;
   transform-origin: 50% 50%;
 }
+.cm-hero-statement {
+  left: max(16px, calc((100vw - 1250px) / 2 + 8px));
+  max-width: min(36rem, calc(100vw - 32px));
+  pointer-events: none;
+  top: 50%;
+  transform: translateY(-24%);
+  font-size: clamp(1.9rem, 4vw, 3.8rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
 
 /* ---- centered introduction below the globe ---- */
 .cm-hero-sub { font-size: clamp(0.95rem, 1.4vw, 1.15rem); line-height: 1.7; }
@@ -111,17 +139,7 @@ html { scroll-behavior: smooth; }
   letter-spacing: -0.035em;
   line-height: 1.08;
 }
-.cm-intro-button {
-  min-width: min(100%, 24rem);
-  border: 1px solid #2b2b2b;
-  padding: 1.55rem 2rem;
-  color: #2b2b2b;
-  font-size: 0.9rem;
-  transition: background-color 400ms var(--cm-ease), color 400ms var(--cm-ease);
-}
-.cm-intro-button:hover { background-color: #2b2b2b; color: #fff; }
-
-/* ---- 16:9 media cover (background image + hover lift) ---- */
+/* ---- 16:9 media cover (Chance Maker-style hover shadow) ---- */
 .cm-media-cover {
   position: relative;
   display: block;
@@ -129,6 +147,7 @@ html { scroll-behavior: smooth; }
   padding-bottom: 56.25%;
   overflow: hidden;
   background-color: #0b1a3d;
+  transition: all 0.4s ease;
 }
 .cm-media-cover__img {
   position: absolute;
@@ -136,25 +155,23 @@ html { scroll-behavior: smooth; }
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.7s var(--cm-ease);
 }
-.cm-card:hover .cm-media-cover__img { transform: scale(1.05); }
 .cm-media-cover::after {
   content: '';
   position: absolute;
   inset: 0;
-  box-shadow: 0 0.5rem 2rem -0.4rem rgba(0, 0, 0, 0.55);
-  opacity: 0;
-  transition: opacity 0.5s var(--cm-ease);
+  pointer-events: none;
 }
-.cm-card:hover .cm-media-cover::after { opacity: 1; }
+.cm-media-cover:hover {
+  box-shadow: 0rem 0.5rem 1.5rem -0.01rem rgba(26, 60, 77, 0.4);
+}
 
 /* ---- triple-border heading underline (3 stacked 2px rules) ---- */
 .cm-triple-border { position: relative; }
 .cm-triple-border::after {
   content: '';
   position: absolute;
-  left: 0; right: 0; bottom: -9px;
+  left: 0; right: 0; bottom: -14px;
   height: 9px;
   border-top: 2px solid var(--cm-ink);
   border-bottom: 2px solid var(--cm-ink);
@@ -162,8 +179,18 @@ html { scroll-behavior: smooth; }
 .cm-triple-border::before {
   content: '';
   position: absolute;
-  left: 0; right: 0; bottom: -16px;
+  left: 0; right: 0; bottom: -21px;
   border-bottom: 2px solid var(--cm-ink);
+}
+.cm-title-link {
+  background-image: linear-gradient(currentColor, currentColor);
+  background-position: 0 100%;
+  background-repeat: no-repeat;
+  background-size: 0 1px;
+  transition: background-size 400ms var(--cm-ease);
+}
+.cm-title-link:hover {
+  background-size: 100% 1px;
 }
 /* ---- "view" link with a sliding arrow ---- */
 .cm-view {
@@ -178,7 +205,9 @@ html { scroll-behavior: smooth; }
   transition: color 500ms var(--cm-ease);
 }
 .cm-view__arrow { transition: transform 500ms var(--cm-ease); }
-.cm-card:hover .cm-view__arrow,
+.cm-view:hover {
+  color: #000;
+}
 .cm-view:hover .cm-view__arrow { transform: translateX(4px); }
 
 /* ---- quiet end-note credit for home page imagery ---- */
@@ -238,14 +267,17 @@ html { scroll-behavior: smooth; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .cm-media-cover__img, .cm-media-cover::after, .cm-view, .cm-view__arrow,
+  .cm-hero-statement, .cm-media-cover, .cm-view, .cm-view__arrow,
   .cm-nav__link, .cm-mobile-nav, .cm-mobile-nav__item {
     transition: none;
   }
   .cm-hero-video--zoom { animation: none; }
-  .cm-card:hover .cm-media-cover__img { transform: none; }
 }
 
 @media (max-width: 767px) {
+  .cm-hero-statement {
+    top: 54%;
+    font-size: clamp(1.7rem, 9vw, 2.85rem);
+  }
   .cm-wordmark { font-size: 1.5rem; letter-spacing: 0.16em; }
 }

@@ -78,11 +78,11 @@ export default function App() {
 
   return (
     <AppShell>
-      {/* Inner pages: the global top masthead (replacing the old left sidebar)
-          above the page. On desktop the page fills the viewport height and
+      {/* Inner pages: the global dark masthead stays consistent with the home
+          hero header. On desktop the page fills the viewport height and
           scrolls internally; on mobile the document scrolls. */}
       <div className="flex min-h-screen w-full flex-col bg-app lg:h-screen lg:min-h-0 lg:overflow-hidden">
-        <Masthead variant="solid" active={page} onNavigate={navigate} />
+        <Masthead active={page} onNavigate={navigate} />
 
         <div className="relative flex flex-1 flex-col lg:min-h-0">
           {page === 'lessons' ? (

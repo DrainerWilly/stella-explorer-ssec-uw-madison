@@ -5,6 +5,7 @@ import { HOME_CARDS } from '../data/nav.js'
 
 const EASE = [0.19, 1, 0.22, 1] // easeOutExpo — the reference's motion curve
 const HERO_FADE_MS = 650
+const HERO_STATEMENT = 'Learn remote sensing through satellite and STELLA data.'
 const HERO_VIDEOS = [
   { file: 'assets/videos/landsat-orbits.mp4', duration: 39 },
   { file: 'assets/videos/tdrs-fleet-360.mp4', duration: 45, zoom: true },
@@ -82,14 +83,17 @@ export default function HomePage({ onNavigate }) {
         <div aria-hidden="true" className="absolute inset-0 z-10 bg-gradient-to-t from-black/55 via-transparent to-black/35" />
         <div
           aria-hidden="true"
-          className={`pointer-events-none absolute inset-0 z-20 bg-black transition-opacity duration-700 ${
+          className={`pointer-events-none absolute inset-0 z-[25] bg-black transition-opacity duration-700 ${
             isHeroFading ? 'opacity-100' : 'opacity-0'
           }`}
         />
+        <div className="cm-hero-statement absolute z-20 text-white">
+          {HERO_STATEMENT}
+        </div>
 
         {/* nav pinned to the top of the hero */}
         <div className="absolute inset-x-0 top-0 z-30">
-          <Masthead variant="dark" active="home" onNavigate={onNavigate} />
+          <Masthead active="home" onNavigate={onNavigate} />
         </div>
       </section>
 
@@ -101,24 +105,13 @@ export default function HomePage({ onNavigate }) {
           viewport={{ once: true, margin: '-80px' }}
           transition={{ duration: 0.8, ease: EASE }}
           className="cm-wrapper px-6 pb-20 pt-16 text-center md:pb-28 md:pt-24"
-          aria-labelledby="home-intro-title"
+          aria-label="ExSTELLA introduction"
         >
-          <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.32em] text-black/45">
-            ExSTELLA · Earth observation
+          <p className="cm-hero-sub mx-auto max-w-3xl text-black/65">
+            Follow Landsat and other missions in orbit, build NASA STELLA instruments, and
+            compare spectral bands through lessons, animations, games, and data tools that show
+            how light reveals land, water, heat, and vegetation.
           </p>
-          <h1 id="home-intro-title" className="cm-intro-title">
-            Read the Earth in light.
-          </h1>
-          <p className="cm-hero-sub mx-auto mt-6 max-w-3xl text-black/65">
-            Track satellites in orbit, build a STELLA spectrometer, and explore how scientists
-            observe our changing planet from space.
-          </p>
-          <button
-            onClick={() => onNavigate?.('mission-control')}
-            className="cm-intro-button cm-focus mt-10"
-          >
-            Explore ExSTELLA
-          </button>
         </motion.section>
 
         <div className="cm-wrapper pb-20 md:pb-28">
@@ -131,11 +124,7 @@ export default function HomePage({ onNavigate }) {
               transition={{ duration: 0.8, ease: EASE }}
               className="mb-16 last:mb-0 md:mb-24"
             >
-              <button
-                onClick={() => onNavigate?.(item.id)}
-                aria-label={`${item.label}. ${item.blurb}`}
-                className="cm-card cm-focus group block w-full text-left"
-              >
+              <div className="cm-card block w-full text-left">
                 <div className="flex flex-col gap-6 md:flex-row md:items-center md:gap-0">
                   {/* media cover (66.7%) */}
                   <div className="md:w-2/3">
@@ -152,7 +141,12 @@ export default function HomePage({ onNavigate }) {
                   {/* text column (25%, offset 8.333%) */}
                   <div className="md:ml-[8.333%] md:w-1/4">
                     <h2 className="cm-triple-border mb-9 text-2xl font-medium leading-tight tracking-tight text-[#2b2b2b] md:text-[28px]">
-                      {item.label}
+                      <button
+                        onClick={() => onNavigate?.(item.id)}
+                        className="cm-title-link cm-focus text-left"
+                      >
+                        {item.label}
+                      </button>
                     </h2>
                     <p className="mb-5 text-sm leading-relaxed text-black/65">{item.blurb}</p>
                     <span className="cm-view">
@@ -161,7 +155,7 @@ export default function HomePage({ onNavigate }) {
                     </span>
                   </div>
                 </div>
-              </button>
+              </div>
             </motion.article>
           ))}
 

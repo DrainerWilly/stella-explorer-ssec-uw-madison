@@ -5,12 +5,10 @@ const PRIMARY_NAV = NAV.filter((item) => item.id !== 'home')
 
 // Global top navigation. Brand/wordmark sits on the left; the section links are
 // right-aligned and wrap; below the reference's breakpoint a hamburger opens a
-// full-screen menu whose items stagger in. Two looks:
-//   variant="dark"  — transparent over the home hero globe, light text
-//   variant="solid" — white bar with a bottom rule on inner pages, dark ink
-export default function Masthead({ variant = 'solid', active = 'home', onNavigate }) {
+// full-screen menu whose items stagger in. The masthead keeps the same dark
+// Chance Maker-inspired treatment on every page.
+export default function Masthead({ active = 'home', onNavigate }) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const dark = variant === 'dark'
 
   // Close on Escape and lock body scroll while the drawer is open.
   useEffect(() => {
@@ -30,16 +28,12 @@ export default function Masthead({ variant = 'solid', active = 'home', onNavigat
     onNavigate?.(id)
   }
 
-  const ink = dark ? 'text-white' : 'text-[#1a1a1a]'
-  const linkColor = dark ? 'text-white/85 hover:text-white' : 'text-[#3a3a3a] hover:text-black'
+  const ink = 'text-white'
+  const linkColor = 'text-white/85 hover:text-white'
 
   return (
-    <header
-      className={`cm-root relative z-30 w-full shrink-0 ${
-        dark ? 'bg-transparent pt-8 md:pt-10' : 'border-b border-[#e2e2e2] bg-white py-4'
-      }`}
-    >
-      <div className="cm-wrapper flex items-center">
+    <header className="cm-root relative z-30 w-full shrink-0 bg-transparent pt-8 md:pt-10">
+      <div className="cm-masthead-inner flex items-center">
         {/* brand / wordmark — pinned left */}
         <button
           onClick={() => go('home')}
@@ -91,7 +85,7 @@ export default function Masthead({ variant = 'solid', active = 'home', onNavigat
         aria-modal="true"
         aria-label="Menu"
       >
-        <div className="cm-wrapper flex items-center pt-8">
+        <div className="cm-masthead-inner flex items-center pt-8">
           <span className="cm-wordmark mr-auto text-white">ExSTELLA</span>
           <button onClick={() => setMenuOpen(false)} aria-label="Close menu" className="cm-focus text-white">
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
@@ -99,7 +93,7 @@ export default function Masthead({ variant = 'solid', active = 'home', onNavigat
             </svg>
           </button>
         </div>
-        <nav aria-label="Primary" className="cm-wrapper mt-10">
+        <nav aria-label="Primary" className="cm-masthead-inner mt-10">
           <ul className="flex flex-col">
             {PRIMARY_NAV.map((item, i) => (
               <li
