@@ -1,12 +1,14 @@
-import { Suspense, lazy } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { motion, useReducedMotion } from 'framer-motion'
 import Masthead from './Masthead.jsx'
 import { HOME_CARDS } from '../data/nav.js'
 
-// Heavy Three.js Earth loads after first paint (kept out of the initial bundle).
-const HomeEarthBackground = lazy(() => import('./HomeEarthBackground.jsx'))
-
 const EASE = [0.19, 1, 0.22, 1] // easeOutExpo — the reference's motion curve
+const HERO_FADE_MS = 650
+const HERO_VIDEOS = [
+  { file: 'assets/videos/landsat-orbits.mp4', duration: 39 },
+  { file: 'assets/videos/tdrs-fleet-360.mp4', duration: 45, zoom: true },
+]
 
 // Small arrow used by the "view" affordance on each card.
 function ViewArrow() {
@@ -17,25 +19,73 @@ function ViewArrow() {
   )
 }
 
-// Home page: a full-bleed cinematic hero with a slowly rotating 3D Earth as the
-// dominant visual, followed by seven large editorial feature sections. No
-// footer, no CTA — the page ends cleanly after the seventh section.
+// Home page: a full-bleed cinematic hero with a looping Landsat orbit video as
+// the dominant visual, followed by large editorial feature sections.
 export default function HomePage({ onNavigate }) {
   const reduce = useReducedMotion()
+  const isSwitchingHeroVideo = useRef(false)
+  const heroFadeTimeout = useRef(null)
+  const [heroVideoIndex, setHeroVideoIndex] = useState(0)
+  const [isHeroFading, setIsHeroFading] = useState(false)
+  const heroVideo = HERO_VIDEOS[heroVideoIndex]
+  const advanceHeroVideo = useCallback(() => {
+    if (isSwitchingHeroVideo.current) return
+    isSwitchingHeroVideo.current = true
+    setIsHeroFading(true)
+    if (heroFadeTimeout.current) window.clearTimeout(heroFadeTimeout.current)
+    heroFadeTimeout.current = window.setTimeout(() => {
+      setHeroVideoIndex((index) => (index + 1) % HERO_VIDEOS.length)
+    }, HERO_FADE_MS)
+  }, [])
+
+  useEffect(() => {
+    return () => {
+      if (heroFadeTimeout.current) window.clearTimeout(heroFadeTimeout.current)
+    }
+  }, [])
 
   return (
     <main className="cm-root relative min-h-screen w-full overflow-x-hidden bg-white text-[#2b2b2b]">
       {/* ===================== HERO ===================== */}
       <section className="relative h-[100svh] min-h-[560px] w-full overflow-hidden">
-        {/* the globe — dominant hero visual, sits large and low-right */}
+        {/* looping Landsat orbit video — dominant hero visual */}
         <div className="absolute inset-0 z-0">
-          <Suspense fallback={<div className="h-full w-full bg-gradient-to-br from-[#03071a] via-[#050b1f] to-[#0b1a3d]" />}>
-            <HomeEarthBackground />
-          </Suspense>
+          <video
+            key={heroVideo.file}
+            className={`h-full w-full object-cover ${heroVideo.zoom ? 'cm-hero-video--zoom' : ''}`}
+            src={`${import.meta.env.BASE_URL}${heroVideo.file}`}
+            autoPlay
+            muted
+            playsInline
+            preload="metadata"
+            aria-hidden="true"
+            onLoadedMetadata={(event) => {
+              event.currentTarget.currentTime = heroVideo.startAt ?? 0
+              event.currentTarget.play().catch(() => {})
+              window.requestAnimationFrame(() => {
+                setIsHeroFading(false)
+                isSwitchingHeroVideo.current = false
+              })
+            }}
+            onEnded={advanceHeroVideo}
+            onTimeUpdate={(event) => {
+              const loopEnd = (heroVideo.startAt ?? 0) + heroVideo.duration
+              if (event.currentTarget.currentTime >= loopEnd) {
+                event.currentTarget.pause()
+                advanceHeroVideo()
+              }
+            }}
+          />
         </div>
-        {/* cinematic scrim keeps the navigation legible while leaving Earth clear */}
+        {/* cinematic scrim keeps the navigation legible while leaving the video clear */}
         <div aria-hidden="true" className="absolute inset-0 z-10 bg-gradient-to-r from-black/85 via-black/45 to-transparent" />
         <div aria-hidden="true" className="absolute inset-0 z-10 bg-gradient-to-t from-black/55 via-transparent to-black/35" />
+        <div
+          aria-hidden="true"
+          className={`pointer-events-none absolute inset-0 z-20 bg-black transition-opacity duration-700 ${
+            isHeroFading ? 'opacity-100' : 'opacity-0'
+          }`}
+        />
 
         {/* nav pinned to the top of the hero */}
         <div className="absolute inset-x-0 top-0 z-30">

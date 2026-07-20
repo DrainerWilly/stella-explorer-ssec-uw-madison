@@ -92,6 +92,16 @@ body {
 /* smooth in-page scrolling (disabled for reduced-motion below) */
 html { scroll-behavior: smooth; }
 
+/* ---- home hero video treatment ---- */
+@keyframes cm-hero-video-zoom {
+  from { transform: scale(1.1); }
+  to { transform: scale(1.28); }
+}
+.cm-hero-video--zoom {
+  animation: cm-hero-video-zoom 22.5s ease-out forwards;
+  transform-origin: 50% 50%;
+}
+
 /* ---- centered introduction below the globe ---- */
 .cm-hero-sub { font-size: clamp(0.95rem, 1.4vw, 1.15rem); line-height: 1.7; }
 .cm-intro-title {
@@ -232,6 +242,7 @@ html { scroll-behavior: smooth; }
   .cm-nav__link, .cm-mobile-nav, .cm-mobile-nav__item {
     transition: none;
   }
+  .cm-hero-video--zoom { animation: none; }
   .cm-card:hover .cm-media-cover__img { transform: none; }
 }
 
