@@ -13,12 +13,13 @@
 const REPO = 'https://github.com/nasa/NASA-3D-Resources'
 const CREDIT = 'Model: NASA (NASA-3D-Resources)'
 
-const M = (file, note = null) => ({
+const M = (file, note = null, options = {}) => ({
   file: file ? `assets/models/${file}` : null,
   official: Boolean(file),
   credit: file ? CREDIT : 'Stylized representative model (not a NASA model)',
   sourceUrl: REPO,
   note,
+  ...options,
 })
 
 const REPRESENTATIVE_NOTE =
@@ -59,13 +60,22 @@ export const SATELLITE_MODELS = {
     'GRACE-FO follows the original GRACE twin-satellite design, so the official GRACE model is shown.',
   ),
   'oco-2': M('oco-2.glb'),
-  iss: M('iss.glb'),
-  ecostress: M('iss.glb', 'ECOSTRESS is an instrument aboard the ISS, so the host platform is shown.'),
-  emit: M('iss.glb', 'EMIT is an instrument aboard the ISS, so the host platform is shown.'),
-  'oco-3': M('iss.glb', 'OCO-3 is an instrument aboard the ISS, so the host platform is shown.'),
+  iss: M('iss.glb', null, { targetSize: 0.36 }),
+  ecostress: M(
+    'iss.glb',
+    'ECOSTRESS is an instrument aboard the ISS, so the host platform is shown.',
+    { targetSize: 0.36 },
+  ),
+  emit: M('iss.glb', 'EMIT is an instrument aboard the ISS, so the host platform is shown.', {
+    targetSize: 0.36,
+  }),
+  'oco-3': M('iss.glb', 'OCO-3 is an instrument aboard the ISS, so the host platform is shown.', {
+    targetSize: 0.36,
+  }),
   'cowvr-tempest': M(
     'iss.glb',
     'COWVR/TEMPEST are instruments aboard the ISS, so the host platform is shown.',
+    { targetSize: 0.36 },
   ),
   // Missions without a published NASA model → representative fallback.
   smap: M(null, REPRESENTATIVE_NOTE),

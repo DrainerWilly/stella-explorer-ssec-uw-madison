@@ -12,6 +12,16 @@ import { getSatelliteModel } from '../../data/satelliteModels'
 // every craft to one size keeps a cubesat and the ISS equally visible.
 const MODEL_TARGET_SIZE = 0.6
 const ENV_INTENSITY = 1.6 // image-based lighting strength on the spacecraft
+const LOOKAHEAD_S = 45
+
+const WORLD_UP = new THREE.Vector3(0, 1, 0)
+const _current = new THREE.Vector3()
+const _ahead = new THREE.Vector3()
+const _up = new THREE.Vector3()
+const _east = new THREE.Vector3()
+const _forward = new THREE.Vector3()
+const _right = new THREE.Vector3()
+const _basis = new THREE.Matrix4()
 
 // Build a studio environment (PMREM) once per renderer and reuse it. This gives
 // the metallic foil / solar panels real reflections + soft fill light. It is
@@ -46,7 +56,7 @@ function applyEnvMap(root, envMap) {
 
 // Loads a NASA GLB, lights it with the studio env map, then centers + scales it
 // to MODEL_TARGET_SIZE.
-function GltfBody({ url, envMap }) {
+function GltfBody({ url, envMap, targetSize = MODEL_TARGET_SIZE }) {
   const { scene } = useGLTF(url)
   return useMemo(() => {
     const s = scene.clone(true)
@@ -54,11 +64,29 @@ function GltfBody({ url, envMap }) {
     const box = new THREE.Box3().setFromObject(s)
     const size = box.getSize(new THREE.Vector3()).length() || 1
     const center = box.getCenter(new THREE.Vector3())
-    const scale = MODEL_TARGET_SIZE / size
+    const scale = targetSize / size
     s.scale.setScalar(scale)
     s.position.copy(center).multiplyScalar(-scale)
     return <primitive object={s} />
-  }, [scene, envMap])
+  }, [scene, envMap, targetSize])
+}
+
+function setLocalOrbitalFrame(group, current, next) {
+  _up.copy(current).normalize()
+  _east.crossVectors(WORLD_UP, _up)
+  if (_east.lengthSq() < 1e-6) _east.set(1, 0, 0)
+  _east.normalize()
+
+  _forward.subVectors(next, current)
+  // Keep the visual attitude tangent to the local horizon instead of pointing
+  // into/out of Earth as the object follows a curved orbit.
+  _forward.addScaledVector(_up, -_forward.dot(_up))
+  if (_forward.lengthSq() < 1e-8) _forward.copy(_east)
+  _forward.normalize()
+
+  _right.crossVectors(_forward, _up).normalize()
+  _basis.makeBasis(_forward, _up, _right)
+  group.quaternion.setFromRotationMatrix(_basis)
 }
 
 // ---- detailed stylized satellite (used when NASA has no published model) -----
@@ -250,14 +278,18 @@ function RepresentativeBody({ envMap }) {
 // simulation clock advances; it holds a steady attitude rather than spinning.
 export default function SelectedSatelliteModel({ item, clock, exaggeration, modelScale = 1 }) {
   const posRef = useRef() // outer group: orbital position
+  const attitudeRef = useRef() // inner group: local tangent/up attitude
   const envMap = useStudioEnvMap()
   const model = getSatelliteModel(item.id)
   const url = model.file ? `${import.meta.env.BASE_URL}${model.file}` : null
+  const targetSize = model.targetSize ?? MODEL_TARGET_SIZE
 
   useFrame(() => {
     const g = posRef.current
+    const attitude = attitudeRef.current
     if (!g) return
-    const s = propagateAt(item.satrec, clock.getDate())
+    const date = clock.getDate()
+    const s = propagateAt(item.satrec, date)
     if (!s.ok) {
       g.visible = false
       return
@@ -265,13 +297,26 @@ export default function SelectedSatelliteModel({ item, clock, exaggeration, mode
     g.visible = true
     const [x, y, z] = geodeticToVec3(s.latRad, s.lonRad, s.altKm, exaggeration)
     g.position.set(x, y, z)
+
+    if (attitude) {
+      _current.set(x, y, z)
+      const next = propagateAt(item.satrec, new Date(date.getTime() + LOOKAHEAD_S * 1000))
+      if (next.ok) {
+        _ahead.set(...geodeticToVec3(next.latRad, next.lonRad, next.altKm, exaggeration))
+        setLocalOrbitalFrame(attitude, _current, _ahead)
+      }
+    }
   })
 
   return (
     <group ref={posRef}>
       {/* scale is driven by the scroll wheel while this mission is selected */}
-      <group scale={modelScale}>
-        {url ? <GltfBody url={url} envMap={envMap} /> : <RepresentativeBody envMap={envMap} />}
+      <group ref={attitudeRef} scale={modelScale}>
+        {url ? (
+          <GltfBody url={url} envMap={envMap} targetSize={targetSize} />
+        ) : (
+          <RepresentativeBody envMap={envMap} />
+        )}
       </group>
     </group>
   )
