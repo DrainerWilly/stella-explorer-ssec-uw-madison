@@ -25,7 +25,7 @@ body,
 
 body {
   margin: 0;
-  font-family: 'Manrope', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   color: rgb(var(--ink));
@@ -76,7 +76,7 @@ body {
 /* ==========================================================================
    Editorial home UI — a remote-sensing visual system inspired by the
    composition, type rhythm, and interaction patterns of chance-maker.jp,
-   built with our own SSEC content. Roboto type, full-bleed hero, centered
+   built with our own SSEC content. Inter type, full-bleed hero, centered
    introduction, black triple-border section titles, 16:9 media
    covers, and understated red "view" links. --cm-ease is an easeOutExpo curve.
    ========================================================================== */
@@ -84,7 +84,7 @@ body {
   --cm-ease: cubic-bezier(0.19, 1, 0.22, 1);
   --cm-ink: #3a3a3a;
   --cm-red: #ff2d2d;
-  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-weight: 400;
 }
 .cm-wrapper { margin: 0 auto; max-width: 1250px; padding: 0 24px; width: 100%; }
@@ -194,7 +194,7 @@ html { scroll-behavior: smooth; }
   white-space: nowrap;
 }
 .cm-nav__link {
-  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 0.875rem;
   font-weight: 400;
   line-height: 1.5rem;
@@ -204,7 +204,7 @@ html { scroll-behavior: smooth; }
 }
 .cm-nav__link:hover { text-decoration: underline; }
 .cm-mobile-nav__link {
-  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-size: 1.25rem;
   font-weight: 400;
   letter-spacing: 0;
