@@ -5,7 +5,7 @@
 // and CSV files users drop in from their own STELLA device. The upload parser
 // mirrors the Python normalizer: same canonical env keys, same spectral triplets.
 
-import { ndvi } from '../data/games.js'
+import { ndvi } from '../data/games'
 
 // ---------- types -------------------------------------------------------------
 

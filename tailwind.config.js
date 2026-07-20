@@ -1,6 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: ['./index.html', './src/**/*.{js,jsx}'],
+  content: ['./index.html', './src/**/*.{ts,tsx}'],
   darkMode: 'class',
   // Pastel card colors are applied via template literals (bg-${color}),
   // so they are not statically discoverable — safelist them explicitly.
