@@ -162,7 +162,8 @@ export default function HomePage({ onNavigate }) {
           <footer className="cm-home-credit" aria-label="Image credits">
             Images and visual references courtesy of NASA, NASA Earth Observatory,
             NASA/USGS Landsat, and the NASA STELLA project. This independent
-            educational site is not endorsed by NASA.
+            educational site is not endorsed by NASA. Made at the Space Science
+            and Engineering Center, University of Wisconsin–Madison.
           </footer>
         </div>
       </div>
