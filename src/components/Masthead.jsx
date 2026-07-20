@@ -1,6 +1,8 @@
 import { useEffect, useState } from 'react'
 import { NAV } from '../data/nav.js'
 
+const PRIMARY_NAV = NAV.filter((item) => item.id !== 'home')
+
 // Global top navigation. Brand/wordmark sits on the left; the section links are
 // right-aligned and wrap; below the reference's breakpoint a hamburger opens a
 // full-screen menu whose items stagger in. Two looks:
@@ -50,7 +52,7 @@ export default function Masthead({ variant = 'solid', active = 'home', onNavigat
         {/* desktop nav */}
         <nav aria-label="Primary" className="hidden md:block">
           <ul className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
-            {NAV.map((item) => {
+            {PRIMARY_NAV.map((item) => {
               const isActive = active === item.id
               return (
                 <li key={item.id}>
@@ -99,7 +101,7 @@ export default function Masthead({ variant = 'solid', active = 'home', onNavigat
         </div>
         <nav aria-label="Primary" className="cm-wrapper mt-10">
           <ul className="flex flex-col">
-            {NAV.map((item, i) => (
+            {PRIMARY_NAV.map((item, i) => (
               <li
                 key={item.id}
                 className="cm-mobile-nav__item"
