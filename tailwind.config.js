@@ -73,11 +73,17 @@ export default {
           '0%': { opacity: '0', transform: 'translateY(4px)' },
           '100%': { opacity: '1', transform: 'translateY(0)' },
         },
+        // indeterminate loading bar: a highlight sweeps across the track
+        'loader-sweep': {
+          '0%': { transform: 'translateX(-120%)' },
+          '100%': { transform: 'translateX(360%)' },
+        },
       },
       animation: {
         dashflow: 'dashflow 1s linear infinite',
         'beam-fall': 'beam-fall 2.4s ease-in-out infinite',
         'fade-in': 'fade-in 0.5s ease-out',
+        'loader-sweep': 'loader-sweep 1.6s ease-in-out infinite',
       },
     },
   },

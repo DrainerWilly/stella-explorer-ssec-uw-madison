@@ -72,3 +72,157 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .g-twinkle, .g-float, .g-wobble { animation: none; }
 }
+
+/* ==========================================================================
+   Editorial home UI — a remote-sensing visual system inspired by the
+   composition, type rhythm, and interaction patterns of chance-maker.jp,
+   built with our own SSEC content. Roboto type, full-bleed hero, centered
+   introduction, black triple-border section titles, 16:9 media
+   covers, and understated red "view" links. --cm-ease is an easeOutExpo curve.
+   ========================================================================== */
+.cm-root {
+  --cm-ease: cubic-bezier(0.19, 1, 0.22, 1);
+  --cm-ink: #3a3a3a;
+  --cm-red: #ff2d2d;
+  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  font-weight: 400;
+}
+.cm-wrapper { margin: 0 auto; max-width: 1250px; padding: 0 24px; width: 100%; }
+
+/* smooth in-page scrolling (disabled for reduced-motion below) */
+html { scroll-behavior: smooth; }
+
+/* ---- centered introduction below the globe ---- */
+.cm-hero-sub { font-size: clamp(0.95rem, 1.4vw, 1.15rem); line-height: 1.7; }
+.cm-intro-title {
+  color: #2b2b2b;
+  font-size: clamp(2.25rem, 5vw, 4.5rem);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 1.08;
+}
+.cm-intro-button {
+  min-width: min(100%, 24rem);
+  border: 1px solid #2b2b2b;
+  padding: 1.55rem 2rem;
+  color: #2b2b2b;
+  font-size: 0.9rem;
+  transition: background-color 400ms var(--cm-ease), color 400ms var(--cm-ease);
+}
+.cm-intro-button:hover { background-color: #2b2b2b; color: #fff; }
+
+/* ---- 16:9 media cover (background image + hover lift) ---- */
+.cm-media-cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding-bottom: 56.25%;
+  overflow: hidden;
+  background-color: #0b1a3d;
+}
+.cm-media-cover__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.7s var(--cm-ease);
+}
+.cm-card:hover .cm-media-cover__img { transform: scale(1.05); }
+.cm-media-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  box-shadow: 0 0.5rem 2rem -0.4rem rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  transition: opacity 0.5s var(--cm-ease);
+}
+.cm-card:hover .cm-media-cover::after { opacity: 1; }
+
+/* ---- triple-border heading underline (3 stacked 2px rules) ---- */
+.cm-triple-border { position: relative; }
+.cm-triple-border::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -9px;
+  height: 9px;
+  border-top: 2px solid var(--cm-ink);
+  border-bottom: 2px solid var(--cm-ink);
+}
+.cm-triple-border::before {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -16px;
+  border-bottom: 2px solid var(--cm-ink);
+}
+/* ---- "view" link with a sliding arrow ---- */
+.cm-view {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  color: var(--cm-red);
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  transition: color 500ms var(--cm-ease);
+}
+.cm-view__arrow { transition: transform 500ms var(--cm-ease); }
+.cm-card:hover .cm-view__arrow,
+.cm-view:hover .cm-view__arrow { transform: translateX(4px); }
+
+/* ---- masthead wordmark + nav: thin, airy typography from the reference ---- */
+.cm-wordmark {
+  font-family: 'Roboto Condensed', 'Arial Narrow', sans-serif;
+  font-size: 2.25rem;
+  font-stretch: condensed;
+  font-weight: 300;
+  letter-spacing: 0.28em;
+  line-height: 1;
+  white-space: nowrap;
+}
+.cm-nav__link {
+  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  font-size: 0.875rem;
+  font-weight: 400;
+  line-height: 1.5rem;
+  text-decoration: none;
+  text-underline-offset: 2px;
+  transition: color 500ms var(--cm-ease), opacity 500ms var(--cm-ease);
+}
+.cm-nav__link:hover { text-decoration: underline; }
+.cm-mobile-nav__link {
+  font-family: 'Roboto', Helvetica, Arial, sans-serif;
+  font-size: 1.25rem;
+  font-weight: 400;
+  letter-spacing: 0;
+}
+
+/* ---- keyboard focus (clear, on-brand rings) ---- */
+.cm-focus:focus-visible {
+  outline: 2px solid var(--cm-red);
+  outline-offset: 4px;
+  border-radius: 2px;
+}
+
+/* ---- animated full-screen mobile menu ---- */
+.cm-mobile-nav { transition: opacity 450ms var(--cm-ease), visibility 450ms var(--cm-ease); }
+.cm-mobile-nav__item {
+  opacity: 0;
+  transform: translateY(12px);
+  transition: opacity 500ms var(--cm-ease), transform 500ms var(--cm-ease);
+}
+.cm-mobile-nav--open .cm-mobile-nav__item { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  .cm-media-cover__img, .cm-media-cover::after, .cm-view, .cm-view__arrow,
+  .cm-nav__link, .cm-mobile-nav, .cm-mobile-nav__item {
+    transition: none;
+  }
+  .cm-card:hover .cm-media-cover__img { transform: none; }
+}
+
+@media (max-width: 767px) {
+  .cm-wordmark { font-size: 1.9rem; letter-spacing: 0.24em; }
+}
