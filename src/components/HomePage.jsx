@@ -114,6 +114,12 @@ export default function HomePage({ onNavigate }) {
               </button>
             </motion.article>
           ))}
+
+          <footer className="cm-home-credit" aria-label="Image credits">
+            Images and visual references courtesy of NASA, NASA Earth Observatory,
+            NASA/USGS Landsat, and the NASA STELLA project. This independent
+            educational site is not endorsed by NASA.
+          </footer>
         </div>
       </div>
     </main>

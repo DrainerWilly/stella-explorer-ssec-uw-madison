@@ -70,7 +70,7 @@ export const NAV = [
   {
     id: 'data',
     icon: 'data',
-    label: 'Data & graphs',
+    label: 'Spectral Bands',
     image: 'landsat/false-color.jpg',
     imageAlt: 'Near-infrared false-color Landsat image of Florida with vegetation shown in red',
     accent: '#ff2d2d',

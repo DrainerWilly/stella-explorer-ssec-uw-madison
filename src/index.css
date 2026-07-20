@@ -171,14 +171,26 @@ html { scroll-behavior: smooth; }
 .cm-card:hover .cm-view__arrow,
 .cm-view:hover .cm-view__arrow { transform: translateX(4px); }
 
+/* ---- quiet end-note credit for home page imagery ---- */
+.cm-home-credit {
+  border-top: 1px solid rgba(43, 43, 43, 0.16);
+  color: rgba(43, 43, 43, 0.52);
+  font-size: 0.72rem;
+  line-height: 1.7;
+  margin: 5rem auto 0;
+  max-width: 44rem;
+  padding-top: 1.25rem;
+  text-align: center;
+}
+
 /* ---- masthead wordmark + nav: thin, airy typography from the reference ---- */
 .cm-wordmark {
-  font-family: 'Roboto Condensed', 'Arial Narrow', sans-serif;
-  font-size: 2.25rem;
+  font-family: 'Helvetica Neue', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+  font-size: 1.85rem;
   font-stretch: condensed;
-  font-weight: 300;
-  letter-spacing: 0.28em;
-  line-height: 1;
+  font-weight: 200;
+  letter-spacing: 0.2em;
+  line-height: 0.95;
   white-space: nowrap;
 }
 .cm-nav__link {
@@ -224,5 +236,5 @@ html { scroll-behavior: smooth; }
 }
 
 @media (max-width: 767px) {
-  .cm-wordmark { font-size: 1.9rem; letter-spacing: 0.24em; }
+  .cm-wordmark { font-size: 1.5rem; letter-spacing: 0.16em; }
 }

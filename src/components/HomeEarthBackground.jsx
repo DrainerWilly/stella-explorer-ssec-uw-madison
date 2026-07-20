@@ -15,7 +15,7 @@ function SpinningEarth({ reducedMotion }) {
   })
   // Offset + tilted so the planet sits large and low-right, cinematic-style.
   return (
-    <group position={[1.15, -0.55, 0]} scale={1.4}>
+    <group position={[1.15, -0.75, 0]} scale={1.4}>
       <group ref={ref} rotation={[0.38, 0, 0.12]}>
         {/* cloudDrift is a decorative flourish that reads well here because the
             whole globe is already spinning; the tracker leaves it off. */}
