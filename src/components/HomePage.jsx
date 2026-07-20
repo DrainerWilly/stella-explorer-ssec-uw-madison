@@ -54,7 +54,7 @@ export default function HomePage({ onNavigate }) {
           aria-labelledby="home-intro-title"
         >
           <p className="mb-5 text-[11px] font-semibold uppercase tracking-[0.32em] text-black/45">
-            ExStella · Earth observation
+            ExSTELLA · Earth observation
           </p>
           <h1 id="home-intro-title" className="cm-intro-title">
             Read the Earth in light.
@@ -67,7 +67,7 @@ export default function HomePage({ onNavigate }) {
             onClick={() => onNavigate?.('mission-control')}
             className="cm-intro-button cm-focus mt-10"
           >
-            Explore ExStella
+            Explore ExSTELLA
           </button>
         </motion.section>
 

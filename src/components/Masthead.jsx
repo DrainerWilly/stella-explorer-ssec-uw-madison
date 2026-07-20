@@ -41,10 +41,10 @@ export default function Masthead({ variant = 'solid', active = 'home', onNavigat
         {/* brand / wordmark — pinned left */}
         <button
           onClick={() => go('home')}
-          aria-label="ExStella — home"
+          aria-label="ExSTELLA home"
           className={`cm-wordmark cm-focus mr-auto ${ink}`}
         >
-          EXSTELLA
+          ExSTELLA
         </button>
 
         {/* desktop nav */}
@@ -90,7 +90,7 @@ export default function Masthead({ variant = 'solid', active = 'home', onNavigat
         aria-label="Menu"
       >
         <div className="cm-wrapper flex items-center pt-8">
-          <span className="cm-wordmark mr-auto text-white">EXSTELLA</span>
+          <span className="cm-wordmark mr-auto text-white">ExSTELLA</span>
           <button onClick={() => setMenuOpen(false)} aria-label="Close menu" className="cm-focus text-white">
             <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
               <path d="M7 7l14 14M21 7L7 21" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
