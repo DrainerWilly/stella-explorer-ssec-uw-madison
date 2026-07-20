@@ -7,9 +7,8 @@
 //      verified NORAD catalog number — never the whole active catalog).
 //   3. Validate that each returned object name matches expectedObjectName.
 //   4. Return verified missions with source + timestamps.
-//   5. Cache valid responses for ~2 hours (in-memory + local file).
-//   6. Fall back to stale cache, then to a committed dataset, if CelesTrak is
-//      unavailable — the page never dies because a refresh failed.
+//   5. Return ONLY live CelesTrak data. If fresh data cannot be fetched, the API
+//      fails instead of serving stale or committed development TLEs.
 //
 // No API keys or secrets are used or required.
 
@@ -17,13 +16,6 @@ import { twoline2satrec } from 'satellite.js'
 import { readFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
-import {
-  getMemoryCache,
-  setMemoryCache,
-  isFresh,
-  readFileCache,
-  writeFileCache,
-} from './orbitCache.js'
 
 const CELESTRAK_GP = 'https://celestrak.org/NORAD/elements/gp.php'
 const SOURCE_NAME = 'CelesTrak GP orbital elements'
@@ -54,21 +46,10 @@ async function loadOrbitData() {
         /from ['"]\.\/missionCategories['"]/g,
         `from ${JSON.stringify(missionCategoriesUrl)}`,
       )
-      const orbitsFallbackSource = await readFile(
-        path.join(REPO_ROOT, 'src/data/orbitsFallback.ts'),
-        'utf8',
-      )
-
-      const [missionCatalog, orbitsFallback] = await Promise.all([
-        import(dataModuleUrl(missionCatalogSource)),
-        import(dataModuleUrl(orbitsFallbackSource)),
-      ])
+      const missionCatalog = await import(dataModuleUrl(missionCatalogSource))
 
       return {
         ENABLED_MISSIONS: missionCatalog.ENABLED_MISSIONS,
-        FALLBACK_TLES: orbitsFallback.FALLBACK_TLES,
-        FALLBACK_RETRIEVED_AT: orbitsFallback.FALLBACK_RETRIEVED_AT,
-        FALLBACK_SOURCE_URL: orbitsFallback.FALLBACK_SOURCE_URL,
       }
     })()
   }
@@ -143,7 +124,7 @@ async function fetchByCatalog(noradId) {
   }
 }
 
-// Turn a fetched/fallback object into a mission row, validating the object name
+// Turn a fetched object into a mission row, validating the object name
 // against the mission's expectedObjectName.
 function toMissionRow(mission, obj, fetchedAt, sourceUrl) {
   if (!namesMatch(obj.name ?? obj.objectName, mission.expectedObjectName)) return null
@@ -195,74 +176,22 @@ async function fetchFresh() {
   return { missions, unavailable }
 }
 
-async function buildFromFallback() {
-  const { ENABLED_MISSIONS, FALLBACK_TLES, FALLBACK_RETRIEVED_AT, FALLBACK_SOURCE_URL } =
-    await loadOrbitData()
-  const byNorad = Object.fromEntries(FALLBACK_TLES.map((t) => [t.noradCatalogNumber, t]))
-  const missions = []
-  for (const m of ENABLED_MISSIONS) {
-    const obj = byNorad[m.noradId]
-    if (!obj) continue
-    const row = toMissionRow(m, obj, FALLBACK_RETRIEVED_AT, FALLBACK_SOURCE_URL)
-    if (row) missions.push(row)
-  }
-  return missions
-}
-
 /**
  * Return verified orbital elements for the enabled missions.
- * Always resolves (never throws) — worst case it returns the committed fallback.
+ * Throws when fresh CelesTrak data cannot be fetched.
  */
-export async function getOrbits({ forceRefresh = false } = {}) {
-  const mem = getMemoryCache()
-
-  // 1) Warm, fresh in-memory cache.
-  if (!forceRefresh && isFresh(mem)) {
-    return { ...mem.payload, cacheStatus: 'fresh' }
+export async function getOrbits() {
+  const { missions, unavailable } = await fetchFresh()
+  if (missions.length === 0) {
+    throw new Error('No missions could be verified from CelesTrak')
   }
 
-  // 2) Try a fresh fetch from CelesTrak.
-  try {
-    const { missions, unavailable } = await fetchFresh()
-    if (missions.length === 0) {
-      throw new Error('No missions could be verified from CelesTrak')
-    }
-    const payload = {
-      generatedAt: new Date().toISOString(),
-      source: SOURCE_NAME,
-      sourceUrl: 'https://celestrak.org/NORAD/documentation/gp-data-formats.php',
-      cacheStatus: 'fresh',
-      missions,
-      unavailable,
-    }
-    setMemoryCache(payload)
-    await writeFileCache(payload)
-    return payload
-  } catch (err) {
-    const staleReason = String(err?.message || err)
-
-    // 3) Serve whatever is in memory, even if past its TTL.
-    if (mem?.payload) {
-      return { ...mem.payload, cacheStatus: 'stale', staleReason }
-    }
-
-    // 4) Serve the last successful local file cache.
-    const file = await readFileCache()
-    if (file?.payload) {
-      setMemoryCache(file.payload)
-      return { ...file.payload, cacheStatus: 'stale', staleReason }
-    }
-
-    // 5) Last resort: the committed development fallback.
-    const { FALLBACK_RETRIEVED_AT, FALLBACK_SOURCE_URL } = await loadOrbitData()
-    return {
-      generatedAt: FALLBACK_RETRIEVED_AT,
-      source: `${SOURCE_NAME} — committed development fallback (not guaranteed current)`,
-      sourceUrl: FALLBACK_SOURCE_URL,
-      cacheStatus: 'fallback',
-      staleReason,
-      missions: await buildFromFallback(),
-      unavailable: [],
-    }
+  return {
+    generatedAt: new Date().toISOString(),
+    source: SOURCE_NAME,
+    sourceUrl: 'https://celestrak.org/NORAD/documentation/gp-data-formats.php',
+    cacheStatus: 'fresh',
+    missions,
+    unavailable,
   }
 }

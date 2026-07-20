@@ -1,14 +1,13 @@
 // @ts-nocheck
 import Icon from '../Icon'
 
-// Full error screen shown only when NO usable orbital data is available.
-// (When stale or fallback data exists, the page shows a banner instead.)
+// Full error screen shown when fresh orbital data is unavailable.
 export default function OrbitErrorState({ error, onRetry }) {
   const offline = typeof navigator !== 'undefined' && navigator.onLine === false
   const title = offline ? 'No network connection' : 'Orbital data is unavailable'
   const detail = offline
     ? 'Your device appears to be offline. Reconnect to fetch modeled orbital elements.'
-    : 'The orbit service could not reach CelesTrak and no cached or fallback data was available.'
+    : 'The orbit service could not fetch fresh CelesTrak orbital data. Try again when CelesTrak and your network are available.'
 
   return (
     <div className="grid h-full w-full place-items-center bg-gradient-to-b from-[#060e26] to-[#0b1a3d] p-8 text-center">

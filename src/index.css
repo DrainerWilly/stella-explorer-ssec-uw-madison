@@ -131,7 +131,7 @@ html { scroll-behavior: smooth; }
 }
 
 /* ---- centered introduction below the globe ---- */
-.cm-hero-sub { font-size: clamp(0.95rem, 1.4vw, 1.15rem); line-height: 1.7; }
+.cm-hero-sub { font-size: clamp(1.1rem, 1.65vw, 1.35rem); line-height: 1.65; }
 .cm-intro-title {
   color: #2b2b2b;
   font-size: clamp(2.25rem, 5vw, 4.5rem);

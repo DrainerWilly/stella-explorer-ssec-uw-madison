@@ -25,12 +25,7 @@ export default function useOrbitData() {
       setState({ status: 'ready', data, error: null })
     } catch (err) {
       if (!mounted.current) return
-      // Keep any previously loaded data usable; surface the error as a warning.
-      setState((s) => ({
-        status: s.data ? 'ready' : 'error',
-        data: s.data,
-        error: String(err?.message || err),
-      }))
+      setState({ status: 'error', data: null, error: String(err?.message || err) })
     }
   }, [])
 
