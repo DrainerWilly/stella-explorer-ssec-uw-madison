@@ -14,12 +14,9 @@
 // No API keys or secrets are used or required.
 
 import { twoline2satrec } from 'satellite.js'
-import { ENABLED_MISSIONS } from '../src/data/missionCatalog.js'
-import {
-  FALLBACK_TLES,
-  FALLBACK_RETRIEVED_AT,
-  FALLBACK_SOURCE_URL,
-} from '../src/data/orbitsFallback.js'
+import { readFile } from 'node:fs/promises'
+import path from 'node:path'
+import { fileURLToPath } from 'node:url'
 import {
   getMemoryCache,
   setMemoryCache,
@@ -31,6 +28,53 @@ import {
 const CELESTRAK_GP = 'https://celestrak.org/NORAD/elements/gp.php'
 const SOURCE_NAME = 'CelesTrak GP orbital elements'
 const FETCH_TIMEOUT_MS = 12000
+const REPO_ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
+
+let orbitDataPromise = null
+
+function dataModuleUrl(source) {
+  return `data:text/javascript;base64,${Buffer.from(source, 'utf8').toString('base64')}`
+}
+
+// The browser app is TypeScript-only after migration. This server route runs in
+// plain Node, so it cannot import .ts files by path. These data modules contain
+// JavaScript-compatible source, so load them through data: module URLs and keep
+// the runtime source of truth in src/data/*.ts.
+async function loadOrbitData() {
+  if (!orbitDataPromise) {
+    orbitDataPromise = (async () => {
+      const missionCategoriesSource = await readFile(
+        path.join(REPO_ROOT, 'src/data/missionCategories.ts'),
+        'utf8',
+      )
+      const missionCategoriesUrl = dataModuleUrl(missionCategoriesSource)
+      const missionCatalogSource = (
+        await readFile(path.join(REPO_ROOT, 'src/data/missionCatalog.ts'), 'utf8')
+      ).replace(
+        /from ['"]\.\/missionCategories['"]/g,
+        `from ${JSON.stringify(missionCategoriesUrl)}`,
+      )
+      const orbitsFallbackSource = await readFile(
+        path.join(REPO_ROOT, 'src/data/orbitsFallback.ts'),
+        'utf8',
+      )
+
+      const [missionCatalog, orbitsFallback] = await Promise.all([
+        import(dataModuleUrl(missionCatalogSource)),
+        import(dataModuleUrl(orbitsFallbackSource)),
+      ])
+
+      return {
+        ENABLED_MISSIONS: missionCatalog.ENABLED_MISSIONS,
+        FALLBACK_TLES: orbitsFallback.FALLBACK_TLES,
+        FALLBACK_RETRIEVED_AT: orbitsFallback.FALLBACK_RETRIEVED_AT,
+        FALLBACK_SOURCE_URL: orbitsFallback.FALLBACK_SOURCE_URL,
+      }
+    })()
+  }
+
+  return orbitDataPromise
+}
 
 function gpUrlByCatalog(noradId) {
   return `${CELESTRAK_GP}?CATNR=${encodeURIComponent(noradId)}&FORMAT=TLE`
@@ -116,6 +160,7 @@ function toMissionRow(mission, obj, fetchedAt, sourceUrl) {
 }
 
 async function fetchFresh() {
+  const { ENABLED_MISSIONS } = await loadOrbitData()
   // Fetch each UNIQUE catalog object once (hosted instruments share an object).
   const uniqueIds = [...new Set(ENABLED_MISSIONS.map((m) => m.noradId))]
   const results = await Promise.allSettled(uniqueIds.map((id) => fetchByCatalog(id)))
@@ -150,7 +195,9 @@ async function fetchFresh() {
   return { missions, unavailable }
 }
 
-function buildFromFallback() {
+async function buildFromFallback() {
+  const { ENABLED_MISSIONS, FALLBACK_TLES, FALLBACK_RETRIEVED_AT, FALLBACK_SOURCE_URL } =
+    await loadOrbitData()
   const byNorad = Object.fromEntries(FALLBACK_TLES.map((t) => [t.noradCatalogNumber, t]))
   const missions = []
   for (const m of ENABLED_MISSIONS) {
@@ -207,13 +254,14 @@ export async function getOrbits({ forceRefresh = false } = {}) {
     }
 
     // 5) Last resort: the committed development fallback.
+    const { FALLBACK_RETRIEVED_AT, FALLBACK_SOURCE_URL } = await loadOrbitData()
     return {
       generatedAt: FALLBACK_RETRIEVED_AT,
       source: `${SOURCE_NAME} — committed development fallback (not guaranteed current)`,
       sourceUrl: FALLBACK_SOURCE_URL,
       cacheStatus: 'fallback',
       staleReason,
-      missions: buildFromFallback(),
+      missions: await buildFromFallback(),
       unavailable: [],
     }
   }
