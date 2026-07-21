@@ -225,7 +225,14 @@ export default function SatelliteLayer({
       entry.show = false
       if (entry.occluded) continue
 
-      entry.rank = selected ? 0 : item.id === hoveredId ? 1 : 2
+      const hovered = item.id === hoveredId
+      // Once a detailed spacecraft model is selected, DOM labels cannot be
+      // depth-tested against that WebGL model. Hide the regular label field in
+      // this focused mode so nearby satellite names do not paint over the model;
+      // keep hover labels available for interaction feedback.
+      if (selectedId && !hovered) continue
+
+      entry.rank = hovered ? 0 : selected ? 1 : 2
       candidates.push(entry)
     }
 

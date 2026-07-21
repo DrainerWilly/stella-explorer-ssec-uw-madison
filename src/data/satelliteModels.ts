@@ -25,6 +25,16 @@ const M = (file, note = null, options = {}) => ({
 const REPRESENTATIVE_NOTE =
   'NASA has not published a 3D model of this spacecraft in NASA-3D-Resources yet, so a stylized representative model is shown.'
 
+const LIGHTWEIGHT_ISS_NOTE =
+  'A lightweight procedural ISS model is shown so selecting ISS does not download the original 92 MB NASA GLB.'
+
+const ISS = (note = LIGHTWEIGHT_ISS_NOTE) =>
+  M(null, note, {
+    kind: 'iss',
+    targetSize: 0.58,
+    sourceUrl: 'https://github.com/nasa/NASA-3D-Resources',
+  })
+
 export const SATELLITE_MODELS = {
   'landsat-8': M('landsat-8.glb'),
   'landsat-9': M(
@@ -60,22 +70,12 @@ export const SATELLITE_MODELS = {
     'GRACE-FO follows the original GRACE twin-satellite design, so the official GRACE model is shown.',
   ),
   'oco-2': M('oco-2.glb'),
-  iss: M('iss.glb', null, { targetSize: 0.36 }),
-  ecostress: M(
-    'iss.glb',
-    'ECOSTRESS is an instrument aboard the ISS, so the host platform is shown.',
-    { targetSize: 0.36 },
-  ),
-  emit: M('iss.glb', 'EMIT is an instrument aboard the ISS, so the host platform is shown.', {
-    targetSize: 0.36,
-  }),
-  'oco-3': M('iss.glb', 'OCO-3 is an instrument aboard the ISS, so the host platform is shown.', {
-    targetSize: 0.36,
-  }),
-  'cowvr-tempest': M(
-    'iss.glb',
-    'COWVR/TEMPEST are instruments aboard the ISS, so the host platform is shown.',
-    { targetSize: 0.36 },
+  iss: ISS(),
+  ecostress: ISS('ECOSTRESS is an instrument aboard the ISS, so a lightweight ISS host platform is shown.'),
+  emit: ISS('EMIT is an instrument aboard the ISS, so a lightweight ISS host platform is shown.'),
+  'oco-3': ISS('OCO-3 is an instrument aboard the ISS, so a lightweight ISS host platform is shown.'),
+  'cowvr-tempest': ISS(
+    'COWVR/TEMPEST are instruments aboard the ISS, so a lightweight ISS host platform is shown.',
   ),
   // Missions without a published NASA model → representative fallback.
   smap: M(null, REPRESENTATIVE_NOTE),

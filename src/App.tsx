@@ -77,13 +77,21 @@ export default function App() {
     )
   }
 
+  const isMissionControl = page === 'mission-control'
+
   return (
     <AppShell>
       {/* Inner pages: the global dark masthead stays consistent with the home
           hero header. On desktop the page fills the viewport height and
           scrolls internally; on mobile the document scrolls. */}
-      <div className="flex min-h-screen w-full flex-col bg-app lg:h-screen lg:min-h-0 lg:overflow-hidden">
-        <Masthead active={page} onNavigate={navigate} />
+      <div
+        className={`flex min-h-screen w-full flex-col lg:h-screen lg:min-h-0 lg:overflow-hidden ${
+          isMissionControl ? 'relative bg-[#050b1f]' : 'bg-app'
+        }`}
+      >
+        <div className={isMissionControl ? 'lg:absolute lg:inset-x-0 lg:top-0 lg:z-40' : undefined}>
+          <Masthead active={page} onNavigate={navigate} />
+        </div>
 
         <div className="relative flex flex-1 flex-col lg:min-h-0">
           {page === 'lessons' ? (

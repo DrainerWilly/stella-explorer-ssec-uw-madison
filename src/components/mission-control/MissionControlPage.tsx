@@ -450,21 +450,21 @@ export default function MissionControlPage({ onNavigate }) {
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 to-transparent" />
 
         {/* title */}
-        <div className="absolute left-4 top-4 z-10">{titleBlock}</div>
+        <div className="absolute left-4 top-24 z-10">{titleBlock}</div>
 
         {/* top-right cluster */}
-        <div className="absolute right-4 top-4 z-20">{topRightCluster}</div>
+        <div className="absolute right-4 top-24 z-20">{topRightCluster}</div>
 
         {/* status warning banner */}
         {statusWarningBanner && (
-          <div className="absolute left-1/2 top-3.5 z-10 -translate-x-1/2">{statusWarningBanner}</div>
+          <div className="absolute left-1/2 top-24 z-10 -translate-x-1/2">{statusWarningBanner}</div>
         )}
 
         {/* left satellite drawer: a slim tab that opens a scrollable panel.
             The wrapper spans a definite height (top-16 → bottom-20) so the list
             inside gets a bounded box to scroll within; it's pointer-events-none
             so its empty area never blocks the globe. */}
-        <div className="pointer-events-none absolute bottom-20 left-4 top-16 z-10 flex w-[248px] flex-col">
+        <div className="pointer-events-none absolute bottom-20 left-4 top-36 z-10 flex w-[248px] flex-col">
           <button
             onClick={() => setRailOpen((v) => !v)}
             className={`pointer-events-auto flex w-full shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-[#0b1a3d]/90 px-3 py-2 text-[12px] font-bold uppercase tracking-[0.14em] text-white/80 backdrop-blur-xl transition-colors hover:text-white ${

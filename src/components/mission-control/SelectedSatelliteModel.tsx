@@ -273,6 +273,121 @@ function RepresentativeBody({ envMap }) {
   )
 }
 
+function IssSolarWing({ side, z, envMap }) {
+  const panel = mat(envMap, '#9a6730', 0.5, 0.36)
+  const cell = mat(envMap, '#5f341e', 0.42, 0.48)
+  const frame = mat(envMap, '#d8d2c4', 0.85, 0.28)
+  return (
+    <group position={[0, 0, z]}>
+      <mesh position={[side * 0.48, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.018, 0.018, 0.9, 12]} />
+        <meshStandardMaterial {...frame} />
+      </mesh>
+      {[-1, 1].map((row) => (
+        <group key={row} position={[side * 1.1, row * 0.24, 0]}>
+          <mesh>
+            <boxGeometry args={[1.05, 0.36, 0.018]} />
+            <meshStandardMaterial {...cell} />
+          </mesh>
+          <mesh position={[0, 0, 0.012]}>
+            <boxGeometry args={[1.1, 0.4, 0.012]} />
+            <meshStandardMaterial {...panel} wireframe />
+          </mesh>
+          {[-0.35, 0, 0.35].map((x) => (
+            <mesh key={x} position={[x, 0, 0.018]}>
+              <boxGeometry args={[0.012, 0.36, 0.012]} />
+              <meshStandardMaterial {...frame} />
+            </mesh>
+          ))}
+          {[-0.12, 0.12].map((y) => (
+            <mesh key={y} position={[0, y, 0.018]}>
+              <boxGeometry args={[1.05, 0.01, 0.012]} />
+              <meshStandardMaterial {...frame} />
+            </mesh>
+          ))}
+        </group>
+      ))}
+    </group>
+  )
+}
+
+function IssBody({ envMap }) {
+  const metal = mat(envMap, '#d7dbe2', 0.82, 0.24)
+  const white = mat(envMap, '#eef2f7', 0.24, 0.45)
+  const dark = mat(envMap, '#1c2638', 0.55, 0.5)
+  const gold = mat(envMap, '#b78a45', 0.55, 0.36)
+  return (
+    <group scale={0.2}>
+      {/* long integrated truss */}
+      <mesh rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.035, 0.035, 3.4, 16]} />
+        <meshStandardMaterial {...metal} />
+      </mesh>
+      {Array.from({ length: 11 }).map((_, i) => {
+        const x = -1.6 + i * 0.32
+        return (
+          <group key={i} position={[x, 0, 0]}>
+            <mesh>
+              <boxGeometry args={[0.045, 0.34, 0.045]} />
+              <meshStandardMaterial {...metal} />
+            </mesh>
+            <mesh rotation={[Math.PI / 2, 0, 0]}>
+              <cylinderGeometry args={[0.012, 0.012, 0.44, 8]} />
+              <meshStandardMaterial {...metal} />
+            </mesh>
+          </group>
+        )
+      })}
+
+      {/* pressurized modules along the station spine */}
+      {[-0.52, -0.22, 0.08, 0.38].map((x) => (
+        <mesh key={x} position={[x, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+          <cylinderGeometry args={[0.13, 0.13, 0.34, 24]} />
+          <meshStandardMaterial {...white} />
+        </mesh>
+      ))}
+      <mesh position={[0.72, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.1, 0.1, 0.28, 24]} />
+        <meshStandardMaterial {...gold} />
+      </mesh>
+      <mesh position={[-0.86, 0, 0]} rotation={[0, 0, Math.PI / 2]}>
+        <cylinderGeometry args={[0.1, 0.1, 0.28, 24]} />
+        <meshStandardMaterial {...dark} />
+      </mesh>
+
+      {/* radiator paddles */}
+      {[-0.46, 0.46].map((x) => (
+        <mesh key={x} position={[x, 0.28, 0]}>
+          <boxGeometry args={[0.5, 0.018, 0.22]} />
+          <meshStandardMaterial {...white} />
+        </mesh>
+      ))}
+
+      {/* eight solar array wings, arranged like the ISS main arrays */}
+      {[-1.25, -0.75, 0.75, 1.25].map((z) => (
+        <group key={z}>
+          <IssSolarWing side={-1} z={z} envMap={envMap} />
+          <IssSolarWing side={1} z={z} envMap={envMap} />
+        </group>
+      ))}
+
+      {/* small docking/antenna details */}
+      {[0.02, -0.02].map((z, i) => (
+        <mesh key={i} position={[0.04, -0.23, z]} rotation={[Math.PI / 2, 0, 0]}>
+          <cylinderGeometry args={[0.055, 0.055, 0.16, 18]} />
+          <meshStandardMaterial {...metal} />
+        </mesh>
+      ))}
+      {[-1.05, 1.05].map((x) => (
+        <mesh key={x} position={[x, -0.12, 0]} rotation={[0.7, 0, 0]}>
+          <cylinderGeometry args={[0.008, 0.004, 0.42, 8]} />
+          <meshStandardMaterial {...metal} />
+        </mesh>
+      ))}
+    </group>
+  )
+}
+
 // The selected spacecraft, rendered as a 3D model floating at its modeled
 // orbital position on the globe (à la NASA Eyes). Moves along the orbit as the
 // simulation clock advances; it holds a steady attitude rather than spinning.
@@ -312,7 +427,9 @@ export default function SelectedSatelliteModel({ item, clock, exaggeration, mode
     <group ref={posRef}>
       {/* scale is driven by the scroll wheel while this mission is selected */}
       <group ref={attitudeRef} scale={modelScale}>
-        {url ? (
+        {model.kind === 'iss' ? (
+          <IssBody envMap={envMap} />
+        ) : url ? (
           <GltfBody url={url} envMap={envMap} targetSize={targetSize} />
         ) : (
           <RepresentativeBody envMap={envMap} />

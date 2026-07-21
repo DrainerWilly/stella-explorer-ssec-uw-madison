@@ -85,7 +85,7 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
       <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0,rgba(0,0,0,0.42)_72%)]" />
       <div aria-hidden="true" className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
 
-      <div className="relative z-10 grid min-h-[620px] w-full items-center gap-10 px-6 py-10 sm:px-8 lg:grid-cols-[minmax(320px,0.42fr)_minmax(420px,0.58fr)] lg:px-12 xl:px-16">
+      <div className="relative z-10 grid min-h-[620px] w-full items-center gap-8 px-6 pb-10 pt-28 sm:px-8 md:pt-32 lg:grid-cols-[minmax(320px,0.42fr)_minmax(380px,0.58fr)] lg:px-12 lg:pb-12 lg:pt-32 xl:px-16">
         <section className="max-w-xl text-left">
           <div className="flex items-center gap-3">
             <span className="relative flex h-2.5 w-2.5">
@@ -140,12 +140,12 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
           </div>
         </section>
 
-        <section className="relative mx-auto flex w-full max-w-[760px] items-center justify-center py-8 lg:py-0">
+        <section className="relative mx-auto flex w-full max-w-[660px] items-center justify-center py-6 lg:py-0">
           <div aria-hidden="true" className="absolute h-[82%] w-[82%] rounded-full border border-sky-200/10" />
           <div aria-hidden="true" className="absolute h-[98%] w-[98%] rounded-full border border-sky-200/5" />
           <div aria-hidden="true" className="absolute h-[118%] w-[118%] rounded-full border border-sky-200/[0.035]" />
 
-          <div className="relative aspect-square w-[min(82vw,640px)] overflow-hidden rounded-full border border-white/10 bg-black shadow-[0_0_90px_rgba(56,189,248,0.22)]">
+          <div className="relative aspect-square w-[min(70vw,560px)] overflow-hidden rounded-full border border-white/10 bg-black shadow-[0_0_90px_rgba(56,189,248,0.22)]">
             <iframe
               title={`Radiant shader: ${shader.name}`}
               src={`${import.meta.env.BASE_URL}${RADIANT_SHADER_BASE}${shader.file}`}
