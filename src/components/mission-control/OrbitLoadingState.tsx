@@ -104,11 +104,6 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
             </span>
           </h2>
 
-          <p className="mt-5 max-w-md text-sm leading-7 text-sky-100/58 sm:text-base">
-            Fetching current orbital elements from public TLE providers, validating mission IDs,
-            and preparing the 3D Earth scene.
-          </p>
-
           <div className="mt-8 max-w-sm">
             <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-[0.22em] text-sky-100/38">
               <span>Orbit feed</span>

@@ -129,6 +129,49 @@ html { scroll-behavior: smooth; }
   letter-spacing: -0.035em;
   line-height: 1.08;
 }
+@keyframes cm-read-arrow-drift {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(var(--cm-read-arrow-y, 4px)); }
+}
+.cm-read-more {
+  align-items: center;
+  appearance: none;
+  background: transparent;
+  border: 0;
+  bottom: max(5.4rem, calc(env(safe-area-inset-bottom) + 4rem));
+  cursor: pointer;
+  display: inline-flex;
+  flex-direction: column;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  gap: 0.42rem;
+  line-height: 1;
+  padding: 0.25rem 0.5rem;
+  text-decoration: none;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55);
+  transition: opacity 500ms var(--cm-ease);
+}
+.cm-read-more span {
+  text-decoration-thickness: 1px;
+  text-underline-offset: 4px;
+}
+.cm-read-more:hover {
+  opacity: 0.78;
+}
+.cm-read-more:hover span {
+  text-decoration-line: underline;
+}
+.cm-read-more svg {
+  --cm-read-arrow-y: 4px;
+  animation: cm-read-arrow-drift 1.7s ease-in-out infinite;
+  display: block;
+  transition: opacity 500ms var(--cm-ease);
+}
+.cm-read-more:hover svg {
+  --cm-read-arrow-y: 7px;
+  animation-duration: 1.15s;
+}
 
 /* ---- centered introduction below the globe ---- */
 .cm-hero-sub { font-size: clamp(1.1rem, 1.65vw, 1.35rem); line-height: 1.65; }
@@ -273,10 +316,11 @@ html { scroll-behavior: smooth; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  .cm-hero-statement, .cm-media-cover, .cm-view, .cm-view__arrow,
+  .cm-hero-statement, .cm-read-more, .cm-read-more svg, .cm-media-cover, .cm-view, .cm-view__arrow,
   .cm-nav__link, .cm-mobile-nav, .cm-mobile-nav__item {
     transition: none;
   }
+  .cm-read-more svg { animation: none; }
   .cm-hero-video--zoom { animation: none; }
 }
 

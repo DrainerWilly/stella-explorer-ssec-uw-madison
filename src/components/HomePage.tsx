@@ -6,11 +6,14 @@ import { HOME_CARDS } from '../data/nav'
 
 const EASE = [0.19, 1, 0.22, 1] // easeOutExpo — the reference's motion curve
 const HERO_FADE_MS = 650
+const READ_MORE_SCROLL_MS = 1350
 const HERO_STATEMENT = 'Learn remote sensing through satellite and STELLA data.'
 const HERO_VIDEOS = [
   { file: 'assets/videos/landsat-orbits.mp4', duration: 39 },
   { file: 'assets/videos/tdrs-fleet-360.mp4', duration: 45, zoom: true },
 ]
+
+const easeInOutSine = (t) => -(Math.cos(Math.PI * t) - 1) / 2
 
 // Small arrow used by the "view" affordance on each card.
 function ViewArrow() {
@@ -27,6 +30,7 @@ export default function HomePage({ onNavigate }) {
   const reduce = useReducedMotion()
   const isSwitchingHeroVideo = useRef(false)
   const heroFadeTimeout = useRef(null)
+  const readMoreScrollRaf = useRef(null)
   const [heroVideoIndex, setHeroVideoIndex] = useState(0)
   const [isHeroFading, setIsHeroFading] = useState(false)
   const heroVideo = HERO_VIDEOS[heroVideoIndex]
@@ -39,10 +43,36 @@ export default function HomePage({ onNavigate }) {
       setHeroVideoIndex((index) => (index + 1) % HERO_VIDEOS.length)
     }, HERO_FADE_MS)
   }, [])
+  const scrollToIntro = useCallback(() => {
+    const target = document.getElementById('home-intro')
+    if (!target) return
+
+    if (readMoreScrollRaf.current) window.cancelAnimationFrame(readMoreScrollRaf.current)
+
+    const startY = window.scrollY
+    const targetY = startY + target.getBoundingClientRect().top
+    const distance = targetY - startY
+
+    if (reduce) {
+      window.scrollTo(0, targetY)
+      return
+    }
+
+    const startedAt = performance.now()
+    const step = (now) => {
+      const t = Math.min(1, (now - startedAt) / READ_MORE_SCROLL_MS)
+      window.scrollTo(0, startY + distance * easeInOutSine(t))
+      if (t < 1) readMoreScrollRaf.current = window.requestAnimationFrame(step)
+      else readMoreScrollRaf.current = null
+    }
+
+    readMoreScrollRaf.current = window.requestAnimationFrame(step)
+  }, [reduce])
 
   useEffect(() => {
     return () => {
       if (heroFadeTimeout.current) window.clearTimeout(heroFadeTimeout.current)
+      if (readMoreScrollRaf.current) window.cancelAnimationFrame(readMoreScrollRaf.current)
     }
   }, [])
 
@@ -92,6 +122,18 @@ export default function HomePage({ onNavigate }) {
           {HERO_STATEMENT}
         </div>
 
+        <button
+          type="button"
+          onClick={scrollToIntro}
+          className="cm-read-more cm-focus absolute left-1/2 z-20 -translate-x-1/2 text-white"
+          aria-label="Read more about ExSTELLA"
+        >
+          <span>Read more</span>
+          <svg width="14" height="18" viewBox="0 0 14 18" fill="none" aria-hidden="true">
+            <path d="M7 1v15M2.5 11.5 7 16l4.5-4.5" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </button>
+
         {/* nav pinned to the top of the hero */}
         <div className="absolute inset-x-0 top-0 z-30">
           <Masthead active="home" onNavigate={onNavigate} />
@@ -101,6 +143,7 @@ export default function HomePage({ onNavigate }) {
       {/* ===================== FEATURE SECTIONS ===================== */}
       <div className="bg-white">
         <motion.section
+          id="home-intro"
           initial={{ opacity: 0, y: reduce ? 0 : 28 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
