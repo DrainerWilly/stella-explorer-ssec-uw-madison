@@ -33,7 +33,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
   const linkColor = 'text-white/85 hover:text-white'
 
   return (
-    <header className="cm-root relative z-30 w-full shrink-0 bg-transparent pt-8 md:pt-10">
+    <header className="cm-root cm-masthead relative z-30 w-full shrink-0 bg-transparent pt-8 md:pt-10">
       <div className="cm-masthead-inner flex items-center">
         {/* brand / wordmark — pinned left */}
         <button
@@ -45,8 +45,8 @@ export default function Masthead({ active = 'home', onNavigate }) {
         </button>
 
         {/* desktop nav */}
-        <nav aria-label="Primary" className="hidden md:block">
-          <ul className="flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
+        <nav aria-label="Primary" className="cm-desktop-nav hidden md:block">
+          <ul className="cm-primary-nav__list flex flex-wrap items-center justify-end gap-x-4 gap-y-2">
             {PRIMARY_NAV.map((item) => {
               const isActive = active === item.id
               return (
@@ -69,7 +69,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
           onClick={() => setMenuOpen(true)}
           aria-label="Open menu"
           aria-expanded={menuOpen}
-          className={`cm-focus md:hidden ${ink}`}
+          className={`cm-menu-button cm-focus md:hidden ${ink}`}
         >
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true">
             <path d="M5 9h18M5 14h18M5 19h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />

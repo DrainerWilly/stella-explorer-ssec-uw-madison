@@ -79,7 +79,7 @@ export default function HomePage({ onNavigate }) {
   return (
     <main className="cm-root relative min-h-screen w-full overflow-x-hidden bg-white text-[#2b2b2b]">
       {/* ===================== HERO ===================== */}
-      <section className="relative h-[100svh] min-h-[560px] w-full overflow-hidden">
+      <section className="cm-home-hero relative h-[100svh] min-h-[560px] w-full overflow-hidden">
         {/* looping Landsat orbit video — dominant hero visual */}
         <div className="absolute inset-0 z-0">
           <video
