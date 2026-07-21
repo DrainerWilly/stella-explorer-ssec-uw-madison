@@ -461,8 +461,8 @@ export default function MissionControlPage({ onNavigate }) {
         {/* title */}
         <div className="absolute left-4 top-24 z-20">{titleBlock}</div>
 
-        {/* top-right cluster */}
-        <div className="absolute right-4 top-24 z-20">{topRightCluster}</div>
+        {/* bottom-right utility cluster */}
+        <div className="absolute bottom-4 right-4 z-20">{topRightCluster}</div>
 
         {/* status warning banner */}
         {statusWarningBanner && (
