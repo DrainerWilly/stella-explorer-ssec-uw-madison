@@ -34,12 +34,12 @@ export default function SpectralCompare() {
   return (
     <div className="flex flex-col gap-4 lg:flex-row lg:items-stretch">
       {/* chart */}
-      <div className="flex-1 rounded-2xl bg-white p-3 shadow-soft">
+      <div className="flex-1 rounded-2xl border border-white/10 bg-white/[0.04] p-3 shadow-soft">
         <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label="Spectral reflectance chart">
           {/* y gridlines + labels */}
           {[0, 25, 50].map((r) => (
             <g key={r}>
-              <line x1={PAD.l} x2={W - PAD.r} y1={yScale(r)} y2={yScale(r)} stroke="#000" strokeOpacity="0.06" />
+              <line x1={PAD.l} x2={W - PAD.r} y1={yScale(r)} y2={yScale(r)} stroke="#fff" strokeOpacity="0.08" />
               <text x={PAD.l - 6} y={yScale(r) + 3} textAnchor="end" className="fill-faint" fontSize="8">
                 {r}
               </text>
@@ -72,8 +72,8 @@ export default function SpectralCompare() {
               y={PAD.t}
               width={W - PAD.r - xScale(VISIBLE_MAX_NM)}
               height={PLOT_H}
-              fill="#f4eee8"
-              fillOpacity="0.85"
+              fill="#050b1f"
+              fillOpacity="0.72"
             />
           )}
 
@@ -83,8 +83,8 @@ export default function SpectralCompare() {
             x2={xScale(VISIBLE_MAX_NM)}
             y1={PAD.t}
             y2={H - PAD.b}
-            stroke="#000"
-            strokeOpacity="0.18"
+            stroke="#fff"
+            strokeOpacity="0.2"
             strokeDasharray="3 3"
           />
 
@@ -120,7 +120,7 @@ export default function SpectralCompare() {
       {/* controls + readout */}
       <div className="flex flex-col justify-between gap-3 lg:w-56">
         {/* visible / infrared toggle */}
-        <div className="flex rounded-full bg-cream p-1 text-xs font-bold">
+        <div className="flex rounded-full bg-white/[0.06] p-1 text-xs font-bold">
           <button
             onClick={() => setMode('visible')}
             className={`flex-1 rounded-full px-3 py-2 transition-all ${
@@ -156,7 +156,7 @@ export default function SpectralCompare() {
         </div>
 
         {/* NDVI readout: only meaningful with NIR */}
-        <div className="rounded-2xl bg-cardmint px-3 py-2.5">
+        <div className="rounded-2xl bg-cardmint px-3 py-2.5 shadow-soft">
           <div className="text-[11px] font-semibold text-cink/60">Leaf NDVI (vegetation health)</div>
           <div className="text-lg font-extrabold text-cink">
             {visibleOnly ? 'Needs NIR' : vegNdvi}
