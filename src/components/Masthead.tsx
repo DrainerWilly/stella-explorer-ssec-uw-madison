@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { NAV } from '../data/nav'
 
 const PRIMARY_NAV = NAV.filter((item) => item.id !== 'home')
@@ -10,6 +10,10 @@ const PRIMARY_NAV = NAV.filter((item) => item.id !== 'home')
 // Chance Maker-inspired treatment on every page.
 export default function Masthead({ active = 'home', onNavigate }) {
   const [menuOpen, setMenuOpen] = useState(false)
+  const [hidden, setHidden] = useState(false)
+  const lastWindowScroll = useRef(0)
+  const lastElementScroll = useRef(new WeakMap())
+  const shouldAutoHide = active !== 'home'
 
   // Close on Escape and lock body scroll while the drawer is open.
   useEffect(() => {
@@ -24,6 +28,58 @@ export default function Masthead({ active = 'home', onNavigate }) {
     }
   }, [menuOpen])
 
+  useEffect(() => {
+    setHidden(false)
+    lastWindowScroll.current = window.scrollY || document.documentElement.scrollTop || 0
+    lastElementScroll.current = new WeakMap()
+
+    if (!shouldAutoHide) return undefined
+
+    const threshold = 3
+
+    const readWindowScroll = () => window.scrollY || document.documentElement.scrollTop || 0
+
+    const handleWindowScroll = () => {
+      const next = readWindowScroll()
+      const previous = lastWindowScroll.current
+      const delta = next - previous
+      if (Math.abs(delta) < threshold) return
+      setHidden(delta > 0 && next > 36)
+      lastWindowScroll.current = next
+    }
+
+    const handleElementScroll = (event) => {
+      const target = event.target
+      if (!target || target === document || target === window) return
+      if (typeof target.scrollTop !== 'number') return
+
+      const next = target.scrollTop
+      if (!lastElementScroll.current.has(target)) {
+        lastElementScroll.current.set(target, next)
+        return
+      }
+
+      const previous = lastElementScroll.current.get(target)
+      const delta = next - previous
+      if (Math.abs(delta) < threshold) return
+
+      setHidden(delta > 0 && next > 36)
+      lastElementScroll.current.set(target, next)
+    }
+
+    window.addEventListener('scroll', handleWindowScroll, { passive: true })
+    document.addEventListener('scroll', handleElementScroll, true)
+
+    return () => {
+      window.removeEventListener('scroll', handleWindowScroll)
+      document.removeEventListener('scroll', handleElementScroll, true)
+    }
+  }, [active, shouldAutoHide])
+
+  useEffect(() => {
+    if (menuOpen) setHidden(false)
+  }, [menuOpen])
+
   const go = (id) => {
     setMenuOpen(false)
     onNavigate?.(id)
@@ -31,9 +87,22 @@ export default function Masthead({ active = 'home', onNavigate }) {
 
   const ink = 'text-white'
   const linkColor = 'text-white/85 hover:text-white'
+  const autoHidden = shouldAutoHide && hidden && !menuOpen
 
   return (
-    <header className="cm-root relative z-30 w-full shrink-0 bg-transparent pt-8 md:pt-10">
+    <header
+      aria-hidden={autoHidden ? 'true' : undefined}
+      inert={autoHidden ? true : undefined}
+      className={`cm-root w-full pt-8 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] md:pt-10 ${
+        shouldAutoHide
+          ? 'fixed inset-x-0 top-0 z-50 bg-[#050b1f] pb-5 shadow-[0_18px_44px_rgba(2,6,23,0.22)]'
+          : 'relative z-30 shrink-0 bg-transparent'
+      } ${
+        autoHidden
+          ? 'pointer-events-none -translate-y-[calc(100%+2.5rem)] opacity-0'
+          : 'translate-y-0 opacity-100'
+      }`}
+    >
       <div className="cm-masthead-inner flex items-center">
         {/* brand / wordmark — pinned left */}
         <button

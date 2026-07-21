@@ -109,6 +109,16 @@ body {
 /* smooth in-page scrolling (disabled for reduced-motion below) */
 html { scroll-behavior: smooth; }
 
+/* Inner pages use a fixed dark masthead. This spacer lives inside the
+   scrollable page content, so it disappears naturally when the user scrolls
+   down instead of leaving an empty navbar-sized band behind. */
+.cm-floating-nav-content > main::before {
+  content: '';
+  display: block;
+  height: clamp(6.5rem, 9.5vw, 8.75rem);
+  pointer-events: none;
+}
+
 /* ---- home hero video treatment ---- */
 @keyframes cm-hero-video-zoom {
   from { transform: scale(1.1); }

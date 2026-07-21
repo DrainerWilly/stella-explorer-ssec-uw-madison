@@ -93,7 +93,7 @@ export default function App() {
           <Masthead active={page} onNavigate={navigate} />
         </div>
 
-        <div className="relative flex flex-1 flex-col lg:min-h-0">
+        <div className="cm-floating-nav-content relative flex flex-1 flex-col lg:min-h-0">
           {page === 'lessons' ? (
           /* Lessons & activities catalog: full width beside the sidebar */
           <LessonsPage
