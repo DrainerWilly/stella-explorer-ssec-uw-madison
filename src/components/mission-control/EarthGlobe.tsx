@@ -3,21 +3,88 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { EARTH_RADIUS_UNITS, surfaceVec3, DEG2RAD, sunDirectionUnitVec } from '../../utils/orbitMath'
-import { BASE_EARTH_LAYER } from '../../data/earthLayers'
 
-// Greenwich meridian is placed at +Z so the texture aligns with the same
-// lon→+Z convention used for satellites and ground tracks.
-const TEXTURE_ROTATION_Y = -Math.PI / 2
+// The visible surface uses NASA Goddard's Blue Marble 2015 VIIRS composite,
+// converted from the official 10,800 × 5,400 master into this globe's six-face
+// projection. Supporting terrain-normal, ocean-specular and night-light maps
+// remain the aligned public assets from NASA Eyes on the Earth.
+const BLUE_MARBLE_2015_ROOT = `${import.meta.env.BASE_URL}assets/earth/blue-marble-2015`
+const NASA_EYES_EARTH_ROOT = 'https://eyes.nasa.gov/assets/static/maps/earth'
+const FACE_IDS = [0, 1, 2, 3, 4, 5]
 
-// Top of the scattering atmosphere relative to the surface (visually exaggerated
-// ~2× so the blue shell reads clearly at globe scale, like NASA's Earth views).
-const ATMO_FACTOR = 1.035
+function faceTextureUrl(layer, size, face) {
+  if (layer === 'color') return `${BLUE_MARBLE_2015_ROOT}/color_${size}_${face}.webp`
+  return `${NASA_EYES_EARTH_ROOT}/${layer}_${size}_${face}.png`
+}
 
-const BASE = import.meta.env.BASE_URL
-const DAY_MAP = `${BASE}${BASE_EARTH_LAYER.file}`
-const NIGHT_MAP = `${BASE}assets/nasa/earth-night-8k.jpg`
-const CLOUD_MAP = `${BASE}assets/nasa/earth-clouds-8k.jpg`
-const TOPO_MAP = `${BASE}assets/nasa/earth-topo.jpg`
+// NASA Eyes face order:
+//   0 Greenwich/Africa, 1 Asia, 2 Pacific, 3 Americas, 4 north, 5 south.
+// Each face is projected from a cube onto the sphere. The mappings below keep
+// the image edges continuous and use the same lon 0 → +Z convention as the
+// orbit calculations in orbitMath.
+function cubePoint(face, s, t) {
+  switch (face) {
+    case 0:
+      return [s, t, 1]
+    case 1:
+      return [1, t, -s]
+    case 2:
+      return [-s, t, -1]
+    case 3:
+      return [-1, t, s]
+    case 4:
+      return [s, 1, -t]
+    default:
+      return [s, -1, t]
+  }
+}
+
+function buildCubeSphereFace(face, segments) {
+  const positions = []
+  const normals = []
+  const uvs = []
+  const indices = []
+
+  for (let y = 0; y <= segments; y += 1) {
+    const imageV = y / segments
+    const t = 1 - imageV * 2
+    for (let x = 0; x <= segments; x += 1) {
+      const u = x / segments
+      const s = u * 2 - 1
+      const [px, py, pz] = cubePoint(face, s, t)
+      const invLength = 1 / Math.hypot(px, py, pz)
+      const nx = px * invLength
+      const ny = py * invLength
+      const nz = pz * invLength
+      positions.push(nx * EARTH_RADIUS_UNITS, ny * EARTH_RADIUS_UNITS, nz * EARTH_RADIUS_UNITS)
+      normals.push(nx, ny, nz)
+      // TextureLoader flips DOM images into WebGL's UV convention, so the top
+      // image row maps to v=1.
+      uvs.push(u, 1 - imageV)
+    }
+  }
+
+  const row = segments + 1
+  for (let y = 0; y < segments; y += 1) {
+    for (let x = 0; x < segments; x += 1) {
+      const a = y * row + x
+      const b = a + 1
+      const c = a + row
+      const d = c + 1
+      // Source images run top-to-bottom, which makes the default winding face
+      // inward. Reverse it so normals and culling point away from Earth.
+      indices.push(a, c, b, b, c, d)
+    }
+  }
+
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3))
+  geometry.setAttribute('normal', new THREE.Float32BufferAttribute(normals, 3))
+  geometry.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2))
+  geometry.setIndex(indices)
+  geometry.computeBoundingSphere()
+  return geometry
+}
 
 // Build a single LineSegments buffer for the lat/lon grid (one draw call).
 function buildGridSegments() {
@@ -43,60 +110,6 @@ function buildGridSegments() {
   return new Float32Array(pts)
 }
 
-function canvasTextureFrom(data, w, h) {
-  const c = document.createElement('canvas')
-  c.width = w
-  c.height = h
-  c.getContext('2d').putImageData(new ImageData(data, w, h), 0, 0)
-  const t = new THREE.CanvasTexture(c)
-  t.colorSpace = THREE.NoColorSpace // data maps are linear, not color
-  return t
-}
-
-// Derive an ocean-specular (roughness) map and a land-only relief (bump) map
-// from the NASA day image + GEBCO elevation. Oceans become glossy so the Sun
-// glints off water; land stays matte; ocean elevation is flattened so only land
-// gets bump relief. Runs once when textures are ready.
-function deriveSurfaceMaps(dayImg, topoImg) {
-  const W = 2048
-  const H = 1024
-  const draw = (img) => {
-    const c = document.createElement('canvas')
-    c.width = W
-    c.height = H
-    const ctx = c.getContext('2d', { willReadFrequently: true })
-    ctx.drawImage(img, 0, 0, W, H)
-    return ctx.getImageData(0, 0, W, H).data
-  }
-  const day = draw(dayImg)
-  const topo = topoImg ? draw(topoImg) : null
-
-  const rough = new Uint8ClampedArray(W * H * 4)
-  const bump = topo ? new Uint8ClampedArray(W * H * 4) : null
-
-  for (let i = 0; i < W * H; i++) {
-    const p = i * 4
-    const r = day[p]
-    const g = day[p + 1]
-    const b = day[p + 2]
-    const lum = 0.299 * r + 0.587 * g + 0.114 * b
-    const water = b >= r && b >= g // blue-dominant ≈ ocean
-    // roughness: water glossy (sun glint), snow/ice semi, land matte
-    const rv = water ? 34 : lum > 200 ? 140 : 224
-    rough[p] = rough[p + 1] = rough[p + 2] = rv
-    rough[p + 3] = 255
-    if (bump) {
-      const elev = water ? 128 : topo[p] // flatten oceans, keep land relief
-      bump[p] = bump[p + 1] = bump[p + 2] = elev
-      bump[p + 3] = 255
-    }
-  }
-  return {
-    roughness: canvasTextureFrom(rough, W, H),
-    bump: bump ? canvasTextureFrom(bump, W, H) : null,
-  }
-}
-
 // `cloudDrift` slowly spins the cloud shell relative to the surface. It is a
 // decorative flourish for the home-page hero (where the whole globe is already
 // spinning). It is OFF by default: this globe is drawn in an Earth-FIXED frame,
@@ -111,33 +124,37 @@ export default function EarthGlobe({
   cloudDrift = false,
 }) {
   const { camera, gl } = useThree()
-  const earthRef = useRef()
   const cloudRef = useRef()
-  const [tex, setTex] = useState({ day: null, night: null, clouds: null, roughness: null, bump: null })
+  const [tex, setTex] = useState({ day: null, night: null, clouds: null, normal: null, specular: null })
 
-  // Sun direction, shared into the night-lights + atmosphere shaders.
+  // Sun direction used to keep night lights behind the simulated terminator.
   const sunViewUniform = useRef({ value: new THREE.Vector3(1, 0, 0) })
-  const sunWorldUniform = useRef({ value: new THREE.Vector3(1, 0, 0) })
   const _sunWorld = useRef(new THREE.Vector3()).current
   const _sunView = useRef(new THREE.Vector3()).current
 
-  const withExtras = quality !== 'low' // night lights, clouds, specular, bump
+  const withExtras = quality !== 'low'
+  const colorTextureSize = quality === 'low' ? 512 : 2048
+  const materialTextureSize = quality === 'high' ? 2048 : 512
 
-  // Load textures with the canonical TextureLoader, then derive surface maps.
+  // Load the color faces first so the planet appears promptly. The aligned
+  // normal, ocean-specular, night-light, and cloud faces follow independently;
+  // a failed optional layer never prevents the globe itself from rendering.
   useEffect(() => {
     const loader = new THREE.TextureLoader()
+    loader.setCrossOrigin('anonymous')
     const maxAniso = gl.capabilities.getMaxAnisotropy?.() ?? 8
     const aniso = Math.min(16, maxAniso)
     let disposed = false
     const created = []
-    const load = (url, color) =>
+    const load = (url, color = false) =>
       new Promise((resolve) => {
-        if (!url) return resolve(null)
         loader.load(
           url,
           (t) => {
             t.colorSpace = color ? THREE.SRGBColorSpace : THREE.NoColorSpace
             t.anisotropy = aniso
+            t.wrapS = THREE.ClampToEdgeWrapping
+            t.wrapT = THREE.ClampToEdgeWrapping
             created.push(t)
             resolve(t)
           },
@@ -145,224 +162,106 @@ export default function EarthGlobe({
           () => resolve(null),
         )
       })
+    const loadSet = (layer, size, color = false) =>
+      Promise.all(FACE_IDS.map((face) => load(faceTextureUrl(layer, size, face), color))).then(
+        (faces) => (faces.every(Boolean) ? faces : null),
+      )
 
-    Promise.all([
-      load(DAY_MAP, true),
-      withExtras ? load(NIGHT_MAP, true) : null,
-      withExtras ? load(CLOUD_MAP, true) : null,
-      withExtras ? load(TOPO_MAP, false) : null,
-    ]).then(([day, night, clouds, topo]) => {
-      if (disposed) {
-        ;[day, night, clouds, topo].forEach((t) => t && t.dispose())
-        return
-      }
-      let roughness = null
-      let bump = null
-      if (day?.image) {
-        try {
-          const derived = deriveSurfaceMaps(day.image, topo?.image)
-          roughness = derived.roughness
-          bump = derived.bump
-          roughness && (roughness.anisotropy = aniso)
-          bump && (bump.anisotropy = aniso)
-        } catch {
-          /* fall back to uniform roughness */
-        }
-      }
-      topo?.dispose() // only needed for derivation
-      setTex({ day, night, clouds, roughness, bump })
+    setTex({ day: null, night: null, clouds: null, normal: null, specular: null })
+    // Show the optimized 512px Blue Marble set immediately, then swap to its
+    // 2048px tier on balanced/high displays.
+    loadSet('color', 512, true).then((day) => {
+      if (!disposed && day) setTex((current) => (current.day ? current : { ...current, day }))
     })
+
+    if (colorTextureSize > 512) {
+      loadSet('color', colorTextureSize, true).then((day) => {
+        if (!disposed && day) setTex((current) => ({ ...current, day }))
+      })
+    }
+
+    if (withExtras) {
+      loadSet('night', materialTextureSize, true).then((night) => {
+        if (!disposed) setTex((current) => ({ ...current, night }))
+      })
+      // Blue Marble 2015 already contains the VIIRS cloud field captured on
+      // October 14, 2015. Do not add the separate Eyes cloud shell on top.
+      loadSet('normal', materialTextureSize).then((normal) => {
+        if (!disposed) setTex((current) => ({ ...current, normal }))
+      })
+      loadSet('specular', materialTextureSize).then((specular) => {
+        if (!disposed) setTex((current) => ({ ...current, specular }))
+      })
+    }
 
     return () => {
       disposed = true
       created.forEach((t) => t.dispose())
     }
-  }, [withExtras, gl])
+  }, [colorTextureSize, materialTextureSize, withExtras, gl])
 
-  // Earth material: PBR day map, ocean-specular roughness map, land relief bump,
-  // and night-side city lights (via a small shader injection).
-  const earthMaterial = useMemo(() => {
+  // One PBR material per cube-sphere face. NASA's specular mask is bright over
+  // water and dark over land, while Three's roughness convention is the inverse;
+  // the shader patch performs that single channel inversion. Night lights are
+  // then restricted to the physically dark side of the simulated terminator.
+  const earthMaterials = useMemo(() => {
     if (!tex.day) return null
-    const mat = new THREE.MeshStandardMaterial({
-      map: tex.day,
-      metalness: 0.0,
-      roughness: tex.roughness ? 1.0 : 0.9,
-      roughnessMap: tex.roughness || null,
-      bumpMap: tex.bump || null,
-      bumpScale: tex.bump ? 2.2 : 0,
-    })
-    if (tex.night) {
-      mat.emissiveMap = tex.night
-      mat.emissive = new THREE.Color(0xffffff)
-      mat.emissiveIntensity = 1.0
+    return FACE_IDS.map((face) => {
+      const mat = new THREE.MeshStandardMaterial({
+        map: tex.day[face],
+        normalMap: tex.normal?.[face] || null,
+        normalScale: new THREE.Vector2(0.42, 0.42),
+        roughness: 0.92,
+        roughnessMap: tex.specular?.[face] || null,
+        metalness: 0,
+        emissive: tex.night ? new THREE.Color(0xffffff) : new THREE.Color(0x000000),
+        emissiveMap: tex.night?.[face] || null,
+        emissiveIntensity: tex.night ? 1.1 : 0,
+      })
       mat.onBeforeCompile = (shader) => {
         shader.uniforms.uSunViewDir = sunViewUniform.current
         shader.fragmentShader =
           'uniform vec3 uSunViewDir;\n' +
-          shader.fragmentShader.replace(
-            '#include <emissivemap_fragment>',
-            `#include <emissivemap_fragment>
-             float _sun = dot(normalize(vNormal), normalize(uSunViewDir));
-             float _night = smoothstep(0.06, -0.20, _sun);
-             totalEmissiveRadiance *= _night * 1.2;`,
-          )
+          shader.fragmentShader
+            .replace(
+              '#include <roughnessmap_fragment>',
+              `float roughnessFactor = roughness;
+               #ifdef USE_ROUGHNESSMAP
+                 vec4 texelRoughness = texture2D(roughnessMap, vRoughnessMapUv);
+                 roughnessFactor *= clamp(1.0 - texelRoughness.g, 0.08, 1.0);
+               #endif`,
+            )
+            .replace(
+              '#include <emissivemap_fragment>',
+              `#include <emissivemap_fragment>
+               float _sun = dot(normalize(vNormal), normalize(uSunViewDir));
+               float _night = smoothstep(0.06, -0.20, _sun);
+               totalEmissiveRadiance *= _night * 1.18;`,
+            )
       }
-    }
-    return mat
-  }, [tex])
-
-  useEffect(() => () => earthMaterial?.dispose(), [earthMaterial])
-  // Derived textures live inside the material; dispose when it changes.
-  useEffect(
-    () => () => {
-      tex.roughness?.dispose()
-      tex.bump?.dispose()
-    },
-    [tex.roughness, tex.bump],
-  )
-
-  const cloudMaterial = useMemo(() => {
-    if (!tex.clouds) return null
-    return new THREE.MeshStandardMaterial({
-      color: 0xffffff,
-      alphaMap: tex.clouds,
-      transparent: true,
-      opacity: 0.96,
-      depthWrite: false,
-      roughness: 1,
-      metalness: 0,
+      mat.customProgramCacheKey = () => `nasa-eyes-earth-${Boolean(tex.specular)}-${Boolean(tex.night)}`
+      return mat
     })
-  }, [tex])
-  useEffect(() => () => cloudMaterial?.dispose(), [cloudMaterial])
+  }, [tex.day, tex.night, tex.normal, tex.specular])
+  useEffect(() => () => earthMaterials?.forEach((material) => material.dispose()), [earthMaterials])
 
-  // Atmosphere: raymarched single-scattering (Rayleigh + Mie). This is what
-  // produces the bright blue haze wrapping the whole disc and the thick glowing
-  // limb (the NASA-Eyes look), not just a rim highlight. Deliberately
-  // perf-heavy: ~16 view samples × 8 light samples per pixel of the shell.
-  const atmosphereMaterial = useMemo(
-    () =>
-      new THREE.ShaderMaterial({
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        side: THREE.FrontSide,
-        depthWrite: false,
-        uniforms: {
-          uSunDir: sunWorldUniform.current,
-          uPlanetR: { value: EARTH_RADIUS_UNITS },
-          uAtmoR: { value: EARTH_RADIUS_UNITS * ATMO_FACTOR },
-          uHR: { value: 0.016 }, // Rayleigh scale height (scene units, exaggerated for look)
-          uHM: { value: 0.0045 }, // Mie scale height
-          uBetaR: { value: new THREE.Vector3(0.9, 2.1, 5.2) }, // Rayleigh scattering (blue-heavy)
-          uBetaM: { value: 0.9 }, // Mie scattering
-          uG: { value: 0.78 }, // Mie anisotropy (forward)
-          uSunI: { value: 15.0 }, // sun intensity
-        },
-        vertexShader: `
-          varying vec3 vWorldPos;
-          varying vec3 vCenter;
-          varying float vScale;
-          void main() {
-            vec4 wp = modelMatrix * vec4(position, 1.0);
-            vWorldPos = wp.xyz;
-            vCenter = (modelMatrix * vec4(0.0, 0.0, 0.0, 1.0)).xyz;
-            vScale = length(modelMatrix[0].xyz);
-            gl_Position = projectionMatrix * viewMatrix * wp;
-          }
-        `,
-        fragmentShader: `
-          const float PI = 3.141592653589793;
-          const int VIEW_STEPS = 16;
-          const int LIGHT_STEPS = 8;
-          uniform vec3 uSunDir;
-          uniform float uPlanetR;
-          uniform float uAtmoR;
-          uniform float uHR;
-          uniform float uHM;
-          uniform vec3 uBetaR;
-          uniform float uBetaM;
-          uniform float uG;
-          uniform float uSunI;
-          varying vec3 vWorldPos;
-          varying vec3 vCenter;
-          varying float vScale;
-
-          // Ray/sphere (centered at origin). Returns entry/exit distances.
-          vec2 raySphere(vec3 ro, vec3 rd, float r) {
-            float b = dot(ro, rd);
-            float c = dot(ro, ro) - r * r;
-            float d = b * b - c;
-            if (d < 0.0) return vec2(1e9, -1e9);
-            float sd = sqrt(d);
-            return vec2(-b - sd, -b + sd);
-          }
-
-          void main() {
-            // Work in the globe's local (unscaled) frame so this also works when
-            // the globe is placed/scaled inside a parent group (home page).
-            vec3 ro = (cameraPosition - vCenter) / vScale;
-            vec3 rd = normalize(vWorldPos - cameraPosition);
-            vec3 sun = normalize(uSunDir);
-
-            vec2 tA = raySphere(ro, rd, uAtmoR);
-            float t0 = max(tA.x, 0.0);
-            float t1 = tA.y;
-            vec2 tP = raySphere(ro, rd, uPlanetR);
-            if (tP.x > 0.0) t1 = min(t1, tP.x); // stop at the ground
-            if (t1 <= t0) discard;
-
-            float ds = (t1 - t0) / float(VIEW_STEPS);
-            float t = t0 + ds * 0.5;
-            vec3 sumR = vec3(0.0);
-            vec3 sumM = vec3(0.0);
-            float odR = 0.0;
-            float odM = 0.0;
-
-            for (int i = 0; i < VIEW_STEPS; i++) {
-              vec3 p = ro + rd * t;
-              float h = length(p) - uPlanetR;
-              float hr = exp(-h / uHR) * ds;
-              float hm = exp(-h / uHM) * ds;
-              odR += hr;
-              odM += hm;
-
-              // optical depth toward the sun
-              vec2 tL = raySphere(p, sun, uAtmoR);
-              float dsl = tL.y / float(LIGHT_STEPS);
-              float tl = dsl * 0.5;
-              float odlR = 0.0;
-              float odlM = 0.0;
-              bool shadowed = false;
-              for (int j = 0; j < LIGHT_STEPS; j++) {
-                vec3 pl = p + sun * tl;
-                float hl = length(pl) - uPlanetR;
-                if (hl < 0.0) { shadowed = true; break; }
-                odlR += exp(-hl / uHR) * dsl;
-                odlM += exp(-hl / uHM) * dsl;
-                tl += dsl;
-              }
-              if (!shadowed) {
-                vec3 tau = uBetaR * (odR + odlR) + vec3(uBetaM) * 1.1 * (odM + odlM);
-                vec3 attn = exp(-tau);
-                sumR += attn * hr;
-                sumM += attn * hm;
-              }
-              t += ds;
-            }
-
-            float mu = dot(rd, sun);
-            float phR = 3.0 / (16.0 * PI) * (1.0 + mu * mu);
-            float g2 = uG * uG;
-            float phM = 3.0 / (8.0 * PI) * ((1.0 - g2) * (1.0 + mu * mu)) /
-                        ((2.0 + g2) * pow(1.0 + g2 - 2.0 * uG * mu, 1.5));
-
-            vec3 col = (sumR * uBetaR * phR + sumM * vec3(uBetaM) * phM) * uSunI;
-            gl_FragColor = vec4(col, 1.0);
-          }
-        `,
-      }),
-    [],
-  )
-  useEffect(() => () => atmosphereMaterial.dispose(), [atmosphereMaterial])
+  const cloudMaterials = useMemo(() => {
+    if (!tex.clouds) return null
+    return FACE_IDS.map(
+      (face) =>
+        new THREE.MeshStandardMaterial({
+          map: tex.clouds[face],
+          color: 0xffffff,
+          transparent: true,
+          opacity: 0.82,
+          alphaTest: 0.012,
+          depthWrite: false,
+          roughness: 1,
+          metalness: 0,
+        }),
+    )
+  }, [tex.clouds])
+  useEffect(() => () => cloudMaterials?.forEach((material) => material.dispose()), [cloudMaterials])
 
   const gridGeometry = useMemo(() => {
     if (!showGrid) return null
@@ -373,6 +272,11 @@ export default function EarthGlobe({
   useEffect(() => () => gridGeometry?.dispose(), [gridGeometry])
 
   const segments = quality === 'high' ? 128 : quality === 'low' ? 64 : 96
+  const faceGeometries = useMemo(
+    () => FACE_IDS.map((face) => buildCubeSphereFace(face, segments)),
+    [segments],
+  )
+  useEffect(() => () => faceGeometries.forEach((geometry) => geometry.dispose()), [faceGeometries])
 
   // Drive the day/night terminator from the sim clock, and optionally drift the
   // decorative cloud shell (see the cloudDrift note above).
@@ -380,7 +284,6 @@ export default function EarthGlobe({
     if (clock) {
       const [sx, sy, sz] = sunDirectionUnitVec(clock.getDate())
       _sunWorld.set(sx, sy, sz)
-      sunWorldUniform.current.value.copy(_sunWorld)
       _sunView.copy(_sunWorld).transformDirection(camera.matrixWorldInverse)
       sunViewUniform.current.value.copy(_sunView)
     }
@@ -391,30 +294,31 @@ export default function EarthGlobe({
 
   return (
     <group>
-      {/* Earth */}
-      <mesh ref={earthRef} rotation={[0, TEXTURE_ROTATION_Y, 0]}>
-        <sphereGeometry args={[EARTH_RADIUS_UNITS, segments, segments]} />
-        {earthMaterial ? (
-          <primitive object={earthMaterial} attach="material" />
-        ) : (
-          // Clean procedural ocean-blue fallback (NOT satellite imagery).
-          <meshStandardMaterial color="#16324f" roughness={0.8} metalness={0.05} />
-        )}
-      </mesh>
-
-      {/* Clouds */}
-      {cloudMaterial && (
-        <mesh ref={cloudRef} rotation={[0, TEXTURE_ROTATION_Y, 0]} scale={1.01}>
+      {/* Blue Marble 2015 cube-sphere surface with aligned supporting relief,
+          water-specular and night-light material maps. */}
+      {earthMaterials ? (
+        <group>
+          {FACE_IDS.map((face) => (
+            <mesh key={face} geometry={faceGeometries[face]} material={earthMaterials[face]} />
+          ))}
+        </group>
+      ) : (
+        // Clean procedural ocean-blue fallback (not satellite imagery).
+        <mesh>
           <sphereGeometry args={[EARTH_RADIUS_UNITS, segments, segments]} />
-          <primitive object={cloudMaterial} attach="material" />
+          <meshStandardMaterial color="#102f55" roughness={0.78} metalness={0.02} />
         </mesh>
       )}
 
-      {/* Atmosphere (raymarched scattering shell) */}
-      <mesh scale={ATMO_FACTOR}>
-        <sphereGeometry args={[EARTH_RADIUS_UNITS, segments, segments]} />
-        <primitive object={atmosphereMaterial} attach="material" />
-      </mesh>
+      {/* Optional cloud shell for callers supplying a cloud-free color layer.
+          Blue Marble 2015 includes clouds, so this stays absent here. */}
+      {cloudMaterials && (
+        <group ref={cloudRef} scale={1.0085}>
+          {FACE_IDS.map((face) => (
+            <mesh key={face} geometry={faceGeometries[face]} material={cloudMaterials[face]} />
+          ))}
+        </group>
+      )}
 
       {/* Optional lat/lon grid */}
       {gridGeometry && (

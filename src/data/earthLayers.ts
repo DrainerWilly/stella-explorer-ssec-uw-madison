@@ -14,13 +14,14 @@ export const BASE_EARTH_LAYER = {
   label: 'Earth texture',
   available: true,
   active: true,
-  // Loaded lazily by EarthGlobe; served from /public. If the file is missing or
-  // fails to decode, the globe falls back to a clean procedural material.
-  file: 'assets/nasa/earth-day-8k.jpg',
-  source: 'Solar System Scope (NASA-derived Earth textures), CC BY 4.0',
-  sourceUrl: 'https://www.solarsystemscope.com/textures/',
+  // EarthGlobe loads adaptive 512/2048px cube-sphere faces derived from NASA
+  // Goddard's official 10,800 × 5,400 Blue Marble 2015 master. If they fail,
+  // it falls back to a clean procedural material.
+  file: null,
+  source: 'NASA Blue Marble 2015, NASA Goddard Space Flight Center',
+  sourceUrl: 'https://svs.gsfc.nasa.gov/30763',
   credit:
-    'Earth textures (8K day, night lights, clouds): Solar System Scope (solarsystemscope.com), derived from NASA imagery, licensed CC BY 4.0.',
+    'Earth color imagery is NASA Goddard’s Blue Marble 2015 VIIRS composite for October 14, 2015. Supporting normal, specular, and night-light maps are from NASA Eyes on the Earth.',
 }
 
 // Future layers: descriptive placeholders only. `available: false` everywhere.

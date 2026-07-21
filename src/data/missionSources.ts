@@ -27,18 +27,18 @@ export const DATA_SOURCES = {
       'Satellite positions are propagated in your browser with satellite.js using the SGP4/SDP4 model.',
   },
   earthTexture: {
-    name: '8K Earth textures + NASA terrain',
-    org: 'Solar System Scope (CC BY 4.0) · NASA/GEBCO',
-    url: 'https://www.solarsystemscope.com/textures/',
+    name: 'NASA Blue Marble 2015 and NASA Eyes Earth maps',
+    org: 'NASA Goddard Space Flight Center / NASA JPL-Caltech',
+    url: 'https://svs.gsfc.nasa.gov/30763',
     credit:
-      'Earth textures (8K day, night lights, clouds): Solar System Scope (solarsystemscope.com), derived from NASA imagery, CC BY 4.0. Terrain relief from GEBCO/NASA elevation; ocean specular is derived from the day imagery.',
+      'Earth color imagery is NASA Goddard’s Blue Marble 2015 VIIRS composite for October 14, 2015. Terrain-normal, ocean-specular, and night-light maps are supporting assets from NASA Eyes on the Earth.',
   },
   spacecraftModels: {
-    name: 'NASA-3D-Resources spacecraft models',
-    org: 'NASA',
-    url: 'https://github.com/nasa/NASA-3D-Resources',
+    name: 'NASA Eyes mission spacecraft models',
+    org: 'NASA/JPL-Caltech',
+    url: 'https://eyes.nasa.gov/apps/earth/',
     credit:
-      'Spacecraft 3D models: NASA (NASA-3D-Resources). Missions without a published NASA model show a clearly labeled representative model.',
+      'Mission-specific spacecraft geometry and authored PBR textures are the official public glTF packages used by NASA Eyes on the Earth.',
   },
 }
 

@@ -11,8 +11,6 @@ export const NAV = [
     id: 'home',
     icon: 'home',
     label: 'Home',
-    image: 'assets/nasa/earth-day-8k.jpg',
-    imageAlt: 'NASA Blue Marble image of Earth from space',
   },
   {
     id: 'mission-control',

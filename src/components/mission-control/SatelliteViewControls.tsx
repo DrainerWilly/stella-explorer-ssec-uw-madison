@@ -8,7 +8,8 @@ import { EARTH_RADIUS_UNITS, propagateAt, geodeticToVec3 } from '../../utils/orb
 // with the satellite in its local frame (up = away from Earth's centre), so the
 // planet's limb sits below the craft and the ground visibly slides past as it
 // flies. Dragging orbits the camera around the SATELLITE, not around Earth; the
-// regular OrbitControls are disabled while this view is active.
+// the selected spacecraft remains locked in the frame while the user drags to
+// orbit around it.
 
 const WORLD_UP = new THREE.Vector3(0, 1, 0)
 
@@ -25,9 +26,6 @@ const INTRO_SECONDS = 1.4
 const MIN_CAM_RADIUS = EARTH_RADIUS_UNITS + 0.18
 // How far ahead (sim seconds) to sample the orbit for the motion direction.
 const LOOKAHEAD_S = 45
-const CAMERA_CHASE_STIFFNESS = 14
-const IDLE_DRIFT_UNITS = 0.055
-const LOOK_DRIFT_UNITS = 0.035
 
 // Scratch objects reused every frame.
 const _sat = new THREE.Vector3()
@@ -154,7 +152,7 @@ export default function SatelliteViewControls({ item, clock, exaggeration, reduc
     }
   }, [active, gl])
 
-  useFrame((state, delta) => {
+  useFrame((_, delta) => {
     if (!active || !item) return
     const s = propagateAt(item.satrec, clock.getDate())
     if (!s.ok) return // keep the last good framing rather than jump
@@ -177,19 +175,6 @@ export default function SatelliteViewControls({ item, clock, exaggeration, reduc
     if (_desired.lengthSq() < MIN_CAM_RADIUS * MIN_CAM_RADIUS) _desired.setLength(MIN_CAM_RADIUS)
 
     _targetLook.copy(_sat)
-    if (!reducedMotion) {
-      const t = state.clock.elapsedTime
-      // Tiny cinematic drift: enough to make the selected spacecraft feel like
-      // it is floating in space, but not enough to make the user lose it.
-      _desired
-        .addScaledVector(_east, Math.sin(t * 0.18) * IDLE_DRIFT_UNITS)
-        .addScaledVector(_north, Math.cos(t * 0.13) * IDLE_DRIFT_UNITS * 0.55)
-        .addScaledVector(_up, Math.sin(t * 0.22) * IDLE_DRIFT_UNITS * 0.35)
-      _targetLook
-        .addScaledVector(_up, Math.sin(t * 0.31) * LOOK_DRIFT_UNITS)
-        .addScaledVector(_east, Math.cos(t * 0.19) * LOOK_DRIFT_UNITS * 0.45)
-      if (_desired.lengthSq() < MIN_CAM_RADIUS * MIN_CAM_RADIUS) _desired.setLength(MIN_CAM_RADIUS)
-    }
 
     if (v.intro < 1) {
       // Fly in: blend position, up vector and look target from the Earth view.
@@ -201,9 +186,10 @@ export default function SatelliteViewControls({ item, clock, exaggeration, reduc
       _look.lerpVectors(v.startLook, _targetLook, e)
       camera.lookAt(_look)
     } else {
-      const chase = reducedMotion ? 1 : 1 - Math.exp(-CAMERA_CHASE_STIFFNESS * delta)
-      camera.position.lerp(_desired, chase)
-      camera.up.lerp(_up, chase).normalize()
+      // Keep the craft perfectly anchored in the viewport. A delayed camera
+      // chase made the exact orbital position look like vertical bobbing.
+      camera.position.copy(_desired)
+      camera.up.copy(_up)
       camera.lookAt(_targetLook)
     }
   })

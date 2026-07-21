@@ -215,12 +215,11 @@ export default function MissionPanel({
             </button>
           </div>
           {src && <p className="text-[10px] leading-snug text-white/30">{src.credit}</p>}
-          <p className="text-[10px] leading-snug text-white/30">
-            {satModel.official
-              ? '3D model: NASA (NASA-3D-Resources).'
-              : 'Representative 3D model (not a NASA model).'}
-            {satModel.note ? ` ${satModel.note}` : ''}
-          </p>
+          {satModel && (
+            <p className="text-[10px] leading-snug text-white/30">
+              {satModel.credit}.{satModel.note ? ` ${satModel.note}` : ''}
+            </p>
+          )}
         </div>
       )}
     </div>

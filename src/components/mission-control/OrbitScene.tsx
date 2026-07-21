@@ -4,7 +4,7 @@ import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import EarthGlobe from './EarthGlobe'
 import SatelliteLayer from './SatelliteLayer'
-import SelectedSatelliteModel from './SelectedSatelliteModel'
+import SelectedSatelliteModel, { preloadPrioritySatelliteModels } from './SelectedSatelliteModel'
 import SatelliteViewControls from './SatelliteViewControls'
 import OrbitTrailLayer from './OrbitTrailLayer'
 import GroundTrackLayer from './GroundTrackLayer'
@@ -114,7 +114,6 @@ function SceneContents({
             clock={clock}
             exaggeration={settings.exaggeration}
             modelScale={modelScale}
-            reducedMotion={reducedMotion}
           />
         </Suspense>
       )}
@@ -164,6 +163,23 @@ export default function OrbitScene(props) {
   // Mission Control is an always-dark cinematic space view.
   const bg = '#03071a'
   const maxDpr = props.maxDpr ?? 1.5
+
+  useEffect(() => {
+    if (navigator.connection?.saveData) return undefined
+    let idleId = null
+    const timer = window.setTimeout(() => {
+      if ('requestIdleCallback' in window) {
+        idleId = window.requestIdleCallback(preloadPrioritySatelliteModels, { timeout: 5000 })
+      } else {
+        preloadPrioritySatelliteModels()
+      }
+    }, 2800)
+    return () => {
+      window.clearTimeout(timer)
+      if (idleId != null && 'cancelIdleCallback' in window) window.cancelIdleCallback(idleId)
+    }
+  }, [])
+
   return (
     <Canvas
       dpr={[1, maxDpr]}

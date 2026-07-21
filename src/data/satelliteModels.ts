@@ -1,100 +1,80 @@
 // @ts-nocheck
-// Spacecraft 3D models shown in the mission panel when a satellite is selected.
-//
-// All .glb files are official NASA models downloaded from NASA's public
-// NASA-3D-Resources repository (github.com/nasa/NASA-3D-Resources), the same
-// spacecraft NASA's own visualizations depict. NASA-produced models are U.S.
-// government works; credit is given and no NASA endorsement is implied.
-//
-// Where NASA has not published a model for a specific spacecraft, we either
-// show the model of its design twin / host platform (disclosed in `note`) or
-// fall back to a clearly-labeled stylized representative model (file: null).
+// Official mission geometry used by NASA Eyes on the Earth. These are the exact
+// public NASA/JPL glTF packages served to Eyes, including their authored PBR
+// textures and mission-specific hardware. Keeping the URLs at NASA's asset CDN
+// avoids shipping stale duplicate models and lets relative .bin/texture files
+// resolve from their original package directories.
 
-const REPO = 'https://github.com/nasa/NASA-3D-Resources'
-const CREDIT = 'Model: NASA (NASA-3D-Resources)'
+const EYES_ROOT = 'https://eyes.nasa.gov/assets/static/models'
+const EYES_APP = 'https://eyes.nasa.gov/apps/earth/'
+const CREDIT = '3D model: NASA/JPL-Caltech, NASA Eyes on the Earth'
 
-const M = (file, note = null, options = {}) => ({
-  file: file ? `assets/models/${file}` : null,
-  official: Boolean(file),
-  credit: file ? CREDIT : 'Stylized representative model (not a NASA model)',
-  sourceUrl: REPO,
+const M = (path, note = null, options = {}) => ({
+  file: `${EYES_ROOT}/${path}`,
+  official: true,
+  credit: CREDIT,
+  sourceUrl: EYES_APP,
   note,
   ...options,
 })
 
-const REPRESENTATIVE_NOTE =
-  'NASA has not published a 3D model of this spacecraft in NASA-3D-Resources yet, so a stylized representative model is shown.'
-
-const LIGHTWEIGHT_ISS_NOTE =
-  'A lightweight procedural ISS model is shown so selecting ISS does not download the original 92 MB NASA GLB.'
-
-const ISS = (note = LIGHTWEIGHT_ISS_NOTE) =>
-  M(null, note, {
-    kind: 'iss',
-    targetSize: 0.58,
-    sourceUrl: 'https://github.com/nasa/NASA-3D-Resources',
+const ISS = (note = null) =>
+  M('sc_iss/ISS_stationary.gltf', note, {
+    targetSize: 0.72,
   })
 
 export const SATELLITE_MODELS = {
-  'landsat-8': M('landsat-8.glb'),
-  'landsat-9': M(
-    'landsat-8.glb',
-    'Landsat 9 shares the Landsat 8 spacecraft design, so the official Landsat 8 model is shown.',
+  'landsat-8': M('sc_landsat_8/LandSat8.gltf'),
+  'landsat-9': M('sc_landsat_9/Landsat9.gltf'),
+  terra: M('sc_terra/Terra.gltf'),
+  aqua: M('sc_aqua/Aqua.gltf'),
+  aura: M('sc_aura/Aura.gltf'),
+  'gpm-core': M('sc_gpm/GPM.gltf'),
+  'icesat-2': M('sc_icesatii/ICESat2.gltf'),
+  smap: M('sc_smap/SMAP.gltf'),
+  swot: M('sc_swot_v2/swot.gltf'),
+  pace: M('sc_pace/pace.gltf'),
+  'suomi-npp': M('sc_npp/NPP.gltf'),
+  'noaa-20': M('sc_noaa_20/noaa20.gltf'),
+  'noaa-21': M('sc_noaa_21/noaa21.gltf'),
+  'sentinel-6': M('sc_sentinel_6/Sentinel6.gltf'),
+  'sentinel-6b': M(
+    'sc_sentinel_6/Sentinel6.gltf',
+    'Sentinel-6B uses the same official mission design as Sentinel-6 Michael Freilich.',
   ),
-  terra: M('terra.glb'),
-  aqua: M('aqua.glb'),
-  aura: M('aura.glb'),
-  'gpm-core': M('gpm.glb'),
-  'icesat-2': M('icesat-2.glb'),
-  'suomi-npp': M('suomi-npp.glb'),
-  'noaa-20': M(
-    'suomi-npp.glb',
-    'NOAA-20 shares the JPSS-series spacecraft design, so the official Suomi NPP model is shown.',
-  ),
-  'noaa-21': M(
-    'suomi-npp.glb',
-    'NOAA-21 shares the JPSS-series spacecraft design, so the official Suomi NPP model is shown.',
-  ),
-  'sentinel-6': M('sentinel-6.glb'),
-  'sentinel-6b': M('sentinel-6.glb', 'Sentinel-6B is the twin of Sentinel-6 Michael Freilich.'),
   'jason-3': M(
-    'jason-2.glb',
-    'Jason-3 continues the Jason altimetry series, so the official OSTM/Jason-2 model is shown.',
+    'sc_ostm/ostm.gltf',
+    'NASA Eyes uses the official Ocean Surface Topography Mission spacecraft model for the Jason series.',
   ),
-  'grace-fo-1': M(
-    'grace.glb',
-    'GRACE-FO follows the original GRACE twin-satellite design, so the official GRACE model is shown.',
-  ),
+  'grace-fo-1': M('sc_grace_fo/graceFO.gltf'),
   'grace-fo-2': M(
-    'grace.glb',
-    'GRACE-FO follows the original GRACE twin-satellite design, so the official GRACE model is shown.',
+    'sc_grace_fo/graceFO.gltf',
+    'Both GRACE-FO spacecraft use the same official NASA Eyes model.',
   ),
-  'oco-2': M('oco-2.glb'),
+  'oco-2': M('sc_oco_2/oco2.gltf'),
+  nisar: M('sc_nisar/Nisar.gltf'),
+  'prefire-1': M('sc_prefire/prefire.gltf'),
+  'prefire-2': M(
+    'sc_prefire/prefire.gltf',
+    'The PREFIRE CubeSats share the same official spacecraft design.',
+  ),
+  tempo: M('sc_tempo/tempo.gltf'),
   iss: ISS(),
-  ecostress: ISS('ECOSTRESS is an instrument aboard the ISS, so a lightweight ISS host platform is shown.'),
-  emit: ISS('EMIT is an instrument aboard the ISS, so a lightweight ISS host platform is shown.'),
-  'oco-3': ISS('OCO-3 is an instrument aboard the ISS, so a lightweight ISS host platform is shown.'),
+  ecostress: ISS('ECOSTRESS is mounted on the International Space Station, so its official host model is shown.'),
+  emit: ISS('EMIT is mounted on the International Space Station, so its official host model is shown.'),
+  'oco-3': ISS('OCO-3 is mounted on the International Space Station, so its official host model is shown.'),
   'cowvr-tempest': ISS(
-    'COWVR/TEMPEST are instruments aboard the ISS, so a lightweight ISS host platform is shown.',
-  ),
-  // Missions without a published NASA model → representative fallback.
-  smap: M(null, REPRESENTATIVE_NOTE),
-  swot: M(null, REPRESENTATIVE_NOTE),
-  pace: M(null, REPRESENTATIVE_NOTE),
-  nisar: M(null, REPRESENTATIVE_NOTE),
-  'prefire-1': M(null, REPRESENTATIVE_NOTE),
-  'prefire-2': M(null, REPRESENTATIVE_NOTE),
-  tempo: M(
-    'tempo.glb',
-    'TEMPO rides on the commercial Intelsat 40e satellite, a Maxar/SSL-1300-class comms bus, shown here.',
+    'COWVR/TEMPEST are mounted on the International Space Station; the NASA Eyes ISS package includes hosted payload detail.',
   ),
 }
 
-// All CYGNSS flight models share the official CYGNSS model.
+// Every CYGNSS observatory uses the official NASA Eyes CYGNSS flight model.
 for (const fm of ['01', '02', '03', '04', '05', '07', '08']) {
-  SATELLITE_MODELS[`cygnss-fm${fm}`] = M('cygnss.glb')
+  SATELLITE_MODELS[`cygnss-fm${fm}`] = M('sc_cygnss/CYGNSS.gltf')
 }
 
 export function getSatelliteModel(missionId) {
-  return SATELLITE_MODELS[missionId] ?? M(null, REPRESENTATIVE_NOTE)
+  return SATELLITE_MODELS[missionId] ?? null
 }
+
+export const PRIORITY_MODEL_URLS = [SATELLITE_MODELS.iss.file]
