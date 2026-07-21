@@ -36,7 +36,7 @@ const DEFAULT_SETTINGS = {
   trails: true,
   groundTrack: true,
   grid: false,
-  earthRotation: false,
+  earthRotation: true,
   exaggeration: 2,
   cities: false,
 }
@@ -441,16 +441,25 @@ export default function MissionControlPage({ onNavigate }) {
     return (
       <div className="order-1 relative h-screen min-w-0 flex-1 overflow-hidden bg-[#050b1f] text-white">
         {/* the globe IS the page */}
-        <div className="absolute inset-0" onWheel={onSceneWheel}>
+        <div
+          className={`absolute inset-0 ${selectedItem ? 'cursor-grab active:cursor-grabbing' : ''}`}
+          onWheel={onSceneWheel}
+        >
           {sceneEl}
         </div>
 
         {/* light legibility gradients only at top/bottom edges (keep the globe visible) */}
         <div className="pointer-events-none absolute inset-x-0 top-0 h-16 bg-gradient-to-b from-black/45 to-transparent" />
         <div className="pointer-events-none absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-black/45 to-transparent" />
+        {selectedItem && (
+          <>
+            <div className="pointer-events-none absolute inset-y-0 left-0 w-[430px] bg-gradient-to-r from-black/65 via-black/30 to-transparent" />
+            <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_68%_42%,transparent_0,transparent_28%,rgba(0,0,0,0.28)_72%,rgba(0,0,0,0.48)_100%)]" />
+          </>
+        )}
 
         {/* title */}
-        <div className="absolute left-4 top-24 z-10">{titleBlock}</div>
+        <div className="absolute left-4 top-24 z-20">{titleBlock}</div>
 
         {/* top-right cluster */}
         <div className="absolute right-4 top-24 z-20">{topRightCluster}</div>
@@ -464,30 +473,50 @@ export default function MissionControlPage({ onNavigate }) {
             The wrapper spans a definite height (top-16 → bottom-20) so the list
             inside gets a bounded box to scroll within; it's pointer-events-none
             so its empty area never blocks the globe. */}
-        <div className="pointer-events-none absolute bottom-20 left-4 top-36 z-10 flex w-[248px] flex-col">
-          <button
-            onClick={() => setRailOpen((v) => !v)}
-            className={`pointer-events-auto flex w-full shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-[#0b1a3d]/90 px-3 py-2 text-[12px] font-bold uppercase tracking-[0.14em] text-white/80 backdrop-blur-xl transition-colors hover:text-white ${
-              railOpen ? 'rounded-b-none border-b-0' : ''
-            }`}
-          >
-            <Icon name="orbit" className="h-4 w-4 text-[#67d1ff]" />
-            Satellites
-            <span className="ml-auto rounded-full bg-white/10 px-1.5 text-[10px] tabular-nums">{prop.valid.length}</span>
-            <Icon name="chevron" className={`h-3.5 w-3.5 transition-transform ${railOpen ? '-rotate-90' : 'rotate-90'}`} />
-          </button>
-          {railOpen && (
-            <div className="pointer-events-auto flex min-h-0 flex-1 flex-col rounded-b-xl border border-t-0 border-white/10 bg-[#0b1a3d]/90 p-2.5 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
-              {catalogEl}
-            </div>
-          )}
-        </div>
-
-        {/* selected satellite info card: compact, bottom-right, hugs its content */}
-        {selectedItem && (
-          <div className={`absolute bottom-16 right-4 z-10 flex max-h-[calc(100vh-7rem)] w-[336px] flex-col ${PANEL} p-3.5`}>
-            {panelEl}
+        {!selectedItem && (
+          <div className="pointer-events-none absolute bottom-20 left-4 top-36 z-10 flex w-[248px] flex-col">
+            <button
+              onClick={() => setRailOpen((v) => !v)}
+              className={`pointer-events-auto flex w-full shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-[#0b1a3d]/90 px-3 py-2 text-[12px] font-bold uppercase tracking-[0.14em] text-white/80 backdrop-blur-xl transition-colors hover:text-white ${
+                railOpen ? 'rounded-b-none border-b-0' : ''
+              }`}
+            >
+              <Icon name="orbit" className="h-4 w-4 text-[#67d1ff]" />
+              Satellites
+              <span className="ml-auto rounded-full bg-white/10 px-1.5 text-[10px] tabular-nums">{prop.valid.length}</span>
+              <Icon name="chevron" className={`h-3.5 w-3.5 transition-transform ${railOpen ? '-rotate-90' : 'rotate-90'}`} />
+            </button>
+            {railOpen && (
+              <div className="pointer-events-auto flex min-h-0 flex-1 flex-col rounded-b-xl border border-t-0 border-white/10 bg-[#0b1a3d]/90 p-2.5 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+                {catalogEl}
+              </div>
+            )}
           </div>
+        )}
+
+        {/* selected target: NASA-Eyes-style focus chrome */}
+        {selectedItem && (
+          <>
+            <div className="pointer-events-auto absolute left-4 top-36 z-20 flex max-h-[calc(100vh-12rem)] w-[338px] flex-col rounded-2xl border border-white/15 bg-black/55 p-3.5 shadow-[0_24px_80px_-22px_rgba(0,0,0,0.95)] backdrop-blur-2xl">
+              <div className="mb-3 flex items-center justify-between gap-2 border-b border-white/10 pb-2.5">
+                <div>
+                  <div className="text-[9px] font-bold uppercase tracking-[0.2em] text-[#67d1ff]">
+                    Current target
+                  </div>
+                  <div className="mt-0.5 text-[10px] font-semibold uppercase tracking-[0.16em] text-white/35">
+                    Spacecraft view
+                  </div>
+                </div>
+                <span className="rounded border border-white/15 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-white/60">
+                  Live
+                </span>
+              </div>
+              {panelEl}
+            </div>
+            <div className="pointer-events-auto absolute left-1/2 top-24 z-20 -translate-x-1/2 rounded-full border border-white/12 bg-black/40 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white/65 shadow-[0_16px_48px_-18px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+              Near {selectedItem.mission?.displayName || selectedItem.id} · drag to orbit · scroll to scale
+            </div>
+          </>
         )}
 
         {/* sources & methodology: tiny text link, bottom-left */}

@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { Html } from '@react-three/drei'
 import * as THREE from 'three'
 import { EARTH_RADIUS_UNITS, propagateAt, geodeticToVec3 } from '../../utils/orbitMath'
+import { ISS_HOST_PLATFORM_ID, isIssHostedMission } from '../../data/missionCatalog'
 
 // Scratch vectors reused across frames (single-threaded, so this is safe).
 const _base = new THREE.Vector3()
@@ -18,6 +19,7 @@ const _ndc = new THREE.Vector3()
 // are each individually visible instead of overlapping. Purely a display aid;
 // the numeric position shown in the panel remains the true (host) position.
 const CO_LOCATED_OFFSET = 0.09
+const ISS_HOSTED_FOCUS_OFFSET = 0.34
 
 // Legibility shadow so plain white names stay readable over the bright Earth.
 const LABEL_SHADOW =
@@ -200,6 +202,7 @@ export default function SatelliteLayer({
       const [x, y, z] = geodeticToVec3(s.latRad, s.lonRad, s.altKm, exaggeration)
       const off = offsets[item.id] || { index: 0, count: 1 }
       const selected = item.id === selectedId
+      const issHostedFocus = selectedId === ISS_HOST_PLATFORM_ID && isIssHostedMission(item.mission)
       // The selected craft renders as a full 3D model at its true position, so
       // it skips the co-located fan-out (keeps its label aligned with the model).
       if (off.count > 1 && !selected) {
@@ -210,8 +213,9 @@ export default function SatelliteLayer({
         _tan.crossVectors(_base, _up).normalize()
         _bit.crossVectors(_base, _tan).normalize()
         const angle = (off.index / off.count) * Math.PI * 2
-        const ca = Math.cos(angle) * CO_LOCATED_OFFSET
-        const sa = Math.sin(angle) * CO_LOCATED_OFFSET
+        const offset = issHostedFocus ? ISS_HOSTED_FOCUS_OFFSET : CO_LOCATED_OFFSET
+        const ca = Math.cos(angle) * offset
+        const sa = Math.sin(angle) * offset
         group.position.set(
           x + _tan.x * ca + _bit.x * sa,
           y + _tan.y * ca + _bit.y * sa,
@@ -229,10 +233,12 @@ export default function SatelliteLayer({
       // Once a detailed spacecraft model is selected, DOM labels cannot be
       // depth-tested against that WebGL model. Hide the regular label field in
       // this focused mode so nearby satellite names do not paint over the model;
-      // keep hover labels available for interaction feedback.
-      if (selectedId && !hovered) continue
+      // keep hover labels available for interaction feedback. The exception is
+      // ISS: when it is selected, reveal the ISS-hosted instruments as a small
+      // local cluster so they are discoverable without crowding the default globe.
+      if (selectedId && !hovered && !issHostedFocus) continue
 
-      entry.rank = hovered ? 0 : selected ? 1 : 2
+      entry.rank = hovered ? 0 : selected || issHostedFocus ? 1 : 2
       candidates.push(entry)
     }
 

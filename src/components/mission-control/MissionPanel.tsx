@@ -120,9 +120,12 @@ export default function MissionPanel({
         </div>
       )}
 
-      {/* quick facts + toggles */}
+      {/* quick facts + NASA-Eyes-style view options */}
       <div className="mt-2 flex items-center justify-between gap-2 text-[11px] text-white/55">
         <span>In orbit {tio} · {period}/orbit</span>
+      </div>
+      <div className="mt-2 text-[9px] font-bold uppercase tracking-[0.18em] text-white/35">
+        View options
       </div>
       <div className="mt-1.5 flex flex-wrap gap-1.5">
         <Chip label="Follow" active={toggles.follow} color={ACCENT} onClick={() => onToggle('follow', !toggles.follow)} />

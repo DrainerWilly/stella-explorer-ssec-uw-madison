@@ -706,6 +706,20 @@ export const ENABLED_MISSIONS = MISSIONS.filter((m) => m.enabled)
 
 export const MISSION_BY_ID = Object.fromEntries(MISSIONS.map((m) => [m.id, m]))
 
+export const ISS_HOST_PLATFORM_ID = 'iss'
+export const ISS_HOST_PLATFORM_NAME = 'International Space Station'
+export const ISS_HOSTED_MISSION_IDS = new Set(
+  MISSIONS.filter((m) => m.hostedOn === ISS_HOST_PLATFORM_NAME).map((m) => m.id),
+)
+
+export function isIssHostedMission(mission) {
+  return mission?.hostedOn === ISS_HOST_PLATFORM_NAME
+}
+
+export function isIssHostedMissionId(id) {
+  return ISS_HOSTED_MISSION_IDS.has(id)
+}
+
 export function getMission(id) {
   return MISSION_BY_ID[id] ?? null
 }

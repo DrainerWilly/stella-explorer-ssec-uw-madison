@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Suspense, useEffect, useRef } from 'react'
+import { Suspense, useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
 import { OrbitControls, Stars } from '@react-three/drei'
 import EarthGlobe from './EarthGlobe'
@@ -10,6 +10,9 @@ import OrbitTrailLayer from './OrbitTrailLayer'
 import GroundTrackLayer from './GroundTrackLayer'
 import CityLabelsLayer from './CityLabelsLayer'
 import { sunDirectionUnitVec } from '../../utils/orbitMath'
+import { ISS_HOST_PLATFORM_ID, isIssHostedMission } from '../../data/missionCatalog'
+
+const NASA_EYES_AUTO_ROTATE_SPEED = 0.09
 
 function SceneContents({
   items,
@@ -32,6 +35,11 @@ function SceneContents({
   const selected = items.find((i) => i.id === selectedId && i.valid) || null
   // Spacecraft view: camera rides with the selected satellite (NASA Eyes).
   const followView = Boolean(follow && selected)
+  const showIssHostedOnGlobe = selectedId === ISS_HOST_PLATFORM_ID
+  const globeItems = useMemo(
+    () => items.filter((item) => !isIssHostedMission(item.mission) || showIssHostedOnGlobe),
+    [items, showIssHostedOnGlobe],
+  )
 
   // Reset camera to the default framing when requested.
   useEffect(() => {
@@ -83,7 +91,7 @@ function SceneContents({
       />
 
       <OrbitTrailLayer
-        items={items}
+        items={globeItems}
         clock={clock}
         exaggeration={settings.exaggeration}
         selectedId={selectedId}
@@ -106,6 +114,7 @@ function SceneContents({
             clock={clock}
             exaggeration={settings.exaggeration}
             modelScale={modelScale}
+            reducedMotion={reducedMotion}
           />
         </Suspense>
       )}
@@ -118,10 +127,10 @@ function SceneContents({
         active={followView}
       />
 
-      <CityLabelsLayer show={settings.cities} quality={settings.quality} />
+      <CityLabelsLayer show={settings.cities && !followView} quality={settings.quality} />
 
       <SatelliteLayer
-        items={items}
+        items={globeItems}
         clock={clock}
         exaggeration={settings.exaggeration}
         selectedId={selectedId}
@@ -145,7 +154,7 @@ function SceneContents({
         minDistance={2.6}
         maxDistance={60}
         autoRotate={settings.earthRotation && !reducedMotion && !followView}
-        autoRotateSpeed={0.35}
+        autoRotateSpeed={NASA_EYES_AUTO_ROTATE_SPEED}
       />
     </>
   )

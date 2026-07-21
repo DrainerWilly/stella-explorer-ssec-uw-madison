@@ -13,6 +13,8 @@ import { getSatelliteModel } from '../../data/satelliteModels'
 const MODEL_TARGET_SIZE = 0.6
 const ENV_INTENSITY = 1.6 // image-based lighting strength on the spacecraft
 const LOOKAHEAD_S = 45
+const FLOAT_BOB_UNITS = 0.035
+const FLOAT_ROLL_RAD = 0.035
 
 const WORLD_UP = new THREE.Vector3(0, 1, 0)
 const _current = new THREE.Vector3()
@@ -391,15 +393,22 @@ function IssBody({ envMap }) {
 // The selected spacecraft, rendered as a 3D model floating at its modeled
 // orbital position on the globe (à la NASA Eyes). Moves along the orbit as the
 // simulation clock advances; it holds a steady attitude rather than spinning.
-export default function SelectedSatelliteModel({ item, clock, exaggeration, modelScale = 1 }) {
+export default function SelectedSatelliteModel({
+  item,
+  clock,
+  exaggeration,
+  modelScale = 1,
+  reducedMotion = false,
+}) {
   const posRef = useRef() // outer group: orbital position
   const attitudeRef = useRef() // inner group: local tangent/up attitude
+  const floatRef = useRef() // innermost group: subtle cinematic drift
   const envMap = useStudioEnvMap()
   const model = getSatelliteModel(item.id)
   const url = model.file ? `${import.meta.env.BASE_URL}${model.file}` : null
   const targetSize = model.targetSize ?? MODEL_TARGET_SIZE
 
-  useFrame(() => {
+  useFrame((state) => {
     const g = posRef.current
     const attitude = attitudeRef.current
     if (!g) return
@@ -421,19 +430,45 @@ export default function SelectedSatelliteModel({ item, clock, exaggeration, mode
         setLocalOrbitalFrame(attitude, _current, _ahead)
       }
     }
+
+    // NASA Eyes presents the selected spacecraft as a free-floating object in
+    // front of the Earth, not as a fixed map pin. Keep the true orbital anchor
+    // on `posRef`, then apply a tiny visual-only bob/roll inside the local
+    // spacecraft frame. It is intentionally small so positions remain credible.
+    if (floatRef.current) {
+      if (reducedMotion) {
+        floatRef.current.position.set(0, 0, 0)
+        floatRef.current.rotation.set(0, 0, 0)
+      } else {
+        const t = state.clock.elapsedTime
+        floatRef.current.position.set(
+          Math.sin(t * 0.42) * 0.008,
+          Math.sin(t * 0.82) * FLOAT_BOB_UNITS,
+          Math.cos(t * 0.51) * 0.012,
+        )
+        floatRef.current.rotation.set(
+          Math.sin(t * 0.37) * 0.018,
+          Math.cos(t * 0.29) * 0.02,
+          Math.sin(t * 0.44) * FLOAT_ROLL_RAD,
+        )
+      }
+    }
   })
 
   return (
     <group ref={posRef}>
+      <pointLight color="#67d1ff" intensity={0.75} distance={3.4} decay={2} />
       {/* scale is driven by the scroll wheel while this mission is selected */}
       <group ref={attitudeRef} scale={modelScale}>
-        {model.kind === 'iss' ? (
-          <IssBody envMap={envMap} />
-        ) : url ? (
-          <GltfBody url={url} envMap={envMap} targetSize={targetSize} />
-        ) : (
-          <RepresentativeBody envMap={envMap} />
-        )}
+        <group ref={floatRef}>
+          {model.kind === 'iss' ? (
+            <IssBody envMap={envMap} />
+          ) : url ? (
+            <GltfBody url={url} envMap={envMap} targetSize={targetSize} />
+          ) : (
+            <RepresentativeBody envMap={envMap} />
+          )}
+        </group>
       </group>
     </group>
   )
