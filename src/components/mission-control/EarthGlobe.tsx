@@ -6,8 +6,10 @@ import { EARTH_RADIUS_UNITS, surfaceVec3, DEG2RAD, sunDirectionUnitVec } from '.
 
 // The visible surface uses NASA Goddard's Blue Marble 2015 VIIRS composite,
 // converted from the official 10,800 × 5,400 master into this globe's six-face
-// projection. Supporting terrain-normal, ocean-specular and night-light maps
-// remain the aligned public assets from NASA Eyes on the Earth.
+// projection. The master has no pixels above 78.3°N, so that cap is feathered
+// into NASA Eyes' official polar tile. The aligned NASA Eyes night-light map
+// remains available, but the surface is deliberately diffuse-only: no normal
+// or ocean-specular layers are loaded, so the globe cannot produce sun glare.
 const BLUE_MARBLE_2015_ROOT = `${import.meta.env.BASE_URL}assets/earth/blue-marble-2015`
 const NASA_EYES_EARTH_ROOT = 'https://eyes.nasa.gov/assets/static/maps/earth'
 const FACE_IDS = [0, 1, 2, 3, 4, 5]
@@ -110,22 +112,13 @@ function buildGridSegments() {
   return new Float32Array(pts)
 }
 
-// `cloudDrift` slowly spins the cloud shell relative to the surface. It is a
-// decorative flourish for the home-page hero (where the whole globe is already
-// spinning). It is OFF by default: this globe is drawn in an Earth-FIXED frame,
-// so the surface is deliberately static and a drifting cloud layer would look
-// detached. It is also driven by render time, not the simulation clock, so it
-// must never be used anywhere the sim clock can be paused or time-warped.
 export default function EarthGlobe({
   quality = 'balanced',
   showGrid = false,
   clock,
-  reducedMotion,
-  cloudDrift = false,
 }) {
   const { camera, gl } = useThree()
-  const cloudRef = useRef()
-  const [tex, setTex] = useState({ day: null, night: null, clouds: null, normal: null, specular: null })
+  const [tex, setTex] = useState({ day: null, night: null })
 
   // Sun direction used to keep night lights behind the simulated terminator.
   const sunViewUniform = useRef({ value: new THREE.Vector3(1, 0, 0) })
@@ -137,8 +130,8 @@ export default function EarthGlobe({
   const materialTextureSize = quality === 'high' ? 2048 : 512
 
   // Load the color faces first so the planet appears promptly. The aligned
-  // normal, ocean-specular, night-light, and cloud faces follow independently;
-  // a failed optional layer never prevents the globe itself from rendering.
+  // night-light faces follow independently; a failed optional layer never
+  // prevents the globe itself from rendering.
   useEffect(() => {
     const loader = new THREE.TextureLoader()
     loader.setCrossOrigin('anonymous')
@@ -167,7 +160,7 @@ export default function EarthGlobe({
         (faces) => (faces.every(Boolean) ? faces : null),
       )
 
-    setTex({ day: null, night: null, clouds: null, normal: null, specular: null })
+    setTex({ day: null, night: null })
     // Show the optimized 512px Blue Marble set immediately, then swap to its
     // 2048px tier on balanced/high displays.
     loadSet('color', 512, true).then((day) => {
@@ -186,12 +179,6 @@ export default function EarthGlobe({
       })
       // Blue Marble 2015 already contains the VIIRS cloud field captured on
       // October 14, 2015. Do not add the separate Eyes cloud shell on top.
-      loadSet('normal', materialTextureSize).then((normal) => {
-        if (!disposed) setTex((current) => ({ ...current, normal }))
-      })
-      loadSet('specular', materialTextureSize).then((specular) => {
-        if (!disposed) setTex((current) => ({ ...current, specular }))
-      })
     }
 
     return () => {
@@ -200,20 +187,15 @@ export default function EarthGlobe({
     }
   }, [colorTextureSize, materialTextureSize, withExtras, gl])
 
-  // One PBR material per cube-sphere face. NASA's specular mask is bright over
-  // water and dark over land, while Three's roughness convention is the inverse;
-  // the shader patch performs that single channel inversion. Night lights are
-  // then restricted to the physically dark side of the simulated terminator.
+  // One diffuse-only material per cube-sphere face. Lambert shading preserves
+  // the day/night form without any specular response, so no scene light can
+  // create a reflected hotspot on the ocean. Night lights are restricted to
+  // the physically dark side of the simulated terminator.
   const earthMaterials = useMemo(() => {
     if (!tex.day) return null
     return FACE_IDS.map((face) => {
-      const mat = new THREE.MeshStandardMaterial({
+      const mat = new THREE.MeshLambertMaterial({
         map: tex.day[face],
-        normalMap: tex.normal?.[face] || null,
-        normalScale: new THREE.Vector2(0.42, 0.42),
-        roughness: 0.92,
-        roughnessMap: tex.specular?.[face] || null,
-        metalness: 0,
         emissive: tex.night ? new THREE.Color(0xffffff) : new THREE.Color(0x000000),
         emissiveMap: tex.night?.[face] || null,
         emissiveIntensity: tex.night ? 1.1 : 0,
@@ -224,14 +206,6 @@ export default function EarthGlobe({
           'uniform vec3 uSunViewDir;\n' +
           shader.fragmentShader
             .replace(
-              '#include <roughnessmap_fragment>',
-              `float roughnessFactor = roughness;
-               #ifdef USE_ROUGHNESSMAP
-                 vec4 texelRoughness = texture2D(roughnessMap, vRoughnessMapUv);
-                 roughnessFactor *= clamp(1.0 - texelRoughness.g, 0.08, 1.0);
-               #endif`,
-            )
-            .replace(
               '#include <emissivemap_fragment>',
               `#include <emissivemap_fragment>
                float _sun = dot(normalize(vNormal), normalize(uSunViewDir));
@@ -239,29 +213,11 @@ export default function EarthGlobe({
                totalEmissiveRadiance *= _night * 1.18;`,
             )
       }
-      mat.customProgramCacheKey = () => `nasa-eyes-earth-${Boolean(tex.specular)}-${Boolean(tex.night)}`
+      mat.customProgramCacheKey = () => `blue-marble-diffuse-${Boolean(tex.night)}`
       return mat
     })
-  }, [tex.day, tex.night, tex.normal, tex.specular])
+  }, [tex.day, tex.night])
   useEffect(() => () => earthMaterials?.forEach((material) => material.dispose()), [earthMaterials])
-
-  const cloudMaterials = useMemo(() => {
-    if (!tex.clouds) return null
-    return FACE_IDS.map(
-      (face) =>
-        new THREE.MeshStandardMaterial({
-          map: tex.clouds[face],
-          color: 0xffffff,
-          transparent: true,
-          opacity: 0.82,
-          alphaTest: 0.012,
-          depthWrite: false,
-          roughness: 1,
-          metalness: 0,
-        }),
-    )
-  }, [tex.clouds])
-  useEffect(() => () => cloudMaterials?.forEach((material) => material.dispose()), [cloudMaterials])
 
   const gridGeometry = useMemo(() => {
     if (!showGrid) return null
@@ -278,24 +234,19 @@ export default function EarthGlobe({
   )
   useEffect(() => () => faceGeometries.forEach((geometry) => geometry.dispose()), [faceGeometries])
 
-  // Drive the day/night terminator from the sim clock, and optionally drift the
-  // decorative cloud shell (see the cloudDrift note above).
-  useFrame((_, delta) => {
+  // Drive the day/night terminator from the simulation clock.
+  useFrame(() => {
     if (clock) {
       const [sx, sy, sz] = sunDirectionUnitVec(clock.getDate())
       _sunWorld.set(sx, sy, sz)
       _sunView.copy(_sunWorld).transformDirection(camera.matrixWorldInverse)
       sunViewUniform.current.value.copy(_sunView)
     }
-    if (cloudDrift && cloudRef.current && !reducedMotion) {
-      cloudRef.current.rotation.y += delta * 0.005
-    }
   })
 
   return (
     <group>
-      {/* Blue Marble 2015 cube-sphere surface with aligned supporting relief,
-          water-specular and night-light material maps. */}
+      {/* Blue Marble 2015 diffuse cube-sphere surface with aligned night lights. */}
       {earthMaterials ? (
         <group>
           {FACE_IDS.map((face) => (
@@ -306,18 +257,8 @@ export default function EarthGlobe({
         // Clean procedural ocean-blue fallback (not satellite imagery).
         <mesh>
           <sphereGeometry args={[EARTH_RADIUS_UNITS, segments, segments]} />
-          <meshStandardMaterial color="#102f55" roughness={0.78} metalness={0.02} />
+          <meshLambertMaterial color="#102f55" />
         </mesh>
-      )}
-
-      {/* Optional cloud shell for callers supplying a cloud-free color layer.
-          Blue Marble 2015 includes clouds, so this stays absent here. */}
-      {cloudMaterials && (
-        <group ref={cloudRef} scale={1.0085}>
-          {FACE_IDS.map((face) => (
-            <mesh key={face} geometry={faceGeometries[face]} material={cloudMaterials[face]} />
-          ))}
-        </group>
       )}
 
       {/* Optional lat/lon grid */}

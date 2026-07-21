@@ -21,7 +21,7 @@ export const BASE_EARTH_LAYER = {
   source: 'NASA Blue Marble 2015, NASA Goddard Space Flight Center',
   sourceUrl: 'https://svs.gsfc.nasa.gov/30763',
   credit:
-    'Earth color imagery is NASA Goddard’s Blue Marble 2015 VIIRS composite for October 14, 2015. Supporting normal, specular, and night-light maps are from NASA Eyes on the Earth.',
+    'Earth color imagery is NASA Goddard’s Blue Marble 2015 VIIRS composite for October 14, 2015, with its unavailable far-north cap completed from NASA Eyes’ official polar map. The supporting night-light map is from NASA Eyes; reflective surface layers are intentionally disabled.',
 }
 
 // Future layers: descriptive placeholders only. `available: false` everywhere.

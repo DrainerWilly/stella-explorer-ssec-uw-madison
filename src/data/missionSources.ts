@@ -31,7 +31,7 @@ export const DATA_SOURCES = {
     org: 'NASA Goddard Space Flight Center / NASA JPL-Caltech',
     url: 'https://svs.gsfc.nasa.gov/30763',
     credit:
-      'Earth color imagery is NASA Goddard’s Blue Marble 2015 VIIRS composite for October 14, 2015. Terrain-normal, ocean-specular, and night-light maps are supporting assets from NASA Eyes on the Earth.',
+      'Earth color imagery is NASA Goddard’s Blue Marble 2015 VIIRS composite for October 14, 2015, with its unavailable far-north cap completed from NASA Eyes’ official polar map. The supporting night-light map is from NASA Eyes; reflective surface layers are intentionally disabled.',
   },
   spacecraftModels: {
     name: 'NASA Eyes mission spacecraft models',

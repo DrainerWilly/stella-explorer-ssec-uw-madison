@@ -18,17 +18,15 @@ function SpinningEarth({ reducedMotion }) {
   return (
     <group position={[1.15, -0.75, 0]} scale={1.4}>
       <group ref={ref} rotation={[0.38, 0, 0.12]}>
-        {/* cloudDrift is a decorative flourish that reads well here because the
-            whole globe is already spinning; the tracker leaves it off. */}
-        <EarthGlobe quality="high" clock={realClock} reducedMotion={reducedMotion} cloudDrift />
+        <EarthGlobe quality="high" clock={realClock} />
       </group>
     </group>
   )
 }
 
 // Live 3D Earth for the home hero background: the same photoreal globe used in
-// Mission Control (Blue Marble day, city lights at night, drifting clouds,
-// atmosphere), slowly rotating over a starfield. Non-interactive.
+// Mission Control (Blue Marble day and city lights at night), slowly rotating
+// over a starfield. Non-interactive.
 export default function HomeEarthBackground() {
   const reducedMotion = useReducedMotion()
   const sun = useMemo(() => sunDirectionUnitVec(new Date()), [])

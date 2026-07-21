@@ -4,6 +4,7 @@ import { useFrame, useThree } from '@react-three/fiber'
 import { useGLTF } from '@react-three/drei'
 import * as THREE from 'three'
 import { RoomEnvironment } from 'three/examples/jsm/environments/RoomEnvironment.js'
+import { KTX2Loader } from 'three/examples/jsm/loaders/KTX2Loader.js'
 import { propagateAt, geodeticToVec3 } from '../../utils/orbitMath'
 import { getSatelliteModel, PRIORITY_MODEL_URLS } from '../../data/satelliteModels'
 
@@ -13,6 +14,7 @@ import { getSatelliteModel, PRIORITY_MODEL_URLS } from '../../data/satelliteMode
 const MODEL_TARGET_SIZE = 0.78
 const ENV_INTENSITY = 1.35
 const LOOKAHEAD_S = 45
+const BASIS_TRANSCODER_PATH = `${import.meta.env.BASE_URL}assets/basis/`
 
 const WORLD_UP = new THREE.Vector3(0, 1, 0)
 const _current = new THREE.Vector3()
@@ -24,6 +26,17 @@ const _right = new THREE.Vector3()
 const _basis = new THREE.Matrix4()
 
 const envCache = new WeakMap()
+const ktx2LoaderCache = new WeakMap()
+
+function getKtx2Loader(gl) {
+  if (ktx2LoaderCache.has(gl)) return ktx2LoaderCache.get(gl)
+  const loader = new KTX2Loader()
+  loader.setTranscoderPath(BASIS_TRANSCODER_PATH)
+  loader.detectSupport(gl)
+  ktx2LoaderCache.set(gl, loader)
+  return loader
+}
+
 function useStudioEnvMap() {
   const gl = useThree((state) => state.gl)
   return useMemo(() => {
@@ -75,8 +88,13 @@ function prepareNasaModel(root, envMap, maxAnisotropy) {
 }
 
 function GltfBody({ url, envMap, targetSize = MODEL_TARGET_SIZE }) {
-  const { scene } = useGLTF(url)
   const gl = useThree((state) => state.gl)
+  const ktx2Loader = useMemo(() => getKtx2Loader(gl), [gl])
+  const configureLoader = useMemo(
+    () => (loader) => loader.setKTX2Loader(ktx2Loader),
+    [ktx2Loader],
+  )
+  const { scene } = useGLTF(url, true, true, configureLoader)
 
   const prepared = useMemo(() => {
     const model = scene.clone(true)
