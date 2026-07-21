@@ -17,8 +17,18 @@ export default function useOrbitData() {
       const res = await fetch(refresh ? '/api/orbits?refresh=1' : '/api/orbits', {
         headers: { Accept: 'application/json' },
       })
-      if (!res.ok) throw new Error(`Orbit API returned HTTP ${res.status}`)
-      const data = await res.json()
+      let data = null
+      try {
+        data = await res.json()
+      } catch {
+        // Keep the HTTP status error below if the body is not JSON.
+      }
+      if (!res.ok) {
+        const detail = data?.message || data?.error
+        throw new Error(
+          detail ? `Orbit API returned HTTP ${res.status}: ${detail}` : `Orbit API returned HTTP ${res.status}`,
+        )
+      }
       if (data?.error) throw new Error(data.message || 'Orbit service error')
       if (!Array.isArray(data?.missions)) throw new Error('Malformed orbit response')
       if (!mounted.current) return
