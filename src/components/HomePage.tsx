@@ -155,10 +155,15 @@ export default function HomePage({ onNavigate }) {
                       </button>
                     </h2>
                     <p className="mb-5 text-sm leading-relaxed text-black/65">{item.blurb}</p>
-                    <span className="cm-view">
+                    <button
+                      type="button"
+                      onClick={() => onNavigate?.(item.id)}
+                      className="cm-view cm-focus"
+                      aria-label={`View ${item.label}`}
+                    >
                       View
                       <ViewArrow />
-                    </span>
+                    </button>
                   </div>
                 </div>
               </div>
