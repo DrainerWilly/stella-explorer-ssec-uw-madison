@@ -110,9 +110,6 @@ body {
 html { scroll-behavior: smooth; }
 
 /* ---- home hero video treatment ---- */
-.cm-home-hero {
-  min-height: min(560px, 100svh);
-}
 @keyframes cm-hero-video-zoom {
   from { transform: scale(1.1); }
   to { transform: scale(1.28); }
@@ -122,12 +119,12 @@ html { scroll-behavior: smooth; }
   transform-origin: 50% 50%;
 }
 .cm-hero-statement {
-  left: 17vw;
-  max-width: 32vw;
+  left: max(16px, calc((100vw - 1250px) / 2 + 8px));
+  max-width: min(36rem, calc(100vw - 32px));
   pointer-events: none;
   top: 50%;
   transform: translateY(-24%);
-  font-size: 3.25vw;
+  font-size: clamp(1.9rem, 4vw, 3.8rem);
   font-weight: 400;
   letter-spacing: -0.035em;
   line-height: 1.08;
@@ -141,14 +138,14 @@ html { scroll-behavior: smooth; }
   appearance: none;
   background: transparent;
   border: 0;
-  bottom: max(8.4vh, calc(env(safe-area-inset-bottom) + 3.2rem));
+  bottom: max(4.6rem, calc(env(safe-area-inset-bottom) + 3.2rem));
   cursor: pointer;
   display: inline-flex;
   flex-direction: column;
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-size: 0.82vw;
+  font-size: 0.9rem;
   font-weight: 400;
-  gap: 0.42em;
+  gap: 0.42rem;
   line-height: 1;
   padding: 0.25rem 0.5rem;
   text-decoration: none;
@@ -275,31 +272,20 @@ html { scroll-behavior: smooth; }
 }
 
 /* ---- masthead wordmark + nav: thin, airy typography from the reference ---- */
-.cm-masthead {
-  padding-top: 2.1vw;
-}
 .cm-wordmark {
   font-family: 'Helvetica Neue', 'Roboto Condensed', 'Arial Narrow', sans-serif;
-  font-size: 1.62vw;
+  font-size: 1.85rem;
   font-stretch: condensed;
   font-weight: 200;
   letter-spacing: 0.2em;
   line-height: 0.95;
   white-space: nowrap;
 }
-.cm-desktop-nav {
-  min-width: 0;
-}
-.cm-primary-nav__list {
-  flex-wrap: nowrap;
-  gap: 0.35vw 1.15vw;
-  white-space: nowrap;
-}
 .cm-nav__link {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  font-size: 0.74vw;
+  font-size: 0.875rem;
   font-weight: 400;
-  line-height: 1.45;
+  line-height: 1.5rem;
   text-decoration: none;
   text-underline-offset: 2px;
   transition: color 500ms var(--cm-ease), opacity 500ms var(--cm-ease);
@@ -338,41 +324,10 @@ html { scroll-behavior: smooth; }
   .cm-hero-video--zoom { animation: none; }
 }
 
-@media (min-width: 768px) {
-  .cm-masthead-inner {
-    padding-left: 2.1vw;
-    padding-right: 2.1vw;
-  }
-}
-
-@media (min-width: 768px) and (max-width: 1050px) {
-  .cm-desktop-nav {
-    display: none !important;
-  }
-  .cm-menu-button {
-    display: block !important;
-  }
-  .cm-wordmark {
-    font-size: 1.8rem;
-  }
-  .cm-masthead {
-    padding-top: 2rem;
-  }
-}
-
 @media (max-width: 767px) {
   .cm-hero-statement {
-    left: 16px;
-    max-width: min(36rem, calc(100vw - 32px));
     top: 54%;
     font-size: clamp(1.7rem, 9vw, 2.85rem);
-  }
-  .cm-read-more {
-    bottom: max(4.6rem, calc(env(safe-area-inset-bottom) + 3.2rem));
-    font-size: 0.9rem;
-  }
-  .cm-masthead {
-    padding-top: 2rem;
   }
   .cm-wordmark { font-size: 1.5rem; letter-spacing: 0.16em; }
 }
