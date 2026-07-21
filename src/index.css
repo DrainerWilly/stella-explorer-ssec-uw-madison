@@ -168,10 +168,6 @@ html { scroll-behavior: smooth; }
   display: block;
   transition: opacity 500ms var(--cm-ease);
 }
-.cm-read-more:hover svg {
-  --cm-read-arrow-y: 7px;
-  animation-duration: 1.15s;
-}
 
 /* ---- centered introduction below the globe ---- */
 .cm-hero-sub { font-size: clamp(1.1rem, 1.65vw, 1.35rem); line-height: 1.65; }
