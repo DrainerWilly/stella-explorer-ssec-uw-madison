@@ -7,7 +7,7 @@ export default function OrbitErrorState({ error, onRetry }) {
   const title = offline ? 'No network connection' : 'Orbital data is unavailable'
   const detail = offline
     ? 'Your device appears to be offline. Reconnect to fetch modeled orbital elements.'
-    : 'The orbit service could not fetch fresh CelesTrak orbital data. Try again when CelesTrak and your network are available.'
+    : 'The orbit service could not fetch fresh public TLE data. Try again when the orbit providers and your network are available.'
 
   return (
     <div className="grid h-full w-full place-items-center bg-gradient-to-b from-[#060e26] to-[#0b1a3d] p-8 text-center">

@@ -132,8 +132,13 @@ export default function HomePage({ onNavigate }) {
                     <div className="cm-media-cover">
                       <img
                         src={`${import.meta.env.BASE_URL}${item.image}`}
-                        alt=""
+                        alt={item.imageAlt || ''}
                         loading="lazy"
+                        style={{
+                          objectFit: item.imageFit || 'cover',
+                          objectPosition: item.imagePosition || 'center',
+                          backgroundColor: item.imageBg || undefined,
+                        }}
                         className="cm-media-cover__img"
                       />
                     </div>
@@ -161,9 +166,8 @@ export default function HomePage({ onNavigate }) {
           ))}
 
           <footer className="cm-home-credit" aria-label="Image credits">
-            Images and visual references courtesy of NASA, NASA Earth Observatory,
-            NASA/USGS Landsat, and the NASA STELLA project. This independent
-            educational site is not endorsed by NASA. Made at the Space Science
+            Homepage imagery and video courtesy of NASA Scientific Visualization Studio,
+            NASA/USGS Landsat, and the NASA STELLA project. Made at the Space Science
             and Engineering Center, University of Wisconsin–Madison.
           </footer>
         </div>

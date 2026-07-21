@@ -201,7 +201,7 @@ const paths = {
       <path d="M12 3l-2 2m2-2 2 2M12 21l-2-2m2 2 2-2" />
     </>
   ),
-  // data visualizer: a spectrum, i.e. the wavelength bands STELLA reads
+  // STELLA Data Visualizer: a spectrum, i.e. the wavelength bands STELLA reads
   viz: (
     <>
       <path d="M3.2 20.3h17.6" />

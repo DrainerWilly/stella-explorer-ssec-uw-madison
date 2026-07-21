@@ -2,7 +2,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
 // Fetches modeled orbital elements from THIS project's internal API only.
-// The browser never talks to CelesTrak directly: it always calls /api/orbits.
+// The browser never talks to external TLE providers directly: it always calls /api/orbits.
 export default function useOrbitData() {
   const [state, setState] = useState({ status: 'loading', data: null, error: null })
   const mounted = useRef(true)

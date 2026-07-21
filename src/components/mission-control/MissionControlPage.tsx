@@ -9,7 +9,7 @@ import { RAD2DEG, propagateAt, normalizeLonRad } from '../../utils/orbitMath'
 import { createSimClock } from './simClock'
 import {
   cacheStatusInfo,
-  isStale,
+  hasStatusWarning,
   formatUtc,
   MODELED_POSITION_DISCLAIMER,
 } from './orbitStatus'
@@ -376,7 +376,7 @@ export default function MissionControlPage({ onNavigate }) {
     </div>
   )
 
-  const staleBanner = isStale(cacheStatus) && (
+  const statusWarningBanner = hasStatusWarning(cacheStatus) && (
     <div className="pointer-events-auto flex items-center gap-3 rounded-lg border border-amber-400/30 bg-amber-400/10 px-3 py-1.5 text-[11px] text-amber-100 backdrop-blur-md">
       <span>
         <strong className="font-bold uppercase tracking-wider">{statusInfo.label}</strong>:{' '}
@@ -406,7 +406,7 @@ export default function MissionControlPage({ onNavigate }) {
           {titleBlock}
           {topRightCluster}
         </div>
-        {staleBanner && <div className="px-5 pb-2">{staleBanner}</div>}
+        {statusWarningBanner && <div className="px-5 pb-2">{statusWarningBanner}</div>}
         <div className="mx-5 mb-4 rounded-lg border border-white/10 bg-white/5 px-4 py-3 text-[13px] text-white/60">
           The 3D Earth requires WebGL, which isn’t available in this browser. You can still explore
           every mission and its modeled position below.
@@ -455,9 +455,9 @@ export default function MissionControlPage({ onNavigate }) {
         {/* top-right cluster */}
         <div className="absolute right-4 top-4 z-20">{topRightCluster}</div>
 
-        {/* stale banner */}
-        {staleBanner && (
-          <div className="absolute left-1/2 top-3.5 z-10 -translate-x-1/2">{staleBanner}</div>
+        {/* status warning banner */}
+        {statusWarningBanner && (
+          <div className="absolute left-1/2 top-3.5 z-10 -translate-x-1/2">{statusWarningBanner}</div>
         )}
 
         {/* left satellite drawer: a slim tab that opens a scrollable panel.
@@ -524,7 +524,7 @@ export default function MissionControlPage({ onNavigate }) {
         {titleBlock}
         {topRightCluster}
       </div>
-      {staleBanner && <div className="px-4 pb-2">{staleBanner}</div>}
+      {statusWarningBanner && <div className="px-4 pb-2">{statusWarningBanner}</div>}
 
       {/* globe */}
       <div

@@ -118,7 +118,7 @@ const BASE_PARTS = [
     cost: 14,
     icon: 'sd',
     callout: 'Measurements need a home. Install the storage that logs every reading as a CSV file.',
-    note: 'The same CSV files you can drop into this site’s Data Visualizer.',
+    note: 'The same CSV files you can drop into this site’s STELLA Data Visualizer.',
   },
   {
     id: 'boost',
@@ -221,7 +221,7 @@ export const INSTRUMENTS = [
         cost: 0,
         icon: 'sd',
         callout: 'Every reading gets saved. Add the datalogger wing with its micro SD card.',
-        note: 'Timestamped CSVs with batch numbers, ready for the Data Visualizer.',
+        note: 'Timestamped CSVs with batch numbers, ready for the STELLA Data Visualizer.',
       },
       {
         id: 'tft11',

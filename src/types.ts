@@ -2,8 +2,8 @@
 // describe the core data shapes (missions, orbit responses, sim clock, games)
 // so newly-converted TypeScript modules get real type safety.
 
-/** Cache freshness reported by the orbit service. */
-export type CacheStatus = 'fresh' | 'stale' | 'fallback' | (string & {})
+/** Live data status reported by the orbit service. */
+export type CacheStatus = 'fresh' | (string & {})
 
 export interface CacheStatusInfo {
   label: string
@@ -46,6 +46,7 @@ export interface OrbitMissionData {
   tleLine2: string
   epoch: string
   fetchedAt: string
+  source?: string
   sourceUrl: string
 }
 
@@ -60,6 +61,8 @@ export interface OrbitResponse {
   generatedAt: string
   source: string
   cacheStatus: CacheStatus
+  sourceUrl?: string
+  sourceUrls?: string[]
   missions: OrbitMissionData[]
   unavailable: OrbitUnavailable[]
 }

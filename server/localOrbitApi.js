@@ -17,7 +17,9 @@ export function orbitApiPlugin() {
     // Mounting at the exact path means only /api/orbits(/…) reaches this handler.
     server.middlewares.use('/api/orbits', async (req, res) => {
       try {
-        const payload = await getOrbits()
+        const full = req.originalUrl || req.url || ''
+        const forceRefresh = /[?&]refresh=1(?:&|$)/.test(full)
+        const payload = await getOrbits({ forceRefresh })
         sendJson(res, 200, payload)
       } catch (err) {
         sendJson(res, 500, {

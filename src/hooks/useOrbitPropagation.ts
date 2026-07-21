@@ -41,8 +41,8 @@ export default function useOrbitPropagation(orbitResponse) {
       }))
 
     // Belt-and-suspenders: guarantee every enabled catalog mission is present,
-    // even if the response (e.g. the fallback dataset) omitted it entirely, so
-    // the UI shows it as unavailable rather than dropping it.
+    // even if a live provider response omitted it entirely, so the UI shows it
+    // as unavailable rather than dropping it.
     const present = new Set([...items, ...unavailable].map((i) => i.id))
     const missing = ENABLED_MISSIONS.filter((m) => !present.has(m.id)).map((m) => ({
       id: m.id,

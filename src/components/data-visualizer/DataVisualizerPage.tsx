@@ -67,7 +67,9 @@ export default function DataVisualizerPage() {
           <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-cyan-300/80">
             NASA STELLA · data observatory
           </span>
-          <h1 className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">Data Visualizer</h1>
+          <h1 className="mt-1 text-3xl font-extrabold tracking-tight sm:text-4xl">
+            STELLA Data Visualizer
+          </h1>
           <p className="mt-1.5 max-w-xl text-sm text-white/55">
             Explore real STELLA field instruments, or drop in your own device’s CSV and analyze it
             the same way.

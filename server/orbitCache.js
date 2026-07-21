@@ -2,15 +2,17 @@
 //
 //   • In-memory  — used by every environment (and the ONLY writable cache on
 //                  Vercel, where the filesystem is read-only for warm instances).
-//   • File cache — used in local development so a successful CelesTrak fetch
-//                  survives dev-server restarts. Written to .cache/ (gitignored)
+//   • File cache — used in local development so a successful live provider
+//                  fetch survives dev-server restarts. Written to .cache/ (gitignored)
 //                  and skipped entirely on serverless read-only filesystems.
 
 import { promises as fs } from 'node:fs'
 import path from 'node:path'
 
-// Orbital elements update roughly every couple of hours; cache for ~2h.
-export const CACHE_TTL_MS = 2 * 60 * 60 * 1000
+// Keep only a short recent-live cache. This prevents transient provider/network
+// failures from blanking the tracker while still avoiding old committed fallback
+// data or long-lived stale orbital elements.
+export const CACHE_TTL_MS = 10 * 60 * 1000
 
 const CACHE_DIR = path.join(process.cwd(), '.cache')
 const CACHE_FILE = path.join(CACHE_DIR, 'orbits-cache.json')

@@ -1,5 +1,5 @@
 // @ts-nocheck
-// Chart theme for the Data Visualizer.
+// Chart theme for the STELLA Data Visualizer.
 //
 // Categorical slots were validated with the dataviz palette validator against
 // this app's navy chart surface (#14295A): lightness band PASS, chroma PASS,

@@ -17,7 +17,7 @@ const MissionControlPage = lazy(() =>
   import('./components/mission-control/MissionControlPage'),
 )
 
-// Data Visualizer bundles ~800 KB of NASA STELLA sample data; lazy-load it too.
+// STELLA Data Visualizer bundles ~800 KB of NASA STELLA sample data; lazy-load it too.
 const DataVisualizerPage = lazy(() =>
   import('./components/data-visualizer/DataVisualizerPage'),
 )
@@ -109,11 +109,11 @@ export default function App() {
           /* STELLA Device Lab: choose, build, and demo a NASA STELLA instrument */
           <StellaDevicePage onNavigate={navigate} />
         ) : page === 'data-viz' ? (
-          /* Data Visualizer: real STELLA instrument data + user uploads */
+          /* STELLA Data Visualizer: real STELLA instrument data + user uploads */
           <Suspense
             fallback={
               <div className="order-1 grid flex-1 place-items-center bg-app text-sm font-semibold text-muted">
-                Loading Data Visualizer…
+                Loading STELLA Data Visualizer…
               </div>
             }
           >

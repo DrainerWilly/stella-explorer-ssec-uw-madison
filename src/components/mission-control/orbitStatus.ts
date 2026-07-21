@@ -10,26 +10,18 @@ export const MISSION_POSITION_NOTE =
 export function cacheStatusInfo(status: CacheStatus | null | undefined): CacheStatusInfo {
   switch (status) {
     case 'fresh':
-      return { label: 'Fresh', tone: 'ok', note: 'Fetched recently from CelesTrak.' }
-    case 'stale':
-      return {
-        label: 'Stale',
-        tone: 'warn',
-        note: 'CelesTrak could not be reached. Showing the last cached data.',
-      }
-    case 'fallback':
-      return {
-        label: 'Fallback',
-        tone: 'warn',
-        note: 'Using committed development data (not guaranteed current).',
-      }
+      return { label: 'Fresh', tone: 'ok', note: 'Fetched recently from live public TLE providers.' }
     default:
-      return { label: status || 'Unknown', tone: 'warn', note: '' }
+      return {
+        label: status || 'Unknown',
+        tone: 'warn',
+        note: 'Orbit data status could not be verified.',
+      }
   }
 }
 
-export function isStale(status: CacheStatus | null | undefined): boolean {
-  return status === 'stale' || status === 'fallback'
+export function hasStatusWarning(status: CacheStatus | null | undefined): boolean {
+  return Boolean(status && status !== 'fresh')
 }
 
 // Format an ISO timestamp as a readable UTC string.

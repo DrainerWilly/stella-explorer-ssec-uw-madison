@@ -12,7 +12,8 @@ export default async function handler(req, res) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8')
 
   try {
-    const payload = await getOrbits()
+    const forceRefresh = String(req.query?.refresh ?? '') === '1'
+    const payload = await getOrbits({ forceRefresh })
     res.status(200).send(JSON.stringify(payload))
   } catch (err) {
     res.status(503).send(

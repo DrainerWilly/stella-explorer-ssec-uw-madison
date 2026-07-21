@@ -54,7 +54,7 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
             </span>
           </h2>
           <p className="mx-auto max-w-sm text-sm leading-relaxed text-sky-100/50">
-            Fetching modeled orbital elements from CelesTrak and rendering the 3D Earth.
+            Fetching current orbital elements from public TLE providers and rendering the 3D Earth.
           </p>
         </div>
 
