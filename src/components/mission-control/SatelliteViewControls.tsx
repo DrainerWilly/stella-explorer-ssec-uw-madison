@@ -13,17 +13,26 @@ import { EARTH_RADIUS_UNITS, propagateAt, geodeticToVec3 } from '../../utils/orb
 
 const WORLD_UP = new THREE.Vector3(0, 1, 0)
 
-// Camera distance from the spacecraft. Fixed: the scroll wheel resizes the
-// model instead (see onSceneWheel), so Earth's apparent size stays put.
-const VIEW_DIST = 2.1
-// Start slightly above the local horizon so Earth fills the lower frame.
-const INIT_ELEVATION = 0.32 // rad, about 18 degrees
-const MIN_ELEVATION = -0.25
-const MAX_ELEVATION = 1.25
+// NASA Eyes keeps the camera close to the spacecraft's orbital shell, rather
+// than pushing it radially far away from Earth. That near-shell geometry makes
+// the horizon a wide, shallow arc across both sides of a desktop viewport.
+const MIN_VIEW_DIST = 1.25
+const MAX_VIEW_DIST = 2.15
+const HORIZON_GAP = THREE.MathUtils.degToRad(2)
+const INIT_ELEVATION = 0 // user offset from the same-shell camera elevation
+const MIN_ELEVATION = -0.35
+const MAX_ELEVATION = 0.65
+const DEFAULT_FOV = 42
+const MIN_FOLLOW_FOV = 36
+const MAX_FOLLOW_FOV = 40
+// Aim a little below the spacecraft so it composes slightly above centre and
+// just above Earth's horizon, instead of sitting directly on the limb.
+const LOOK_DOWN_ANGLE = THREE.MathUtils.degToRad(2)
 const DRAG_RAD_PER_PX = 0.005
 const INTRO_SECONDS = 1.4
-// Hard floor so a drag can never push the camera into the atmosphere shell.
-const MIN_CAM_RADIUS = EARTH_RADIUS_UNITS + 0.18
+// Hard floor so a drag can never push the camera through Earth's surface while
+// still allowing low-orbit missions (including ISS) to keep their true shell.
+const MIN_CAM_RADIUS = EARTH_RADIUS_UNITS + 0.06
 // How far ahead (sim seconds) to sample the orbit for the motion direction.
 const LOOKAHEAD_S = 45
 
@@ -38,8 +47,27 @@ const _look = new THREE.Vector3()
 const _targetLook = new THREE.Vector3()
 const _upBlend = new THREE.Vector3()
 const _h = new THREE.Vector3()
+const _camUp = new THREE.Vector3()
 
 const smoothstep = (t) => t * t * (3 - 2 * t)
+
+// Wider screens need a slightly narrower vertical FOV to keep Earth's left and
+// right limb curves in view. Clamp the range so smaller desktops and tablets
+// retain comfortable surrounding space.
+function followFovForAspect(aspect) {
+  return THREE.MathUtils.clamp(40 - (aspect - 1.3) * 4, MIN_FOLLOW_FOV, MAX_FOLLOW_FOV)
+}
+
+// Choose the camera-to-spacecraft chord from the current orbital radius. This
+// keeps low-orbit spacecraft a consistent few degrees above the planet limb
+// instead of letting lower missions sink into Earth or higher ones float away.
+function viewDistanceForShellRadius(radius) {
+  const earthAngularRadius = Math.asin(
+    THREE.MathUtils.clamp(EARTH_RADIUS_UNITS / radius, 0, 1),
+  )
+  const chord = 2 * radius * Math.cos(earthAngularRadius + HORIZON_GAP)
+  return THREE.MathUtils.clamp(chord, MIN_VIEW_DIST, MAX_VIEW_DIST)
+}
 
 // Local east/north/up basis at a point above the globe. East degenerates when
 // the point sits over a pole, so fall back to the X axis there.
@@ -52,7 +80,7 @@ function localBasis(satPos, up, east, north) {
 }
 
 export default function SatelliteViewControls({ item, clock, exaggeration, reducedMotion, active }) {
-  const { camera, gl } = useThree()
+  const { camera, gl, size } = useThree()
 
   // az/el carry the user's viewpoint around the satellite; `cur` chases
   // `target` for damped, weighty drags.
@@ -63,11 +91,18 @@ export default function SatelliteViewControls({ item, clock, exaggeration, reduc
     startPos: new THREE.Vector3(),
     startUp: new THREE.Vector3(0, 1, 0),
     startLook: new THREE.Vector3(),
+    startFov: DEFAULT_FOV,
   })
 
   // Leaving the spacecraft view: hand OrbitControls a level horizon again.
   useEffect(() => {
-    if (!active) camera.up.set(0, 1, 0)
+    if (!active) {
+      camera.up.set(0, 1, 0)
+      if (camera.fov !== DEFAULT_FOV) {
+        camera.fov = DEFAULT_FOV
+        camera.updateProjectionMatrix()
+      }
+    }
   }, [active, camera])
 
   // Entering the view (select / switch satellite): aim the camera behind the
@@ -84,6 +119,7 @@ export default function SatelliteViewControls({ item, clock, exaggeration, reduc
     // unit ahead serves as the look-from anchor.
     v.startPos.copy(camera.position)
     v.startUp.copy(camera.up)
+    v.startFov = camera.fov
     camera.getWorldDirection(v.startLook)
     v.startLook.add(camera.position)
 
@@ -164,33 +200,48 @@ export default function SatelliteViewControls({ item, clock, exaggeration, reduc
     v.az.cur += (v.az.target - v.az.cur) * k
     v.el.cur += (v.el.target - v.el.cur) * k
 
-    // Viewpoint in the satellite's local frame: azimuth around local up,
-    // elevation above the local horizontal plane.
-    const horiz = Math.cos(v.el.cur) * VIEW_DIST
+    // Put the camera on approximately the same orbital shell as the selected
+    // spacecraft. The base elevation is the chord solution for equal Earth-
+    // centre radii; vertical dragging remains an offset around that framing.
+    const viewDistance = viewDistanceForShellRadius(_sat.length())
+    const shellRatio = Math.min(0.92, viewDistance / (2 * _sat.length()))
+    const shellElevation = -Math.asin(shellRatio)
+    const elevation = shellElevation + v.el.cur
+    const horiz = Math.cos(elevation) * viewDistance
     _desired
       .copy(_sat)
       .addScaledVector(_east, Math.cos(v.az.cur) * horiz)
       .addScaledVector(_north, Math.sin(v.az.cur) * horiz)
-      .addScaledVector(_up, Math.sin(v.el.cur) * VIEW_DIST)
+      .addScaledVector(_up, Math.sin(elevation) * viewDistance)
     if (_desired.lengthSq() < MIN_CAM_RADIUS * MIN_CAM_RADIUS) _desired.setLength(MIN_CAM_RADIUS)
 
-    _targetLook.copy(_sat)
+    _camUp.copy(_desired).normalize()
+    _targetLook
+      .copy(_sat)
+      .addScaledVector(_camUp, -viewDistance * Math.tan(LOOK_DOWN_ANGLE))
+    const targetFov = followFovForAspect(size.width / Math.max(1, size.height))
 
     if (v.intro < 1) {
       // Fly in: blend position, up vector and look target from the Earth view.
       v.intro = Math.min(1, v.intro + delta / INTRO_SECONDS)
       const e = smoothstep(v.intro)
       camera.position.lerpVectors(v.startPos, _desired, e)
-      _upBlend.lerpVectors(v.startUp, _up, e).normalize()
+      _upBlend.lerpVectors(v.startUp, _camUp, e).normalize()
       camera.up.copy(_upBlend)
       _look.lerpVectors(v.startLook, _targetLook, e)
       camera.lookAt(_look)
+      camera.fov = THREE.MathUtils.lerp(v.startFov, targetFov, e)
+      camera.updateProjectionMatrix()
     } else {
       // Keep the craft perfectly anchored in the viewport. A delayed camera
       // chase made the exact orbital position look like vertical bobbing.
       camera.position.copy(_desired)
-      camera.up.copy(_up)
+      camera.up.copy(_camUp)
       camera.lookAt(_targetLook)
+      if (Math.abs(camera.fov - targetFov) > 0.01) {
+        camera.fov = targetFov
+        camera.updateProjectionMatrix()
+      }
     }
   })
 

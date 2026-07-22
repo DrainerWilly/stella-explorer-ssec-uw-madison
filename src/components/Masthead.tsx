@@ -95,6 +95,8 @@ export default function Masthead({ active = 'home', onNavigate }) {
       aria-hidden={autoHidden ? 'true' : undefined}
       inert={autoHidden ? true : undefined}
       className={`cm-root w-full pt-8 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] md:pt-10 ${
+        isMissionControl ? 'cm-masthead--tracker' : ''
+      } ${
         shouldAutoHide
           ? `fixed inset-x-0 top-0 z-50 pb-5 ${
               isMissionControl

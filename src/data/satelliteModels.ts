@@ -20,7 +20,7 @@ const M = (path, note = null, options = {}) => ({
 
 const ISS = (note = null) =>
   M('sc_iss/ISS_stationary.gltf', note, {
-    targetSize: 0.72,
+    targetSize: 0.2,
   })
 
 export const SATELLITE_MODELS = {

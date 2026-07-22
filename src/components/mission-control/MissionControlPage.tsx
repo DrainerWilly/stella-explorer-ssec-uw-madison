@@ -194,6 +194,7 @@ export default function MissionControlPage({ onNavigate }) {
   // --- handlers ---
   function selectMission(id) {
     setSelectedId(id)
+    setRailOpen(false)
     setModelScale(1) // start each mission at its default model size
     setFollow(true) // clicking a satellite always enters the spacecraft view
     if (!isDesktop) setMobilePanel('mission')
@@ -327,19 +328,6 @@ export default function MissionControlPage({ onNavigate }) {
     )
   }
 
-  // --- title block + top-right cluster (shared) ---
-  const titleBlock = (
-    <div className="pointer-events-none flex items-center gap-2">
-      <Icon name="globe" className="h-5 w-5 text-[#67d1ff]" />
-      <div>
-        <h1 className="text-sm font-bold uppercase tracking-[0.2em] text-white">Satellite Tracker</h1>
-        <div className="text-[9px] font-semibold uppercase tracking-[0.15em] text-white/40">
-          SSEC · Earth Science
-        </div>
-      </div>
-    </div>
-  )
-
   const topRightCluster = (
     <div className="flex flex-wrap items-center justify-end gap-2">
       <span
@@ -402,8 +390,7 @@ export default function MissionControlPage({ onNavigate }) {
   if (!webglOk) {
     return (
       <div className="scroll-soft order-1 min-h-0 flex-1 overflow-y-auto bg-[#050b1f] text-white">
-        <div className="flex flex-wrap items-start justify-between gap-3 px-5 py-4">
-          {titleBlock}
+        <div className="flex flex-wrap items-start justify-end gap-3 px-5 py-4">
           {topRightCluster}
         </div>
         {statusWarningBanner && <div className="px-5 pb-2">{statusWarningBanner}</div>}
@@ -458,9 +445,6 @@ export default function MissionControlPage({ onNavigate }) {
           </>
         )}
 
-        {/* title */}
-        <div className="absolute left-4 top-24 z-20">{titleBlock}</div>
-
         {/* bottom-right utility cluster */}
         <div className="absolute bottom-4 right-4 z-20">{topRightCluster}</div>
 
@@ -469,30 +453,33 @@ export default function MissionControlPage({ onNavigate }) {
           <div className="absolute left-1/2 top-24 z-10 -translate-x-1/2">{statusWarningBanner}</div>
         )}
 
-        {/* left satellite drawer: a slim tab that opens a scrollable panel.
-            The wrapper spans a definite height (top-16 → bottom-20) so the list
-            inside gets a bounded box to scroll within; it's pointer-events-none
-            so its empty area never blocks the globe. */}
-        {!selectedItem && (
-          <div className="pointer-events-none absolute bottom-20 left-4 top-36 z-10 flex w-[248px] flex-col">
-            <button
-              onClick={() => setRailOpen((v) => !v)}
-              className={`pointer-events-auto flex w-full shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-[#0b1a3d]/90 px-3 py-2 text-[12px] font-bold uppercase tracking-[0.14em] text-white/80 backdrop-blur-xl transition-colors hover:text-white ${
-                railOpen ? 'rounded-b-none border-b-0' : ''
-              }`}
-            >
-              <Icon name="orbit" className="h-4 w-4 text-[#67d1ff]" />
-              Satellites
-              <span className="ml-auto rounded-full bg-white/10 px-1.5 text-[10px] tabular-nums">{prop.valid.length}</span>
-              <Icon name="chevron" className={`h-3.5 w-3.5 transition-transform ${railOpen ? '-rotate-90' : 'rotate-90'}`} />
-            </button>
-            {railOpen && (
-              <div className="pointer-events-auto flex min-h-0 flex-1 flex-col rounded-b-xl border border-t-0 border-white/10 bg-[#0b1a3d]/90 p-2.5 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
-                {catalogEl}
-              </div>
-            )}
-          </div>
-        )}
+        {/* Bottom-left mission drawer. It opens upward so the closed control and
+            its neighboring source link always remain anchored near the corner. */}
+        <div className="pointer-events-none absolute bottom-4 left-4 z-30 flex w-[248px] flex-col">
+          {railOpen && (
+            <div className="pointer-events-auto flex h-[min(64vh,36rem)] min-h-0 flex-col rounded-t-xl border border-b-0 border-white/10 bg-[#0b1a3d]/90 p-2.5 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+              {catalogEl}
+            </div>
+          )}
+          <button
+            onClick={() => setRailOpen((v) => !v)}
+            className={`pointer-events-auto flex w-full shrink-0 items-center gap-2 rounded-xl border border-white/10 bg-[#0b1a3d]/90 px-3 py-2 text-[12px] font-bold uppercase tracking-[0.14em] text-white/80 backdrop-blur-xl transition-colors hover:text-white ${
+              railOpen ? 'rounded-t-none border-t-0' : ''
+            }`}
+          >
+            <Icon name="orbit" className="h-4 w-4 text-[#67d1ff]" />
+            Missions
+            <span className="ml-auto rounded-full bg-white/10 px-1.5 text-[10px] tabular-nums">{prop.valid.length}</span>
+            <Icon name="chevron" className={`h-3.5 w-3.5 transition-transform ${railOpen ? '-rotate-90' : 'rotate-90'}`} />
+          </button>
+          <button
+            onClick={() => setShowMethodology(true)}
+            className="pointer-events-auto mt-2 inline-flex w-fit items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white/40 transition-colors hover:text-white/80"
+          >
+            <Icon name="book" className="h-3.5 w-3.5" />
+            Sources & methodology
+          </button>
+        </div>
 
         {/* selected target: NASA-Eyes-style focus chrome */}
         {selectedItem && (
@@ -513,24 +500,12 @@ export default function MissionControlPage({ onNavigate }) {
               </div>
               {panelEl}
             </div>
-            <div className="pointer-events-auto absolute left-1/2 top-24 z-20 -translate-x-1/2 rounded-full border border-white/12 bg-black/40 px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.16em] text-white/65 shadow-[0_16px_48px_-18px_rgba(0,0,0,0.9)] backdrop-blur-xl">
-              Near {selectedItem.mission?.displayName || selectedItem.id} · drag to orbit · scroll to scale
-            </div>
           </>
         )}
 
-        {/* sources & methodology: tiny text link, bottom-left */}
-        <button
-          onClick={() => setShowMethodology(true)}
-          className="absolute bottom-4 left-4 z-10 inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white/40 transition-colors hover:text-white/80"
-        >
-          <Icon name="book" className="h-3.5 w-3.5" />
-          Sources & methodology
-        </button>
-
         {/* slim time ribbon: auto-hides after inactivity, returns on activity */}
         <div
-          className={`absolute bottom-3.5 left-1/2 z-10 w-[min(560px,calc(100%-420px))] -translate-x-1/2 ${
+          className={`absolute bottom-3.5 left-1/2 z-10 w-[min(560px,calc(100%-600px))] -translate-x-1/2 ${
             reducedMotion ? '' : 'transition-all duration-500 ease-out'
           } ${
             controlsActive
@@ -549,8 +524,7 @@ export default function MissionControlPage({ onNavigate }) {
   // --- Mobile / tablet: dark stacked layout, no horizontal scroll ---
   return (
     <div className="scroll-soft order-1 min-h-0 flex-1 overflow-y-auto bg-[#050b1f] text-white">
-      <div className="flex flex-wrap items-start justify-between gap-3 px-4 py-3">
-        {titleBlock}
+      <div className="flex flex-wrap items-start justify-end gap-3 px-4 py-3">
         {topRightCluster}
       </div>
       {statusWarningBanner && <div className="px-4 pb-2">{statusWarningBanner}</div>}

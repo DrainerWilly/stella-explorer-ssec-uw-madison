@@ -11,7 +11,9 @@ import { getSatelliteModel, PRIORITY_MODEL_URLS } from '../../data/satelliteMode
 // Models are symbolic rather than physically scaled, matching NASA Eyes. Use
 // the longest bounding-box dimension so wide solar arrays remain legible rather
 // than being excessively reduced by a diagonal-length normalization.
-const MODEL_TARGET_SIZE = 0.78
+// The official geometry is intentionally symbolic, but it should remain a
+// modest foreground subject like NASA Eyes—not dominate the Earth viewport.
+const MODEL_TARGET_SIZE = 0.28
 const ENV_INTENSITY = 1.35
 const LOOKAHEAD_S = 45
 const BASIS_TRANSCODER_PATH = `${import.meta.env.BASE_URL}assets/basis/`

@@ -50,7 +50,9 @@ export default function SceneControls({ settings, onChange, reducedMotion, onRes
       </button>
 
       {open && (
-        <div className={`absolute right-0 top-11 z-40 w-64 ${PANEL} p-3`}>
+        <div
+          className={`scroll-soft absolute right-0 top-11 z-40 max-h-[calc(100vh-5rem)] w-64 overflow-y-auto lg:bottom-11 lg:top-auto ${PANEL} p-3`}
+        >
           <div className={LABEL}>Scene settings</div>
           <div className="mt-1">
             <Row label="Earth rotation" checked={settings.earthRotation} onChange={(v) => onChange('earthRotation', v)} />

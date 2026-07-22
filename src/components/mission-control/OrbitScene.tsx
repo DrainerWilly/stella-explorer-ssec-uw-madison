@@ -1,8 +1,9 @@
 // @ts-nocheck
 import { Suspense, useEffect, useMemo, useRef } from 'react'
 import { Canvas, useFrame, useThree } from '@react-three/fiber'
-import { OrbitControls, Stars } from '@react-three/drei'
+import { OrbitControls } from '@react-three/drei'
 import EarthGlobe from './EarthGlobe'
+import DeepStarField from './DeepStarField'
 import SatelliteLayer from './SatelliteLayer'
 import SelectedSatelliteModel, { preloadPrioritySatelliteModels } from './SelectedSatelliteModel'
 import SatelliteViewControls from './SatelliteViewControls'
@@ -35,6 +36,10 @@ function SceneContents({
   const selected = items.find((i) => i.id === selectedId && i.valid) || null
   // Spacecraft view: camera rides with the selected satellite (NASA Eyes).
   const followView = Boolean(follow && selected)
+  // Use physical orbital height in the close spacecraft view. Exaggerated
+  // heights are useful on the globe overview but push the follow camera too far
+  // from Earth to reproduce NASA Eyes' broad horizon.
+  const sceneExaggeration = followView ? 1 : settings.exaggeration
   const showIssHostedOnGlobe = selectedId === ISS_HOST_PLATFORM_ID
   const globeItems = useMemo(
     () => items.filter((item) => !isIssHostedMission(item.mission) || showIssHostedOnGlobe),
@@ -62,8 +67,6 @@ function SceneContents({
     }
   })
 
-  const starCount = settings.quality === 'high' ? 6000 : settings.quality === 'low' ? 1500 : 3500
-
   return (
     <>
       <ambientLight intensity={0.09} />
@@ -71,17 +74,9 @@ function SceneContents({
       {/* faint fill so the night side isn't pure black */}
       <hemisphereLight intensity={0.05} color="#88aaff" groundColor="#0a0a12" />
 
-      {settings.stars && (
-        <Stars
-          radius={90}
-          depth={50}
-          count={starCount}
-          factor={4}
-          saturation={0}
-          fade
-          speed={reducedMotion ? 0 : 0.4}
-        />
-      )}
+      {/* Static, inertial star sphere: dense pinpoints without animation or
+          camera-relative movement, rendered in one GPU draw call. */}
+      {settings.stars && <DeepStarField quality={settings.quality} />}
 
       <EarthGlobe
         quality={settings.quality}
@@ -93,9 +88,9 @@ function SceneContents({
       <OrbitTrailLayer
         items={globeItems}
         clock={clock}
-        exaggeration={settings.exaggeration}
+        exaggeration={sceneExaggeration}
         selectedId={selectedId}
-        showFaintTrails={settings.trails}
+        showFaintTrails={settings.trails && !followView}
         showSelectedTrail={settings.trails && Boolean(selectedId)}
       />
 
@@ -112,7 +107,7 @@ function SceneContents({
             key={selected.id}
             item={selected}
             clock={clock}
-            exaggeration={settings.exaggeration}
+            exaggeration={sceneExaggeration}
             modelScale={modelScale}
           />
         </Suspense>
@@ -121,7 +116,7 @@ function SceneContents({
       <SatelliteViewControls
         item={selected}
         clock={clock}
-        exaggeration={settings.exaggeration}
+        exaggeration={sceneExaggeration}
         reducedMotion={reducedMotion}
         active={followView}
       />
@@ -131,7 +126,7 @@ function SceneContents({
       <SatelliteLayer
         items={globeItems}
         clock={clock}
-        exaggeration={settings.exaggeration}
+        exaggeration={sceneExaggeration}
         selectedId={selectedId}
         onSelect={onSelect}
         hoveredId={hoveredId}
@@ -161,7 +156,7 @@ function SceneContents({
 
 export default function OrbitScene(props) {
   // Mission Control is an always-dark cinematic space view.
-  const bg = '#03071a'
+  const bg = '#00020a'
   const maxDpr = props.maxDpr ?? 1.5
 
   useEffect(() => {
