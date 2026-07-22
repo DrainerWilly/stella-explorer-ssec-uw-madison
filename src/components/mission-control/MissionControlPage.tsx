@@ -32,12 +32,10 @@ const OrbitScene = lazy(() => import('./OrbitScene'))
 
 const DEFAULT_SETTINGS = {
   quality: 'balanced',
-  stars: true,
   trails: true,
   groundTrack: true,
   grid: false,
   earthRotation: true,
-  exaggeration: 1,
   cities: false,
 }
 
@@ -353,7 +351,6 @@ export default function MissionControlPage({ onNavigate }) {
       <SceneControls
         settings={settings}
         onChange={changeSetting}
-        reducedMotion={reducedMotion}
         onResetCamera={() => {
           // Back to the whole-Earth framing: leave the spacecraft view first so
           // the follow camera doesn't immediately re-capture the reset position.

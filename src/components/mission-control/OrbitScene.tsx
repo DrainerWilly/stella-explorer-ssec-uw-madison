@@ -31,15 +31,17 @@ function SceneContents({
 }) {
   const sunRef = useRef()
   const controlsRef = useRef()
+  // The selected GLTF publishes clean, model-only bounds here once it has
+  // loaded. Keeping this mutable avoids rerendering the whole Three scene while
+  // still letting the camera reframe immediately on model/aspect changes.
+  const spacecraftFramingRef = useRef(null)
   const { camera } = useThree()
 
   const selected = items.find((i) => i.id === selectedId && i.valid) || null
   // Spacecraft view: camera rides with the selected satellite (NASA Eyes).
   const followView = Boolean(follow && selected)
-  // Use physical orbital height in the close spacecraft view. Exaggerated
-  // heights are useful on the globe overview but push the follow camera too far
-  // from Earth to reproduce NASA Eyes' broad horizon.
-  const sceneExaggeration = followView ? 1 : settings.exaggeration
+  // Satellite positions and trails always use physical orbital height.
+  const sceneExaggeration = 1
   const showIssHostedOnGlobe = selectedId === ISS_HOST_PLATFORM_ID
   const globeItems = useMemo(
     () => items.filter((item) => !isIssHostedMission(item.mission) || showIssHostedOnGlobe),
@@ -76,7 +78,7 @@ function SceneContents({
 
       {/* Static, inertial star sphere: dense pinpoints without animation or
           camera-relative movement, rendered in one GPU draw call. */}
-      {settings.stars && <DeepStarField quality={settings.quality} />}
+      <DeepStarField quality={settings.quality} />
 
       <EarthGlobe
         quality={settings.quality}
@@ -91,13 +93,13 @@ function SceneContents({
         exaggeration={sceneExaggeration}
         selectedId={selectedId}
         showFaintTrails={settings.trails && !followView}
-        showSelectedTrail={settings.trails && Boolean(selectedId)}
+        showSelectedTrail={settings.trails && Boolean(selectedId) && !followView}
       />
 
       <GroundTrackLayer
         selected={items.find((i) => i.id === selectedId) || null}
         clock={clock}
-        show={settings.groundTrack && Boolean(selectedId)}
+        show={settings.groundTrack && Boolean(selectedId) && !followView}
       />
 
       {/* the selected spacecraft's 3D model, floating at its orbital position */}
@@ -109,6 +111,7 @@ function SceneContents({
             clock={clock}
             exaggeration={sceneExaggeration}
             modelScale={modelScale}
+            framingRef={spacecraftFramingRef}
           />
         </Suspense>
       )}
@@ -119,12 +122,13 @@ function SceneContents({
         exaggeration={sceneExaggeration}
         reducedMotion={reducedMotion}
         active={followView}
+        framingRef={spacecraftFramingRef}
       />
 
-      <CityLabelsLayer show={settings.cities && !followView} quality={settings.quality} />
+      <CityLabelsLayer show={settings.cities && !followView} />
 
       <SatelliteLayer
-        items={globeItems}
+        items={followView ? [] : globeItems}
         clock={clock}
         exaggeration={sceneExaggeration}
         selectedId={selectedId}

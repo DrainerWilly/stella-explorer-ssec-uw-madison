@@ -18,14 +18,15 @@ const M = (path, note = null, options = {}) => ({
   ...options,
 })
 
-const ISS = (note = null) =>
-  M('sc_iss/ISS_stationary.gltf', note, {
-    targetSize: 0.2,
-  })
+const ISS = (note = null) => M('sc_iss/ISS_stationary.gltf', note)
 
 export const SATELLITE_MODELS = {
-  'landsat-8': M('sc_landsat_8/LandSat8.gltf'),
-  'landsat-9': M('sc_landsat_9/Landsat9.gltf'),
+  'landsat-8': M('sc_landsat_8/LandSat8.gltf', null, {
+    presentationYaw: Math.PI,
+  }),
+  'landsat-9': M('sc_landsat_9/Landsat9.gltf', null, {
+    presentationYaw: Math.PI,
+  }),
   terra: M('sc_terra/Terra.gltf'),
   aqua: M('sc_aqua/Aqua.gltf'),
   aura: M('sc_aura/Aura.gltf'),

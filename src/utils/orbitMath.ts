@@ -3,9 +3,8 @@
 //
 // Clear separation of concerns:
 //   • REAL physical calculations use kilometres and radians (via satellite.js).
-//   • VISUAL display scaling converts km → scene units for Three.js.
-//   • Orbit-height exaggeration is applied ONLY at the display step and is always
-//     surfaced in the UI, never silently.
+//   • VISUAL display scaling converts km → scene units for Three.js while
+//     preserving physical orbital height.
 
 import { twoline2satrec, propagate, gstime, eciToGeodetic } from 'satellite.js'
 
@@ -16,15 +15,6 @@ export const EARTH_RADIUS_UNITS = 2 // Earth radius in Three.js scene units (vis
 
 export const RAD2DEG = 180 / Math.PI
 export const DEG2RAD = Math.PI / 180
-
-// Labelled visual-exaggeration options (see SceneControls / methodology panel).
-export const EXAGGERATION_OPTIONS = [
-  { id: 'physical', label: 'Physical scale', value: 1 },
-  { id: '1.5x', label: '1.5×', value: 1.5 },
-  { id: '2x', label: '2×', value: 2 },
-  { id: '3x', label: '3×', value: 3 },
-  { id: '4x', label: '4×', value: 4 },
-]
 
 // Convert a physical altitude/length in km to visual scene units.
 export function kmToUnits(km) {
