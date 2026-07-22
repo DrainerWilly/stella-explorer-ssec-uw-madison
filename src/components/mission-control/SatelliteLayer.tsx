@@ -29,6 +29,9 @@ const LABEL_SHADOW =
 const LABEL_NUDGE_PX = 10
 // Breathing room required between two names before both may stay on screen.
 const LABEL_GAP_PX = 4
+// The tracker masthead is intentionally transparent. Keep labels out of its
+// visual territory so orbiting names never run through the wordmark or nav.
+const LABEL_TOP_SAFE_PX = 112
 
 /**
  * True when the solid Earth sits between the camera and this point, i.e. the
@@ -274,6 +277,7 @@ export default function SatelliteLayer({
     placed.length = 0
     for (const entry of candidates) {
       if (!entry.onScreen || entry.w === 0) continue
+      if (entry.sy - entry.h / 2 <= LABEL_TOP_SAFE_PX) continue
       let clash = false
       for (const other of placed) {
         if (labelsCollide(entry, other)) {

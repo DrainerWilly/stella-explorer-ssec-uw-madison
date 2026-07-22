@@ -88,6 +88,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
   const ink = 'text-white'
   const linkColor = 'text-white/85 hover:text-white'
   const autoHidden = shouldAutoHide && hidden && !menuOpen
+  const isMissionControl = active === 'mission-control'
 
   return (
     <header
@@ -95,7 +96,11 @@ export default function Masthead({ active = 'home', onNavigate }) {
       inert={autoHidden ? true : undefined}
       className={`cm-root w-full pt-8 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] md:pt-10 ${
         shouldAutoHide
-          ? 'fixed inset-x-0 top-0 z-50 bg-[#050b1f] pb-5 shadow-[0_18px_44px_rgba(2,6,23,0.22)]'
+          ? `fixed inset-x-0 top-0 z-50 pb-5 ${
+              isMissionControl
+                ? 'bg-transparent shadow-none'
+                : 'bg-[#050b1f] shadow-[0_18px_44px_rgba(2,6,23,0.22)]'
+            }`
           : 'relative z-30 shrink-0 bg-transparent'
       } ${
         autoHidden

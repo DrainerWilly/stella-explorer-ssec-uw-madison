@@ -87,6 +87,7 @@ body {
   font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
   font-weight: 400;
 }
+
 .cm-wrapper { margin: 0 auto; max-width: 1250px; padding: 0 24px; width: 100%; }
 .cm-masthead-inner {
   width: 100%;
