@@ -3,12 +3,12 @@ import { useEffect, useMemo } from 'react'
 import { useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 
-// Approximately 4–5× the former drei <Stars> counts. A single Points draw call
-// keeps even the high-density field inexpensive.
+// Dense NASA Eyes-style point field. A single Points draw call keeps the larger
+// population inexpensive while still giving the camera cone enough stars.
 const COUNTS = {
-  low: 6000,
-  balanced: 17500,
-  high: 30000,
+  low: 18000,
+  balanced: 62000,
+  high: 90000,
 }
 
 const STAR_VERTEX_SHADER = /* glsl */ `
@@ -30,7 +30,7 @@ const STAR_VERTEX_SHADER = /* glsl */ `
     gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
     // starSize is authored in CSS pixels. gl_PointSize is physical pixels, so
     // the DPR multiply keeps stars from shrinking on high-density displays.
-    gl_PointSize = clamp(starSize * pixelRatio, 0.85 * pixelRatio, 4.2 * pixelRatio);
+    gl_PointSize = clamp(starSize * pixelRatio, 0.72 * pixelRatio, 3.8 * pixelRatio);
   }
 `
 
@@ -44,14 +44,12 @@ const STAR_FRAGMENT_SHADER = /* glsl */ `
     float radius = length(point);
     if (radius > 1.0) discard;
 
-    // Keep the stellar disc visible at one-to-few-pixel sizes. The previous
-    // falloff was too steep, leaving mostly subpixel centers after alpha blend.
-    float disc = 1.0 - smoothstep(0.72, 1.0, radius);
-    float core = 1.0 - smoothstep(0.0, 0.38, radius);
-    float halo = vGlow * (1.0 - smoothstep(0.24, 1.0, radius)) * 0.3;
-    float alpha = clamp(vOpacity * max(disc, core * 0.95) + halo, 0.0, 1.0);
+    float disc = 1.0 - smoothstep(0.78, 1.0, radius);
+    float core = 1.0 - smoothstep(0.0, 0.46, radius);
+    float halo = vGlow * (1.0 - smoothstep(0.18, 1.0, radius)) * 0.22;
+    float alpha = clamp(vOpacity * max(disc, core * 0.82) + halo, 0.0, 1.0);
 
-    vec3 color = vColor * (1.0 + vGlow * 0.55);
+    vec3 color = vColor * (1.0 + vGlow * 0.42);
     gl_FragColor = vec4(color, alpha);
   }
 `
@@ -71,10 +69,19 @@ function mulberry32(seed) {
 
 function starTemperature(random) {
   const roll = random()
-  if (roll < 0.72) return [1.0, 0.98, 0.94] // neutral white
-  if (roll < 0.9) return [0.82, 0.9, 1.0] // cool white
-  if (roll < 0.96) return [1.0, 0.87, 0.7] // occasional warm star
-  return [0.69, 0.83, 1.0] // occasional pale blue
+  if (roll < 0.58) return [1.0, 0.98, 0.94] // neutral white
+  if (roll < 0.78) return [0.84, 0.92, 1.0] // cool white
+  if (roll < 0.9) return [1.0, 0.91, 0.74] // warm yellow-white
+  if (roll < 0.97) return [0.68, 0.82, 1.0] // pale blue
+  return [1.0, 0.66, 0.52] // rare soft red-orange
+}
+
+function accentTemperature(random) {
+  const roll = random()
+  if (roll < 0.38) return [0.58, 0.76, 1.0] // blue-white
+  if (roll < 0.72) return [1.0, 0.78, 0.42] // amber
+  if (roll < 0.88) return [1.0, 0.56, 0.44] // subtle red
+  return [1.0, 0.98, 0.9]
 }
 
 function buildStarGeometry(count, seed) {
@@ -103,27 +110,45 @@ function buildStarGeometry(count, seed) {
     let opacity
     let intensity
     let glow
-    if (population < 0.78) {
-      // Most stars: tiny but no longer subpixel-invisible.
-      size = 0.85 + random() * 0.45
-      opacity = 0.48 + random() * 0.26
-      intensity = 0.82 + random() * 0.34
+    let temperature
+    if (population < 0.46) {
+      // Fine-grain background texture. These are dim, but intentionally remain
+      // above the practical one-pixel visibility threshold after DPR scaling.
+      size = 0.72 + random() * 0.34
+      opacity = 0.25 + random() * 0.24
+      intensity = 0.72 + random() * 0.34
+      glow = 0
+      temperature = starTemperature(random)
+    } else if (population < 0.86) {
+      // Main visible field: many crisp tiny stars across the whole viewport.
+      size = 0.95 + random() * 0.55
+      opacity = 0.42 + random() * 0.34
+      intensity = 0.9 + random() * 0.45
       glow = 0
     } else if (population < 0.96) {
-      // Medium population: noticeable, but still pinpoints rather than discs.
-      size = 1.45 + random() * 0.75
-      opacity = 0.68 + random() * 0.24
-      intensity = 1.0 + random() * 0.32
-      glow = random() * 0.12
+      // Medium points add depth without turning into large discs.
+      size = 1.45 + random() * 0.72
+      opacity = 0.6 + random() * 0.28
+      intensity = 1.06 + random() * 0.5
+      glow = random() * 0.08
+      temperature = starTemperature(random)
+    } else if (population < 0.993) {
+      // Bright but restrained pinpoints, mostly white/cool-white.
+      size = 2.05 + random() * 0.88
+      opacity = 0.78 + random() * 0.18
+      intensity = 1.35 + random() * 0.75
+      glow = 0.18 + random() * 0.28
+      temperature = starTemperature(random)
     } else {
-      // A sparse bright population gets a small soft edge, not a flare.
+      // Rare colored accents, matching the blue and warm highlights in NASA Eyes.
       size = 2.45 + random() * 1.05
-      opacity = 0.86 + random() * 0.14
-      intensity = 1.18 + random() * 0.5
-      glow = 0.45 + random() * 0.45
+      opacity = 0.86 + random() * 0.12
+      intensity = 1.85 + random() * 0.95
+      glow = 0.34 + random() * 0.36
+      temperature = accentTemperature(random)
     }
 
-    const temperature = starTemperature(random)
+    temperature = temperature ?? starTemperature(random)
     colors[p] = temperature[0] * intensity
     colors[p + 1] = temperature[1] * intensity
     colors[p + 2] = temperature[2] * intensity
