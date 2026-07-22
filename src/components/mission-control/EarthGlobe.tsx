@@ -4,18 +4,17 @@ import { useFrame, useThree } from '@react-three/fiber'
 import * as THREE from 'three'
 import { EARTH_RADIUS_UNITS, surfaceVec3, DEG2RAD, sunDirectionUnitVec } from '../../utils/orbitMath'
 
-// The visible surface uses NASA Goddard's Blue Marble 2015 VIIRS composite,
-// converted from the official 10,800 × 5,400 master into this globe's six-face
-// projection. The master has no pixels above 78.3°N, so that cap is feathered
-// into NASA Eyes' official polar tile. The aligned NASA Eyes night-light map
-// remains available, but the surface is deliberately diffuse-only: no normal
-// or ocean-specular layers are loaded, so the globe cannot produce sun glare.
-const BLUE_MARBLE_2015_ROOT = `${import.meta.env.BASE_URL}assets/earth/blue-marble-2015`
+// The day surface is built from NASA Eyes' own six color cube faces composited
+// with its matching RGBA cloud faces. Those sources already share this exact
+// cube projection, so the Arctic is not clipped, filled, or reprojected from a
+// flat map. The surface remains diffuse-only: no normal or ocean-specular layer
+// is loaded, so the globe cannot produce a reflected hotspot.
+const NASA_EYES_DAY_ROOT = `${import.meta.env.BASE_URL}assets/earth/nasa-eyes`
 const NASA_EYES_EARTH_ROOT = 'https://eyes.nasa.gov/assets/static/maps/earth'
 const FACE_IDS = [0, 1, 2, 3, 4, 5]
 
 function faceTextureUrl(layer, size, face) {
-  if (layer === 'color') return `${BLUE_MARBLE_2015_ROOT}/color_${size}_${face}.webp`
+  if (layer === 'color') return `${NASA_EYES_DAY_ROOT}/day_${size}_${face}.webp`
   return `${NASA_EYES_EARTH_ROOT}/${layer}_${size}_${face}.png`
 }
 
@@ -161,7 +160,7 @@ export default function EarthGlobe({
       )
 
     setTex({ day: null, night: null })
-    // Show the optimized 512px Blue Marble set immediately, then swap to its
+    // Show the optimized 512px NASA Eyes day set immediately, then swap to its
     // 2048px tier on balanced/high displays.
     loadSet('color', 512, true).then((day) => {
       if (!disposed && day) setTex((current) => (current.day ? current : { ...current, day }))
@@ -177,8 +176,8 @@ export default function EarthGlobe({
       loadSet('night', materialTextureSize, true).then((night) => {
         if (!disposed) setTex((current) => ({ ...current, night }))
       })
-      // Blue Marble 2015 already contains the VIIRS cloud field captured on
-      // October 14, 2015. Do not add the separate Eyes cloud shell on top.
+      // Clouds are already composited into every local day face from NASA
+      // Eyes' globally aligned RGBA cloud set. Do not add a second cloud shell.
     }
 
     return () => {
@@ -213,7 +212,7 @@ export default function EarthGlobe({
                totalEmissiveRadiance *= _night * 1.18;`,
             )
       }
-      mat.customProgramCacheKey = () => `blue-marble-diffuse-${Boolean(tex.night)}`
+      mat.customProgramCacheKey = () => `nasa-eyes-day-diffuse-${Boolean(tex.night)}`
       return mat
     })
   }, [tex.day, tex.night])
@@ -246,7 +245,7 @@ export default function EarthGlobe({
 
   return (
     <group>
-      {/* Blue Marble 2015 diffuse cube-sphere surface with aligned night lights. */}
+      {/* NASA Eyes color + cloud cube faces with aligned night lights. */}
       {earthMaterials ? (
         <group>
           {FACE_IDS.map((face) => (

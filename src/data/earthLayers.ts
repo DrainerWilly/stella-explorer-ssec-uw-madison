@@ -14,14 +14,14 @@ export const BASE_EARTH_LAYER = {
   label: 'Earth texture',
   available: true,
   active: true,
-  // EarthGlobe loads adaptive 512/2048px cube-sphere faces derived from NASA
-  // Goddard's official 10,800 × 5,400 Blue Marble 2015 master. If they fail,
-  // it falls back to a clean procedural material.
+  // EarthGlobe loads adaptive 512/2048px cube-sphere faces composited from
+  // NASA Eyes' matched color and RGBA cloud products. If they fail, it falls
+  // back to a clean procedural material.
   file: null,
-  source: 'NASA Blue Marble 2015, NASA Goddard Space Flight Center',
-  sourceUrl: 'https://svs.gsfc.nasa.gov/30763',
+  source: 'NASA Eyes on the Earth, NASA/JPL-Caltech',
+  sourceUrl: 'https://eyes.nasa.gov/apps/earth/',
   credit:
-    'Earth color imagery is NASA Goddard’s Blue Marble 2015 VIIRS composite for October 14, 2015, with its unavailable far-north cap completed from NASA Eyes’ official polar map. The supporting night-light map is from NASA Eyes; reflective surface layers are intentionally disabled.',
+    'Earth color and cloud imagery uses NASA Eyes’ official aligned cube-face maps at 2,048 pixels per face, with a 512-pixel loading tier. The supporting night-light map is also from NASA Eyes; reflective surface layers are intentionally disabled.',
 }
 
 // Future layers: descriptive placeholders only. `available: false` everywhere.

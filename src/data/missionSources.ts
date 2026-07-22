@@ -27,11 +27,11 @@ export const DATA_SOURCES = {
       'Satellite positions are propagated in your browser with satellite.js using the SGP4/SDP4 model.',
   },
   earthTexture: {
-    name: 'NASA Blue Marble 2015 and NASA Eyes Earth maps',
-    org: 'NASA Goddard Space Flight Center / NASA JPL-Caltech',
-    url: 'https://svs.gsfc.nasa.gov/30763',
+    name: 'NASA Eyes Earth color, cloud, and night maps',
+    org: 'NASA/JPL-Caltech',
+    url: 'https://eyes.nasa.gov/apps/earth/',
     credit:
-      'Earth color imagery is NASA Goddard’s Blue Marble 2015 VIIRS composite for October 14, 2015, with its unavailable far-north cap completed from NASA Eyes’ official polar map. The supporting night-light map is from NASA Eyes; reflective surface layers are intentionally disabled.',
+      'Earth color and cloud imagery uses NASA Eyes’ official aligned cube-face maps at 2,048 pixels per face, with a 512-pixel loading tier. The supporting night-light map is also from NASA Eyes; reflective surface layers are intentionally disabled.',
   },
   spacecraftModels: {
     name: 'NASA Eyes mission spacecraft models',
