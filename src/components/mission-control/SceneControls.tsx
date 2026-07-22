@@ -63,9 +63,9 @@ export default function SceneControls({ settings, onChange, reducedMotion, onRes
             <Row label="Cities" checked={settings.cities} onChange={(v) => onChange('cities', v)} />
           </div>
 
-          {/* exaggeration */}
+          {/* display scale */}
           <div className="mt-2 border-t border-white/10 pt-2">
-            <div className={LABEL}>Visual orbit exaggeration</div>
+            <div className={LABEL}>Orbit display scale</div>
             <div className="mt-1.5 flex flex-wrap gap-1">
               {EXAGGERATION_OPTIONS.map((opt) => (
                 <button
@@ -85,31 +85,9 @@ export default function SceneControls({ settings, onChange, reducedMotion, onRes
             </div>
             <p className="mt-1 text-[10px] leading-snug text-white/35">
               {settings.exaggeration === 1
-                ? 'Orbit heights shown to physical scale.'
-                : `Orbit heights shown ×${settings.exaggeration} for visibility (not physical scale).`}
+                ? 'NASA Eyes-style physical orbit heights.'
+                : `Orbit heights shown ×${settings.exaggeration} for classroom visibility (not physical scale).`}
             </p>
-          </div>
-
-          {/* quality */}
-          <div className="mt-2 border-t border-white/10 pt-2">
-            <div className={LABEL}>Quality</div>
-            <div className="mt-1.5 flex gap-1">
-              {['low', 'balanced', 'high'].map((q) => (
-                <button
-                  key={q}
-                  onClick={() => onChange('quality', q)}
-                  aria-pressed={settings.quality === q}
-                  className={`flex-1 ${chip(settings.quality === q)}`}
-                  style={
-                    settings.quality === q
-                      ? { backgroundColor: ACCENT, color: ACCENT_INK }
-                      : undefined
-                  }
-                >
-                  {q}
-                </button>
-              ))}
-            </div>
           </div>
 
           <button

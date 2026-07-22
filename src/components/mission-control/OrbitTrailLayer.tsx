@@ -3,6 +3,12 @@ import { useEffect, useMemo, useRef } from 'react'
 import * as THREE from 'three'
 import { sampleGroundPath, geodeticToVec3 } from '../../utils/orbitMath'
 
+const WHITE = new THREE.Color('#ffffff')
+
+function vividTrailColor(color) {
+  return new THREE.Color(color || '#8aa').lerp(WHITE, 0.18)
+}
+
 // Build a line-strip geometry for one full orbital period.
 function buildTrailGeometry(satrec, centerDate, exaggeration, count) {
   const samples = sampleGroundPath(satrec, centerDate, count)
@@ -28,7 +34,14 @@ function TrailLine({ geometry, color, opacity }) {
   if (!geometry) return null
   return (
     <line geometry={geometry}>
-      <lineBasicMaterial color={color} transparent opacity={opacity} depthWrite={false} />
+      <lineBasicMaterial
+        color={color}
+        transparent
+        opacity={opacity}
+        blending={THREE.AdditiveBlending}
+        depthWrite={false}
+        toneMapped={false}
+      />
     </line>
   )
 }
@@ -54,7 +67,7 @@ export default function OrbitTrailLayer({
     if (!showFaintTrails) return []
     return valid.map((item) => ({
       id: item.id,
-      color: item.mission?.markerColor || '#8aa',
+      color: vividTrailColor(item.mission?.markerColor || '#8aa'),
       geometry: buildTrailGeometry(item.satrec, refDate.current, exaggeration, 96),
     }))
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -65,7 +78,7 @@ export default function OrbitTrailLayer({
     const item = valid.find((i) => i.id === selectedId)
     if (!item) return null
     return {
-      color: item.mission?.markerColor || '#9cf',
+      color: vividTrailColor(item.mission?.markerColor || '#9cf'),
       // Center on the current sim time when (re)selected.
       geometry: buildTrailGeometry(item.satrec, clock.getDate(), exaggeration, 160),
     }
@@ -85,11 +98,11 @@ export default function OrbitTrailLayer({
     <group>
       {faintGeoms.map((f) =>
         f.id === selectedId ? null : (
-          <TrailLine key={f.id} geometry={f.geometry} color={f.color} opacity={0.18} />
+          <TrailLine key={f.id} geometry={f.geometry} color={f.color} opacity={0.34} />
         ),
       )}
       {selectedGeom && (
-        <TrailLine geometry={selectedGeom.geometry} color={selectedGeom.color} opacity={0.85} />
+        <TrailLine geometry={selectedGeom.geometry} color={selectedGeom.color} opacity={1} />
       )}
     </group>
   )

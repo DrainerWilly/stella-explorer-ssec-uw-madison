@@ -37,7 +37,7 @@ const DEFAULT_SETTINGS = {
   groundTrack: true,
   grid: false,
   earthRotation: true,
-  exaggeration: 2,
+  exaggeration: 1,
   cities: false,
 }
 
@@ -467,8 +467,7 @@ export default function MissionControlPage({ onNavigate }) {
               railOpen ? 'rounded-t-none border-t-0' : ''
             }`}
           >
-            <Icon name="orbit" className="h-4 w-4 text-[#67d1ff]" />
-            Missions
+            Satellites
             <span className="ml-auto rounded-full bg-white/10 px-1.5 text-[10px] tabular-nums">{prop.valid.length}</span>
             <Icon name="chevron" className={`h-3.5 w-3.5 transition-transform ${railOpen ? '-rotate-90' : 'rotate-90'}`} />
           </button>
