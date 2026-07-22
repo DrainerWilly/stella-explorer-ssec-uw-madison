@@ -9,25 +9,24 @@ function vividTrailColor(color) {
   return new THREE.Color(color || '#8aa').lerp(WHITE, 0.18)
 }
 
-// Build a line-strip geometry for one full orbital period.
 function buildTrailGeometry(satrec, centerDate, exaggeration, count) {
   const samples = sampleGroundPath(satrec, centerDate, count)
   if (samples.length < 2) return null
-  const arr = new Float32Array(samples.length * 3)
-  for (let i = 0; i < samples.length; i++) {
+  const positions = new Float32Array(samples.length * 3)
+  for (let i = 0; i < samples.length; i += 1) {
     const [x, y, z] = geodeticToVec3(
       samples[i].latRad,
       samples[i].lonRad,
       samples[i].altKm,
       exaggeration,
     )
-    arr[i * 3] = x
-    arr[i * 3 + 1] = y
-    arr[i * 3 + 2] = z
+    positions[i * 3] = x
+    positions[i * 3 + 1] = y
+    positions[i * 3 + 2] = z
   }
-  const g = new THREE.BufferGeometry()
-  g.setAttribute('position', new THREE.BufferAttribute(arr, 3))
-  return g
+  const geometry = new THREE.BufferGeometry()
+  geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3))
+  return geometry
 }
 
 function TrailLine({ geometry, color, opacity }) {

@@ -25,7 +25,6 @@ const ISS_HOSTED_FOCUS_OFFSET = 0.34
 const LABEL_SHADOW =
   '0 1px 3px rgba(0,0,0,0.95), 0 0 2px rgba(0,0,0,0.95), 0 0 8px rgba(0,0,0,0.6)'
 
-// The label is nudged this far right of its anchor (see translate-x-[10px]).
 const LABEL_NUDGE_PX = 10
 // Breathing room required between two names before both may stay on screen.
 const LABEL_GAP_PX = 4
@@ -78,8 +77,8 @@ function newEntry() {
   }
 }
 
-// One satellite marker: the plain white name alone marks the spot (NASA-Eyes
-// style), over an invisible sphere that gives it a comfortable hit area. All
+// One satellite marker: a plain spacecraft name over an invisible sphere that
+// gives it a comfortable hit area. All
 // per-frame work (position, occlusion, label visibility) is driven centrally by
 // SatelliteLayer through `entry`, so markers never re-render as things move.
 function SatelliteMarker({ item, entry, active, onHover, onSelect }) {
@@ -114,7 +113,7 @@ function SatelliteMarker({ item, entry, active, onHover, onSelect }) {
         <meshBasicMaterial transparent opacity={0} depthWrite={false} />
       </mesh>
 
-      {/* plain white name label, no box. zIndexRange stays below the page's
+      {/* Plain white name label, no box. zIndexRange stays below the page's
           floating chrome (z-10+) so panels like the satellite drawer cover it.
           Opacity is driven imperatively from the layer's frame loop, so it is
           deliberately not part of the React style prop. */}

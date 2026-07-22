@@ -214,9 +214,10 @@ export default function HomePage({ onNavigate }) {
           ))}
 
           <footer className="cm-home-credit" aria-label="Image credits">
-            Homepage imagery and video courtesy of NASA Scientific Visualization Studio,
-            NASA/USGS Landsat, and the NASA STELLA project. Made at the Space Science
-            and Engineering Center, University of Wisconsin–Madison.
+            Homepage imagery and video courtesy of NASA/Goddard Space Flight Center,
+            NASA Scientific Visualization Studio, NASA/USGS Landsat, and the NASA STELLA
+            project. Made at the Space Science and Engineering Center, University of
+            Wisconsin–Madison.
           </footer>
         </div>
       </div>
