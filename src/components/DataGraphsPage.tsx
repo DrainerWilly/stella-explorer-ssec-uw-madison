@@ -29,7 +29,7 @@ export default function DataGraphsPage() {
   const selectedStats = useMemo(() => summarizeBands(bands), [bands])
 
   return (
-    <main className="scroll-soft order-1 flex-1 overflow-y-auto overflow-x-hidden bg-[#050b1f] text-ink">
+    <main className="cm-page--spectral scroll-soft order-1 flex-1 overflow-y-auto overflow-x-hidden bg-[#050b1f] text-ink">
       <section className="relative overflow-hidden border-b border-white/10">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_78%_10%,rgba(103,209,255,0.18),transparent_32%),radial-gradient(circle_at_10%_90%,rgba(177,77,224,0.14),transparent_34%)]" />
         <div className="relative mx-auto max-w-[1380px] px-5 pb-10 pt-8 sm:px-8 lg:px-10 lg:pb-14 lg:pt-10">

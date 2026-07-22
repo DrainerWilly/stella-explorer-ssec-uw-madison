@@ -73,7 +73,7 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
   }, [])
 
   return (
-    <div className="relative min-h-[620px] w-full overflow-hidden bg-[#040817] text-white">
+    <div className="relative min-h-[100svh] w-full flex-1 overflow-hidden bg-[#040817] text-white lg:min-h-screen">
       <div
         aria-hidden="true"
         className="absolute inset-0"
@@ -85,19 +85,9 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
       <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0,rgba(0,0,0,0.42)_72%)]" />
       <div aria-hidden="true" className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
 
-      <div className="relative z-10 grid min-h-[620px] w-full items-center gap-8 px-6 pb-10 pt-28 sm:px-8 md:pt-32 lg:grid-cols-[minmax(320px,0.42fr)_minmax(380px,0.58fr)] lg:px-12 lg:pb-12 lg:pt-32 xl:px-16">
+      <div className="relative z-10 grid min-h-[100svh] w-full items-center gap-8 px-6 pb-10 pt-28 sm:px-8 md:pt-32 lg:min-h-screen lg:grid-cols-[minmax(320px,0.42fr)_minmax(380px,0.58fr)] lg:px-12 lg:pb-12 lg:pt-32 xl:px-16">
         <section className="max-w-xl text-left">
-          <div className="flex items-center gap-3">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="absolute inline-flex h-full w-full rounded-full bg-sky-300 opacity-75 motion-safe:animate-ping" />
-              <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-sky-200" />
-            </span>
-            <span className="text-[11px] font-semibold uppercase tracking-[0.38em] text-sky-100/65">
-              Satellite Tracker
-            </span>
-          </div>
-
-          <h2 className="mt-7 text-4xl font-semibold leading-[0.95] tracking-[-0.04em] sm:text-5xl xl:text-6xl">
+          <h2 className="text-4xl font-semibold leading-[0.95] tracking-[-0.04em] sm:text-5xl xl:text-6xl">
             <span className="bg-gradient-to-b from-white to-sky-200/60 bg-clip-text text-transparent">
               {label}
               <span className="motion-safe:animate-pulse">…</span>

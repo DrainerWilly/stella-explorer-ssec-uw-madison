@@ -22,7 +22,6 @@ function MissionRow({ mission, item, cacheStatus, selected, onSelect }) {
           <span className={`truncate text-[13px] font-semibold ${selected ? 'text-white' : 'text-white/85'}`}>
             {mission.displayName}
           </span>
-          {mission.featured && <Icon name="star" className="h-3 w-3 shrink-0 text-amber-300/80" />}
         </span>
         <span className="block truncate text-[10px] text-white/35">{mission.agency}</span>
       </span>

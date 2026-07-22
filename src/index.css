@@ -124,6 +124,10 @@ html { scroll-behavior: smooth; }
   pointer-events: none;
 }
 
+.cm-floating-nav-content > main.cm-page--spectral::before {
+  height: clamp(4.75rem, 5.5vw, 5.75rem);
+}
+
 /* ---- home hero video treatment ---- */
 @keyframes cm-hero-video-zoom {
   from { transform: scale(1.1); }
@@ -284,10 +288,10 @@ html { scroll-behavior: smooth; }
 
 /* ---- masthead wordmark + nav: thin, airy typography from the reference ---- */
 .cm-wordmark {
-  font-family: 'Helvetica Neue', 'Roboto Condensed', 'Arial Narrow', sans-serif;
+  font-family: 'Roboto Condensed', 'Arial Narrow', sans-serif;
   font-size: 1.85rem;
   font-stretch: condensed;
-  font-weight: 200;
+  font-weight: 300;
   letter-spacing: 0.2em;
   line-height: 0.95;
   white-space: nowrap;

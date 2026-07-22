@@ -217,7 +217,7 @@ export default function HomePage({ onNavigate }) {
             Homepage imagery and video courtesy of NASA/Goddard Space Flight Center,
             NASA Scientific Visualization Studio, NASA/USGS Landsat, and the NASA STELLA
             project. Made at the Space Science and Engineering Center, University of
-            Wisconsin–Madison.
+            Wisconsin–Madison. Project funded by NASA, AmericaView, and WisconsinView.
           </footer>
         </div>
       </div>

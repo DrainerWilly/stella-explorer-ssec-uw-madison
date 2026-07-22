@@ -13,7 +13,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
   const [hidden, setHidden] = useState(false)
   const lastWindowScroll = useRef(0)
   const lastElementScroll = useRef(new WeakMap())
-  const shouldAutoHide = active !== 'home'
+  const shouldAutoHide = active !== 'home' && active !== 'mission-control'
 
   // Close on Escape and lock body scroll while the drawer is open.
   useEffect(() => {
