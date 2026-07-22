@@ -83,6 +83,7 @@ function SceneContents({
       <EarthGlobe
         quality={settings.quality}
         showGrid={settings.grid}
+        fullEarthLight={settings.fullEarthLight}
         clock={clock}
         reducedMotion={reducedMotion}
       />

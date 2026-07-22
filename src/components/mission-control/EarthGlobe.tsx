@@ -114,6 +114,7 @@ function buildGridSegments() {
 export default function EarthGlobe({
   quality = 'balanced',
   showGrid = false,
+  fullEarthLight = false,
   clock,
 }) {
   const { camera, gl } = useThree()
@@ -121,12 +122,17 @@ export default function EarthGlobe({
 
   // Sun direction used to keep night lights behind the simulated terminator.
   const sunViewUniform = useRef({ value: new THREE.Vector3(1, 0, 0) })
+  const fullEarthLightUniform = useRef({ value: fullEarthLight ? 1 : 0 })
   const _sunWorld = useRef(new THREE.Vector3()).current
   const _sunView = useRef(new THREE.Vector3()).current
 
   const withExtras = quality !== 'low'
   const colorTextureSize = quality === 'low' ? 512 : 2048
   const materialTextureSize = quality === 'high' ? 2048 : 512
+
+  useEffect(() => {
+    fullEarthLightUniform.current.value = fullEarthLight ? 1 : 0
+  }, [fullEarthLight])
 
   // Load the color faces first so the planet appears promptly. The aligned
   // night-light faces follow independently; a failed optional layer never
@@ -201,15 +207,23 @@ export default function EarthGlobe({
       })
       mat.onBeforeCompile = (shader) => {
         shader.uniforms.uSunViewDir = sunViewUniform.current
+        shader.uniforms.uFullEarthLight = fullEarthLightUniform.current
         shader.fragmentShader =
-          'uniform vec3 uSunViewDir;\n' +
+          'uniform vec3 uSunViewDir;\nuniform float uFullEarthLight;\n' +
           shader.fragmentShader
             .replace(
               '#include <emissivemap_fragment>',
               `#include <emissivemap_fragment>
                float _sun = dot(normalize(vNormal), normalize(uSunViewDir));
                float _night = smoothstep(0.06, -0.20, _sun);
-               totalEmissiveRadiance *= _night * 1.18;`,
+               totalEmissiveRadiance *= _night * 1.18 * (1.0 - uFullEarthLight);`,
+            )
+            .replace(
+              'vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;',
+              `vec3 outgoingLight = reflectedLight.directDiffuse + reflectedLight.indirectDiffuse + totalEmissiveRadiance;
+               if (uFullEarthLight > 0.5) {
+                 outgoingLight = diffuseColor.rgb;
+               }`,
             )
       }
       mat.customProgramCacheKey = () => `nasa-eyes-day-diffuse-${Boolean(tex.night)}`

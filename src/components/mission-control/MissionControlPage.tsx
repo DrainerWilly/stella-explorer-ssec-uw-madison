@@ -37,6 +37,7 @@ const DEFAULT_SETTINGS = {
   grid: false,
   earthRotation: true,
   cities: false,
+  fullEarthLight: false,
 }
 
 function detectWebGL() {
@@ -347,6 +348,19 @@ export default function MissionControlPage({ onNavigate }) {
         className={GHOST_BTN}
       >
         <Icon name="book" className="h-4 w-4" />
+      </button>
+      <button
+        onClick={() => changeSetting('fullEarthLight', !settings.fullEarthLight)}
+        aria-pressed={settings.fullEarthLight}
+        aria-label="Show full Earth without night shading"
+        title="Show full Earth without night shading"
+        className={`${GHOST_BTN} ${
+          settings.fullEarthLight
+            ? 'border-sky-300/55 bg-sky-300/20 text-sky-100 shadow-[0_0_20px_-8px_rgba(125,211,252,0.9)]'
+            : 'text-white/60'
+        }`}
+      >
+        <Icon name="lightbulb" className="h-[18px] w-[18px]" strokeWidth={1.8} />
       </button>
       <SceneControls
         settings={settings}
