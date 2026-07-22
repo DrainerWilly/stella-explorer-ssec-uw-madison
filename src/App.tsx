@@ -7,7 +7,6 @@ import LessonsPage from './components/LessonsPage'
 import GamesPage from './components/games/GamesPage'
 import DataGraphsPage from './components/DataGraphsPage'
 import AnimationsPage from './components/animations/AnimationsPage'
-import StellaDevicePage from './components/device/StellaDevicePage'
 import HowLandsatImagesAreMade from './components/lessons/HowLandsatImagesAreMade'
 import WhatIsTheEMS from './components/lessons/WhatIsTheEMS'
 import { LESSONS, filterLessons } from './data/lessons'
@@ -20,6 +19,11 @@ const MissionControlPage = lazy(() =>
 // STELLA Data Visualizer bundles ~800 KB of NASA STELLA sample data; lazy-load it too.
 const DataVisualizerPage = lazy(() =>
   import('./components/data-visualizer/DataVisualizerPage'),
+)
+
+// The STELLA-Q2 Lab is an independent feature and is loaded only when opened.
+const StellaQ2Page = lazy(() =>
+  import('./features/stellaQ2/components/StellaQ2Page'),
 )
 
 export default function App() {
@@ -114,8 +118,16 @@ export default function App() {
           /* Educational games: gallery + individual games, full width */
           <GamesPage />
         ) : page === 'device' ? (
-          /* STELLA Device Lab: choose, build, and demo a NASA STELLA instrument */
-          <StellaDevicePage onNavigate={navigate} />
+          /* STELLA-Q2 Lab: source-grounded construction learning workspace */
+          <Suspense
+            fallback={
+              <div className="order-1 grid flex-1 place-items-center bg-[#050b1f] text-sm font-semibold text-slate-300">
+                Loading STELLA-Q2 Lab…
+              </div>
+            }
+          >
+            <StellaQ2Page />
+          </Suspense>
         ) : page === 'data-viz' ? (
           /* STELLA Data Visualizer: real STELLA instrument data + user uploads */
           <Suspense

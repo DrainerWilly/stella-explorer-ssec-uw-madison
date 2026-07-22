@@ -1,0 +1,98 @@
+import type { BuildPhoto } from '../types'
+
+const PHOTO_ROOT = 'Build instructions and documentation/Build Instructions Photos'
+
+export const BUILD_PHOTOS: BuildPhoto[] = [
+  {
+    id: 'scaffolding-top-before',
+    sequence: 1,
+    buildStepNumber: 4,
+    filename: '4 STELLA-Q2 remove scaffolding top.jpg',
+    assetPath: `${PHOTO_ROOT}/4 STELLA-Q2 remove scaffolding top.jpg`,
+    alt: 'Blue STELLA-Q2 top housing with arrows identifying removable printing scaffolding.',
+    caption: 'Top housing before removal. Arrows identify the printed scaffolding.',
+  },
+  {
+    id: 'scaffolding-bottom-before',
+    sequence: 3,
+    buildStepNumber: 4,
+    filename: '4 STELLA-Q2 remove scaffolding bottom.jpg',
+    assetPath: `${PHOTO_ROOT}/4 STELLA-Q2 remove scaffolding bottom.jpg`,
+    alt: 'Black STELLA-Q2 bottom cover with arrows identifying removable printing scaffolding.',
+    caption: 'Bottom cover before removal. Arrows identify the printed scaffolding.',
+  },
+  {
+    id: 'scaffolding-top-after',
+    sequence: 2,
+    buildStepNumber: 4,
+    filename: '4 STELLA-Q2 scaffolding removed top.jpg',
+    assetPath: `${PHOTO_ROOT}/4 STELLA-Q2 scaffolding removed top.jpg`,
+    alt: 'Blue STELLA-Q2 top housing after its printing scaffolding has been removed.',
+    caption: 'Top housing after the identified scaffolding has been removed.',
+  },
+  {
+    id: 'scaffolding-bottom-after',
+    sequence: 4,
+    buildStepNumber: 4,
+    filename: '4 STELLA-Q2 scaffolding removed bottom.jpg',
+    assetPath: `${PHOTO_ROOT}/4 STELLA-Q2 scaffolding removed bottom.jpg`,
+    alt: 'Black STELLA-Q2 bottom cover after its printing scaffolding has been removed.',
+    caption: 'Bottom cover after the identified scaffolding has been removed.',
+  },
+  {
+    id: 'build-one-layout',
+    sequence: 5,
+    buildStepNumber: 5,
+    filename: '5 STELLA-Q2 build 1.jpg',
+    assetPath: `${PHOTO_ROOT}/5 STELLA-Q2 build 1.jpg`,
+    alt: 'STELLA-Q2 electronics laid on the full-size flat assembly diagram before cabling.',
+    caption: 'Build 1: loose electronics aligned with their positions on the 1:1 diagram.',
+  },
+  {
+    id: 'build-two-connections',
+    sequence: 6,
+    buildStepNumber: 6,
+    filename: '6 STELLA-Q2 build 2.jpg',
+    assetPath: `${PHOTO_ROOT}/6 STELLA-Q2 build 2.jpg`,
+    alt: 'STELLA-Q2 modules connected with four Qwiic cables and the switched battery lead.',
+    caption: 'Build 2: the modules connected while they remain on the assembly diagram.',
+  },
+  {
+    id: 'build-three-enclosure',
+    sequence: 7,
+    buildStepNumber: 7,
+    filename: '7 STELLA-Q2 build 3.jpg',
+    assetPath: `${PHOTO_ROOT}/7 STELLA-Q2 build 3.jpg`,
+    alt: 'Connected STELLA-Q2 electronics placed into the blue top housing beside the loose bottom cover and retainer clips.',
+    caption: 'Build 3: connected electronics placed in the housing with retainer clips shown nearby.',
+  },
+  {
+    id: 'build-four-routing',
+    sequence: 8,
+    buildStepNumber: 9,
+    filename: '9 STELLA-Q2 build 4.jpg',
+    assetPath: `${PHOTO_ROOT}/9 STELLA-Q2 build 4.jpg`,
+    alt: 'STELLA-Q2 electronics secured in the housing with the internal wires routed for closure.',
+    caption: 'Build 4: retainers installed and wires routed before the bottom cover closes.',
+  },
+  {
+    id: 'lamp-windows-loose',
+    sequence: 9,
+    buildStepNumber: 11,
+    filename: '11 STELLA-Q2 lamp covers loose.jpg',
+    assetPath: `${PHOTO_ROOT}/11 STELLA-Q2 lamp covers loose.jpg`,
+    alt: 'Front of the STELLA-Q2 with the two translucent signal-lamp windows loose over their openings.',
+    caption: 'The two signal-lamp windows positioned over their front-cover openings.',
+  },
+  {
+    id: 'lamp-windows-installed',
+    sequence: 10,
+    buildStepNumber: 11,
+    filename: '11 STELLA-Q2 lamp covers installed.jpg',
+    assetPath: `${PHOTO_ROOT}/11 STELLA-Q2 lamp covers installed.jpg`,
+    alt: 'Front of the STELLA-Q2 with both signal-lamp windows installed.',
+    caption: 'Both signal-lamp windows installed in the completed front cover.',
+  },
+].sort((a, b) => a.sequence - b.sequence)
+
+export const BUILD_PHOTO_BY_ID = new Map(BUILD_PHOTOS.map((photo) => [photo.id, photo]))
