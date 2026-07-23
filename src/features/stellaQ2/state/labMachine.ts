@@ -25,10 +25,20 @@ import {
   isConnectionId,
   validateConnectionGraph,
 } from '../utils/connections'
+import {
+  createInitialEnclosurePlacements,
+  isEnclosurePartId,
+  isValidEnclosurePlacement,
+  stagingPlacementFor,
+  validateEnclosure,
+} from '../utils/enclosure'
+import { ENCLOSURE_CAMERA_PRESETS, ENCLOSURE_SLOT_BY_ID } from '../data/enclosure'
 import type {
   CableConnectionState,
   ComponentPlacement,
   ConnectionHistoryEntry,
+  EnclosureHistoryEntry,
+  EnclosurePartId,
   LabAction,
   LabState,
   LayoutHistoryEntry,
@@ -42,7 +52,7 @@ import type {
 export const STELLA_Q2_SESSION_KEY = 'exstella.stella-q2.phase-2a.v1'
 
 export const INITIAL_LAB_STATE: LabState = {
-  version: 4,
+  version: 5,
   mode: 'intro',
   guidance: 'standard',
   activeBuildStepId: BUILD_STEPS[0].id,
@@ -81,6 +91,21 @@ export const INITIAL_LAB_STATE: LabState = {
   connectionValidation: 'idle',
   connectionUndoHistory: [],
   connectionRedoHistory: [],
+  selectedEnclosureComponentId: null,
+  selectedEnclosureSlotId: null,
+  enclosurePlacements: createInitialEnclosurePlacements(),
+  microSdInstalled: false,
+  enclosureCameraPreset: 'fit',
+  enclosureComparisonMode: 'workspace',
+  enclosureHintVisible: false,
+  enclosureTargetsVisible: true,
+  enclosureCablesVisible: true,
+  enclosureTransparentHousing: false,
+  enclosureWireframeHousing: false,
+  enclosureIsolateSelected: false,
+  enclosureValidation: 'idle',
+  enclosureUndoHistory: [],
+  enclosureRedoHistory: [],
 }
 
 function validStepId(stepId: string) {
@@ -132,6 +157,14 @@ function validConnectionComparisonMode(mode: unknown) {
   return mode === 'diagram' || mode === 'build-two' || mode === 'side-by-side' || mode === 'overlay' || mode === 'schematic'
 }
 
+function validEnclosureComparisonMode(mode: unknown) {
+  return mode === 'workspace' || mode === 'build-three' || mode === 'side-by-side' || mode === 'overlay'
+}
+
+function validEnclosureSlotId(slotId: string | null) {
+  return slotId === null || ENCLOSURE_SLOT_BY_ID.has(slotId)
+}
+
 function validConnectionState(value: unknown): value is CableConnectionState {
   if (!value || typeof value !== 'object') return false
   const connection = value as Partial<CableConnectionState>
@@ -152,6 +185,18 @@ function validConnectionHistoryEntry(value: unknown): value is ConnectionHistory
     && (entry.selectedConnectionId === null || isConnectionId(entry.selectedConnectionId ?? null))
     && (entry.selectedConnectionEndpoint === null || entry.selectedConnectionEndpoint === 'a' || entry.selectedConnectionEndpoint === 'b')
     && typeof entry.coinCellInstalled === 'boolean'
+}
+
+function validEnclosureHistoryEntry(value: unknown): value is EnclosureHistoryEntry {
+  if (!value || typeof value !== 'object') return false
+  const entry = value as Partial<EnclosureHistoryEntry>
+  return Array.isArray(entry.placements)
+    && entry.placements.every(isValidEnclosurePlacement)
+    && entry.placements.length === createInitialEnclosurePlacements().length
+    && new Set(entry.placements.map((placement) => placement.partId)).size === entry.placements.length
+    && (entry.selectedEnclosureComponentId === null || isEnclosurePartId(entry.selectedEnclosureComponentId ?? null))
+    && validEnclosureSlotId(entry.selectedEnclosureSlotId ?? null)
+    && typeof entry.microSdInstalled === 'boolean'
 }
 
 function validLayoutHistoryEntry(value: unknown): value is LayoutHistoryEntry {
@@ -212,6 +257,40 @@ function snapshotConnections(state: LabState): ConnectionHistoryEntry {
     selectedConnectionId: state.selectedConnectionId,
     selectedConnectionEndpoint: state.selectedConnectionEndpoint,
     coinCellInstalled: state.coinCellInstalled,
+  }
+}
+
+function snapshotEnclosure(state: LabState): EnclosureHistoryEntry {
+  return {
+    placements: state.enclosurePlacements.map((placement) => ({ ...placement })),
+    selectedEnclosureComponentId: state.selectedEnclosureComponentId,
+    selectedEnclosureSlotId: state.selectedEnclosureSlotId,
+    microSdInstalled: state.microSdInstalled,
+  }
+}
+
+function applyEnclosureSnapshot(
+  state: LabState,
+  snapshot: EnclosureHistoryEntry,
+  historyKey: 'enclosureUndoHistory' | 'enclosureRedoHistory',
+): LabState {
+  const otherHistoryKey = historyKey === 'enclosureUndoHistory' ? 'enclosureRedoHistory' : 'enclosureUndoHistory'
+  const updated = {
+    ...state,
+    enclosurePlacements: snapshot.placements.map((placement) => ({ ...placement })),
+    selectedEnclosureComponentId: snapshot.selectedEnclosureComponentId,
+    selectedEnclosureSlotId: snapshot.selectedEnclosureSlotId,
+    microSdInstalled: snapshot.microSdInstalled,
+    [historyKey]: state[historyKey].slice(0, -1),
+    [otherHistoryKey]: [...state[otherHistoryKey], snapshotEnclosure(state)],
+  } as LabState
+  const validation = validateEnclosure(updated.layoutPlacements, updated.step6Connections, updated.coinCellInstalled, updated.enclosurePlacements, updated.microSdInstalled)
+  return {
+    ...updated,
+    enclosureValidation: validation.status === 'valid' ? 'idle' : validation.status,
+    completedBuildStepIds: validation.status === 'valid'
+      ? updated.completedBuildStepIds
+      : updated.completedBuildStepIds.filter((id) => id !== 'enclosure-placement'),
   }
 }
 
@@ -609,6 +688,116 @@ export function labReducer(state: LabState, action: LabAction): LabState {
           : state.completedBuildStepIds,
       }
     }
+    case 'SELECT_ENCLOSURE_COMPONENT':
+      return action.partId === null || isEnclosurePartId(action.partId)
+        ? { ...state, selectedEnclosureComponentId: action.partId, enclosureValidation: 'idle' }
+        : state
+    case 'SELECT_ENCLOSURE_SLOT':
+      return validEnclosureSlotId(action.slotId)
+        ? { ...state, selectedEnclosureSlotId: action.slotId, enclosureValidation: 'idle' }
+        : state
+    case 'PLACE_ENCLOSURE_COMPONENT': {
+      if (!isValidEnclosurePlacement(action.placement)) return state
+      const placement = action.placement
+      const slot = placement.slotId ? ENCLOSURE_SLOT_BY_ID.get(placement.slotId) : undefined
+      if (slot && slot.acceptedPartId !== placement.partId) {
+        return { ...state, enclosureValidation: 'wrong-slot' }
+      }
+      if (placement.slotId && state.enclosurePlacements.some((item) => item.partId !== placement.partId && item.slotId === placement.slotId)) {
+        return { ...state, enclosureValidation: 'slot-occupied' }
+      }
+      const updated = {
+        ...state,
+        enclosurePlacements: state.enclosurePlacements.map((item) => item.partId === placement.partId ? {
+          ...placement,
+          rotation: [normalizeRotation(placement.rotation[0]), normalizeRotation(placement.rotation[1]), normalizeRotation(placement.rotation[2])] as const,
+        } : item),
+        selectedEnclosureComponentId: placement.partId,
+        selectedEnclosureSlotId: placement.slotId,
+        microSdInstalled: placement.partId === 'micro-sd-card' ? Boolean(placement.slotId && placement.seated) : state.microSdInstalled,
+        enclosureUndoHistory: [...state.enclosureUndoHistory, snapshotEnclosure(state)],
+        enclosureRedoHistory: [],
+        enclosureValidation: 'idle' as const,
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'enclosure-placement'),
+      }
+      return updated
+    }
+    case 'REMOVE_ENCLOSURE_COMPONENT': {
+      if (!isEnclosurePartId(action.partId)) return state
+      return {
+        ...state,
+        enclosurePlacements: state.enclosurePlacements.map((placement) => placement.partId === action.partId ? stagingPlacementFor(action.partId) : placement),
+        selectedEnclosureComponentId: action.partId,
+        selectedEnclosureSlotId: null,
+        microSdInstalled: action.partId === 'micro-sd-card' ? false : state.microSdInstalled,
+        enclosureUndoHistory: [...state.enclosureUndoHistory, snapshotEnclosure(state)],
+        enclosureRedoHistory: [],
+        enclosureValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'enclosure-placement'),
+      }
+    }
+    case 'ROTATE_ENCLOSURE_COMPONENT': {
+      if (!isEnclosurePartId(action.partId)) return state
+      return {
+        ...state,
+        enclosurePlacements: state.enclosurePlacements.map((placement) => placement.partId === action.partId
+          ? { ...placement, rotation: [placement.rotation[0], placement.rotation[1], normalizeRotation(placement.rotation[2] + action.delta)] as const, seated: false }
+          : placement),
+        enclosureUndoHistory: [...state.enclosureUndoHistory, snapshotEnclosure(state)],
+        enclosureRedoHistory: [],
+        enclosureValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'enclosure-placement'),
+      }
+    }
+    case 'SET_MICRO_SD_INSTALLED':
+      return {
+        ...state,
+        microSdInstalled: action.installed,
+        enclosureUndoHistory: [...state.enclosureUndoHistory, snapshotEnclosure(state)],
+        enclosureRedoHistory: [],
+        enclosureValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'enclosure-placement'),
+      }
+    case 'SET_ENCLOSURE_CAMERA':
+      return ENCLOSURE_CAMERA_PRESETS.includes(action.preset) ? { ...state, enclosureCameraPreset: action.preset } : state
+    case 'SET_ENCLOSURE_COMPARISON_MODE':
+      return validEnclosureComparisonMode(action.mode) ? { ...state, enclosureComparisonMode: action.mode } : state
+    case 'TOGGLE_ENCLOSURE_HINT': return { ...state, enclosureHintVisible: !state.enclosureHintVisible }
+    case 'TOGGLE_ENCLOSURE_TARGETS': return { ...state, enclosureTargetsVisible: !state.enclosureTargetsVisible }
+    case 'TOGGLE_ENCLOSURE_CABLES': return { ...state, enclosureCablesVisible: !state.enclosureCablesVisible }
+    case 'TOGGLE_ENCLOSURE_TRANSPARENCY': return { ...state, enclosureTransparentHousing: !state.enclosureTransparentHousing }
+    case 'TOGGLE_ENCLOSURE_WIREFRAME': return { ...state, enclosureWireframeHousing: !state.enclosureWireframeHousing }
+    case 'TOGGLE_ENCLOSURE_ISOLATION': return { ...state, enclosureIsolateSelected: !state.enclosureIsolateSelected }
+    case 'UNDO_ENCLOSURE': {
+      const snapshot = state.enclosureUndoHistory[state.enclosureUndoHistory.length - 1]
+      return snapshot ? applyEnclosureSnapshot(state, snapshot, 'enclosureUndoHistory') : state
+    }
+    case 'REDO_ENCLOSURE': {
+      const snapshot = state.enclosureRedoHistory[state.enclosureRedoHistory.length - 1]
+      return snapshot ? applyEnclosureSnapshot(state, snapshot, 'enclosureRedoHistory') : state
+    }
+    case 'RESET_ENCLOSURE':
+      return {
+        ...state,
+        selectedEnclosureComponentId: null,
+        selectedEnclosureSlotId: null,
+        enclosurePlacements: createInitialEnclosurePlacements(),
+        microSdInstalled: false,
+        enclosureUndoHistory: [...state.enclosureUndoHistory, snapshotEnclosure(state)],
+        enclosureRedoHistory: [],
+        enclosureValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'enclosure-placement'),
+      }
+    case 'CHECK_ENCLOSURE': {
+      const validation = validateEnclosure(state.layoutPlacements, state.step6Connections, state.coinCellInstalled, state.enclosurePlacements, state.microSdInstalled)
+      return {
+        ...state,
+        enclosureValidation: validation.status,
+        completedBuildStepIds: validation.status === 'valid' && !state.completedBuildStepIds.includes('enclosure-placement')
+          ? [...state.completedBuildStepIds, 'enclosure-placement']
+          : state.completedBuildStepIds,
+      }
+    }
     case 'RESET_PROGRESS':
       return { ...INITIAL_LAB_STATE, mode: state.mode, guidance: state.guidance }
     default:
@@ -662,8 +851,33 @@ export function validatePersistedState(value: unknown): LabState | null {
     }
     return validatePersistedState(migrated)
   }
+  // Phase 2D adds only deterministic Step 7 placement state. Preserve the
+  // validated Phase 2C graph and all earlier progress exactly as saved.
+  if (persistedVersion === 4) {
+    const migrated = {
+      ...INITIAL_LAB_STATE,
+      ...candidate,
+      version: 5 as const,
+      selectedEnclosureComponentId: null,
+      selectedEnclosureSlotId: null,
+      enclosurePlacements: createInitialEnclosurePlacements(),
+      microSdInstalled: false,
+      enclosureCameraPreset: 'fit' as const,
+      enclosureComparisonMode: 'workspace' as const,
+      enclosureHintVisible: false,
+      enclosureTargetsVisible: true,
+      enclosureCablesVisible: true,
+      enclosureTransparentHousing: false,
+      enclosureWireframeHousing: false,
+      enclosureIsolateSelected: false,
+      enclosureValidation: 'idle' as const,
+      enclosureUndoHistory: [],
+      enclosureRedoHistory: [],
+    }
+    return validatePersistedState(migrated)
+  }
   if (
-    persistedVersion !== 4 ||
+    persistedVersion !== 5 ||
     (candidate.mode !== 'intro' && candidate.mode !== 'build') ||
     !validStepId(candidate.activeBuildStepId ?? '') ||
     !validPartId(candidate.selectedPartId ?? '') ||
@@ -720,7 +934,27 @@ export function validatePersistedState(value: unknown): LabState | null {
     !Array.isArray(candidate.connectionUndoHistory) ||
     !candidate.connectionUndoHistory.every(validConnectionHistoryEntry) ||
     !Array.isArray(candidate.connectionRedoHistory) ||
-    !candidate.connectionRedoHistory.every(validConnectionHistoryEntry)
+    !candidate.connectionRedoHistory.every(validConnectionHistoryEntry) ||
+    (candidate.selectedEnclosureComponentId !== null && !isEnclosurePartId(candidate.selectedEnclosureComponentId ?? null)) ||
+    !validEnclosureSlotId(candidate.selectedEnclosureSlotId ?? null) ||
+    !Array.isArray(candidate.enclosurePlacements) ||
+    candidate.enclosurePlacements.length !== createInitialEnclosurePlacements().length ||
+    !candidate.enclosurePlacements.every(isValidEnclosurePlacement) ||
+    new Set(candidate.enclosurePlacements.map((placement) => placement.partId)).size !== candidate.enclosurePlacements.length ||
+    typeof candidate.microSdInstalled !== 'boolean' ||
+    !ENCLOSURE_CAMERA_PRESETS.includes(candidate.enclosureCameraPreset ?? 'fit') ||
+    !validEnclosureComparisonMode(candidate.enclosureComparisonMode) ||
+    typeof candidate.enclosureHintVisible !== 'boolean' ||
+    typeof candidate.enclosureTargetsVisible !== 'boolean' ||
+    typeof candidate.enclosureCablesVisible !== 'boolean' ||
+    typeof candidate.enclosureTransparentHousing !== 'boolean' ||
+    typeof candidate.enclosureWireframeHousing !== 'boolean' ||
+    typeof candidate.enclosureIsolateSelected !== 'boolean' ||
+    !['idle', 'connections-incomplete', 'incomplete', 'wrong-slot', 'wrong-orientation', 'not-seated', 'slot-occupied', 'housing-collision', 'cable-stretched', 'micro-sd-missing', 'valid'].includes(candidate.enclosureValidation ?? '') ||
+    !Array.isArray(candidate.enclosureUndoHistory) ||
+    !candidate.enclosureUndoHistory.every(validEnclosureHistoryEntry) ||
+    !Array.isArray(candidate.enclosureRedoHistory) ||
+    !candidate.enclosureRedoHistory.every(validEnclosureHistoryEntry)
   ) {
     return null
   }

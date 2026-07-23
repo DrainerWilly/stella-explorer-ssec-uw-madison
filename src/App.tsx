@@ -26,6 +26,10 @@ const StellaQ2Page = lazy(() =>
   import('./features/stellaQ2/components/StellaQ2Page'),
 )
 
+const Step7Preview = lazy(() =>
+  import('./features/stellaQ2/components/enclosure/Step7Preview'),
+)
+
 export default function App() {
   const [page, setPage] = useState('home')
   const [category, setCategory] = useState('all')
@@ -33,6 +37,12 @@ export default function App() {
 
   // Deep-link from a lesson into a specific animation module.
   const [animationTarget, setAnimationTarget] = useState(null)
+
+  // A deterministic, development-only fixture for screenshot capture. It is
+  // excluded from production navigation and does not touch session progress.
+  if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('stella-step7-preview')) {
+    return <AppShell><Suspense fallback={<div className="min-h-screen bg-[#030916]" />}><Step7Preview /></Suspense></AppShell>
+  }
 
   // Navigation is tracked in browser history so the back/forward buttons
   // (including mouse side buttons, which fire the same popstate event) move

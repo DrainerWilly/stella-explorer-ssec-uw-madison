@@ -95,7 +95,7 @@ export const BUILD_STEPS: BuildStep[] = [
     commonMistake: 'Forcing a board into the wrong slot or twisting a connected cable under a module.',
     sourceIds: ['build-instructions', 'build-photos'],
     photoIds: ['build-three-enclosure'],
-    partIds: ['top-housing', 'triad-spectral-sensor', 'pcf8523-clock', 'oled-display', 'thing-plus-rp2040', 'i2c-button', 'power-switch', 'battery-400'],
+    partIds: ['top-housing', 'triad-spectral-sensor', 'pcf8523-clock', 'oled-display', 'thing-plus-rp2040', 'micro-sd-card', 'i2c-button', 'power-switch', 'battery-400'],
   },
   {
     id: 'retainer-clips',

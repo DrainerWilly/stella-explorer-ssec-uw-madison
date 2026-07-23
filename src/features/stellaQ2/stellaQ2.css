@@ -42,6 +42,18 @@
   outline-offset: 3px;
 }
 
+[data-stella-enclosure-viewport]:fullscreen {
+  display: grid;
+  place-items: stretch;
+  background: #020713;
+}
+
+[data-stella-enclosure-viewport]:fullscreen > * {
+  height: 100vh;
+  width: 100vw;
+  border: 0;
+}
+
 @media (max-width: 639px) {
   .sq2-hero-grid {
     background-size: 40px 40px;

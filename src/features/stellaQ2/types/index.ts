@@ -64,6 +64,33 @@ export type ConnectionValidationStatus =
   | 'coin-face-down'
   | 'valid'
 
+export type EnclosurePartId = Exclude<LayoutPartId, 'cr1220'> | 'micro-sd-card'
+
+export type EnclosureCameraPreset =
+  | 'fit'
+  | 'top'
+  | 'build-three'
+  | 'front'
+  | 'back'
+  | 'left'
+  | 'right'
+  | 'interior'
+
+export type EnclosureComparisonMode = 'workspace' | 'build-three' | 'side-by-side' | 'overlay'
+
+export type EnclosureValidationStatus =
+  | 'idle'
+  | 'connections-incomplete'
+  | 'incomplete'
+  | 'wrong-slot'
+  | 'wrong-orientation'
+  | 'not-seated'
+  | 'slot-occupied'
+  | 'housing-collision'
+  | 'cable-stretched'
+  | 'micro-sd-missing'
+  | 'valid'
+
 export interface CableConnectionState {
   cableId: string
   kind: 'qwiic' | 'power'
@@ -76,6 +103,21 @@ export interface ConnectionHistoryEntry {
   selectedConnectionId: string | null
   selectedConnectionEndpoint: 'a' | 'b' | null
   coinCellInstalled: boolean
+}
+
+export interface EnclosurePlacement {
+  partId: EnclosurePartId
+  slotId: string | null
+  positionMm: readonly [number, number, number]
+  rotation: readonly [number, number, number]
+  seated: boolean
+}
+
+export interface EnclosureHistoryEntry {
+  placements: EnclosurePlacement[]
+  selectedEnclosureComponentId: EnclosurePartId | null
+  selectedEnclosureSlotId: string | null
+  microSdInstalled: boolean
 }
 
 export interface ComponentPlacement {
@@ -214,7 +256,7 @@ export interface ScaffoldingHistoryEntry {
 }
 
 export interface LabState {
-  version: 4
+  version: 5
   mode: LabMode
   guidance: GuidanceLevel
   activeBuildStepId: string
@@ -253,6 +295,21 @@ export interface LabState {
   connectionValidation: ConnectionValidationStatus
   connectionUndoHistory: ConnectionHistoryEntry[]
   connectionRedoHistory: ConnectionHistoryEntry[]
+  selectedEnclosureComponentId: EnclosurePartId | null
+  selectedEnclosureSlotId: string | null
+  enclosurePlacements: EnclosurePlacement[]
+  microSdInstalled: boolean
+  enclosureCameraPreset: EnclosureCameraPreset
+  enclosureComparisonMode: EnclosureComparisonMode
+  enclosureHintVisible: boolean
+  enclosureTargetsVisible: boolean
+  enclosureCablesVisible: boolean
+  enclosureTransparentHousing: boolean
+  enclosureWireframeHousing: boolean
+  enclosureIsolateSelected: boolean
+  enclosureValidation: EnclosureValidationStatus
+  enclosureUndoHistory: EnclosureHistoryEntry[]
+  enclosureRedoHistory: EnclosureHistoryEntry[]
 }
 
 export type LabAction =
@@ -303,4 +360,22 @@ export type LabAction =
   | { type: 'REDO_CONNECTIONS' }
   | { type: 'RESET_CONNECTIONS' }
   | { type: 'CHECK_CONNECTIONS' }
+  | { type: 'SELECT_ENCLOSURE_COMPONENT'; partId: EnclosurePartId | null }
+  | { type: 'SELECT_ENCLOSURE_SLOT'; slotId: string | null }
+  | { type: 'PLACE_ENCLOSURE_COMPONENT'; placement: EnclosurePlacement }
+  | { type: 'REMOVE_ENCLOSURE_COMPONENT'; partId: EnclosurePartId }
+  | { type: 'ROTATE_ENCLOSURE_COMPONENT'; partId: EnclosurePartId; delta: number }
+  | { type: 'SET_MICRO_SD_INSTALLED'; installed: boolean }
+  | { type: 'SET_ENCLOSURE_CAMERA'; preset: EnclosureCameraPreset }
+  | { type: 'SET_ENCLOSURE_COMPARISON_MODE'; mode: EnclosureComparisonMode }
+  | { type: 'TOGGLE_ENCLOSURE_HINT' }
+  | { type: 'TOGGLE_ENCLOSURE_TARGETS' }
+  | { type: 'TOGGLE_ENCLOSURE_CABLES' }
+  | { type: 'TOGGLE_ENCLOSURE_TRANSPARENCY' }
+  | { type: 'TOGGLE_ENCLOSURE_WIREFRAME' }
+  | { type: 'TOGGLE_ENCLOSURE_ISOLATION' }
+  | { type: 'UNDO_ENCLOSURE' }
+  | { type: 'REDO_ENCLOSURE' }
+  | { type: 'RESET_ENCLOSURE' }
+  | { type: 'CHECK_ENCLOSURE' }
   | { type: 'RESET_PROGRESS' }

@@ -14,6 +14,7 @@ import StepNavigator from './StepNavigator'
 const ScaffoldingWorkspace = lazy(() => import('./scaffolding/ScaffoldingWorkspace'))
 const LayoutWorkspace = lazy(() => import('./layout/LayoutWorkspace'))
 const ConnectionsWorkspace = lazy(() => import('./connections/ConnectionsWorkspace'))
+const EnclosureWorkspace = lazy(() => import('./enclosure/EnclosureWorkspace'))
 
 interface BuildWorkspaceProps {
   state: LabState
@@ -29,6 +30,7 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
   const isScaffoldingStep = activeStep.id === 'remove-scaffolding'
   const isLayoutStep = activeStep.id === 'parts-layout'
   const isConnectionsStep = activeStep.id === 'cable-connections'
+  const isEnclosurePlacementStep = activeStep.id === 'enclosure-placement'
   const progressPercent = Math.round(
     (state.completedBuildStepIds.length / BUILD_STEPS.length) * 100,
   )
@@ -56,6 +58,10 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
     if (step?.id === 'parts-layout') {
       dispatch({ type: 'SELECT_LAYOUT_PART', partId: 'thing-plus-rp2040' })
       dispatch({ type: 'SELECT_LAYOUT_TARGET', targetId: 'microcontroller-outline' })
+    }
+    if (step?.id === 'enclosure-placement') {
+      dispatch({ type: 'SELECT_ENCLOSURE_COMPONENT', partId: 'triad-spectral-sensor' })
+      dispatch({ type: 'SELECT_ENCLOSURE_SLOT', slotId: 'triad-optical-bay' })
     }
   }
 
@@ -165,8 +171,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
 
         <section
           className="min-w-0"
-          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : isLayoutStep ? 'Interactive components layout workspace' : isConnectionsStep ? 'Interactive cable connections workspace' : undefined}
-          aria-labelledby={isScaffoldingStep || isLayoutStep || isConnectionsStep ? undefined : 'workspace-reference-title'}
+          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : isLayoutStep ? 'Interactive components layout workspace' : isConnectionsStep ? 'Interactive cable connections workspace' : isEnclosurePlacementStep ? 'Interactive enclosure placement workspace' : undefined}
+          aria-labelledby={isScaffoldingStep || isLayoutStep || isConnectionsStep || isEnclosurePlacementStep ? undefined : 'workspace-reference-title'}
         >
           {isScaffoldingStep ? (
             <Suspense
@@ -191,6 +197,10 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
           ) : isConnectionsStep ? (
             <Suspense fallback={<div className="sq2-panel min-h-[34rem] rounded-sm p-6 text-sm text-slate-400">Loading the Step 6 cable workspace…</div>}>
               <ConnectionsWorkspace state={state} dispatch={dispatch} />
+            </Suspense>
+          ) : isEnclosurePlacementStep ? (
+            <Suspense fallback={<div className="sq2-panel min-h-[34rem] rounded-sm p-6 text-sm text-slate-400">Loading the Step 7 source-backed enclosure workspace…</div>}>
+              <EnclosureWorkspace state={state} dispatch={dispatch} />
             </Suspense>
           ) : (
             <>
@@ -253,8 +263,10 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                     ? { type: 'CHECK_SCAFFOLDING' }
                     : isLayoutStep
                       ? { type: 'CHECK_LAYOUT' }
-                      : isConnectionsStep
+                    : isConnectionsStep
                         ? { type: 'CHECK_CONNECTIONS' }
+                        : isEnclosurePlacementStep
+                          ? { type: 'CHECK_ENCLOSURE' }
                     : { type: 'COMPLETE_BUILD_STEP', stepId: activeStep.id },
                 )
               }
@@ -268,13 +280,17 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                     ? '✓ Layout validated'
                     : isConnectionsStep
                       ? '✓ Connections validated'
+                      : isEnclosurePlacementStep
+                        ? '✓ Placement validated'
                     : '✓ Marked reviewed'
                 : isScaffoldingStep
                   ? 'Check scaffolding'
                   : isLayoutStep
                     ? 'Check layout'
-                    : isConnectionsStep
-                      ? 'Check connections'
+                  : isConnectionsStep
+                    ? 'Check connections'
+                    : isEnclosurePlacementStep
+                      ? 'Check enclosure placement'
                     : 'Mark step reviewed'}
             </button>
             <button
