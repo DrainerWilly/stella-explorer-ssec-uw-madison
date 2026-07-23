@@ -105,7 +105,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
               isMissionControl
                 ? 'bg-transparent shadow-none'
                 : isLight
-                  ? 'border-b border-black/10 bg-white'
+                  ? 'bg-white'
                   : 'bg-[#050b1f] shadow-[0_18px_44px_rgba(2,6,23,0.22)]'
             }`
           : 'relative z-30 shrink-0 bg-transparent'
