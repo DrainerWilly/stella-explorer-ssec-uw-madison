@@ -26,6 +26,46 @@ export type ScaffoldingValidationStatus =
   | 'nothing-selected'
   | 'already-removed'
 
+export type LayoutPartId =
+  | 'thing-plus-rp2040'
+  | 'i2c-button'
+  | 'pcf8523-clock'
+  | 'cr1220'
+  | 'triad-spectral-sensor'
+  | 'oled-display'
+  | 'battery-400'
+  | 'power-switch'
+
+export type LayoutComparisonMode = 'diagram' | 'build-one' | 'side-by-side' | 'overlay'
+
+export type CoinCellFace = 'positive-up' | 'negative-up'
+
+export type LayoutValidationStatus =
+  | 'idle'
+  | 'incomplete'
+  | 'valid'
+  | 'wrong-part'
+  | 'wrong-orientation'
+  | 'coin-face-down'
+  | 'target-occupied'
+  | 'cables-not-available'
+
+export interface ComponentPlacement {
+  partId: LayoutPartId
+  targetId: string | null
+  x: number
+  y: number
+  rotation: number
+  face: CoinCellFace | null
+  snapped: boolean
+}
+
+export interface LayoutHistoryEntry {
+  placements: ComponentPlacement[]
+  selectedLayoutPartId: LayoutPartId | null
+  selectedLayoutTargetId: string | null
+}
+
 export type SourceKind =
   | 'pdf'
   | 'spreadsheet'
@@ -146,7 +186,7 @@ export interface ScaffoldingHistoryEntry {
 }
 
 export interface LabState {
-  version: 2
+  version: 3
   mode: LabMode
   guidance: GuidanceLevel
   activeBuildStepId: string
@@ -162,6 +202,17 @@ export interface LabState {
   scaffoldValidation: ScaffoldingValidationStatus
   scaffoldUndoHistory: ScaffoldingHistoryEntry[]
   scaffoldRedoHistory: ScaffoldingHistoryEntry[]
+  selectedLayoutPartId: LayoutPartId | null
+  selectedLayoutTargetId: string | null
+  layoutPlacements: ComponentPlacement[]
+  layoutComparisonMode: LayoutComparisonMode
+  layoutZoom: number
+  layoutPan: readonly [number, number]
+  layoutHintVisible: boolean
+  layoutTargetOutlinesVisible: boolean
+  layoutValidation: LayoutValidationStatus
+  layoutUndoHistory: LayoutHistoryEntry[]
+  layoutRedoHistory: LayoutHistoryEntry[]
 }
 
 export type LabAction =
@@ -184,4 +235,18 @@ export type LabAction =
   | { type: 'SET_SCAFFOLD_CAMERA'; preset: ScaffoldCameraPreset }
   | { type: 'TOGGLE_SCAFFOLD_HINT' }
   | { type: 'CHECK_SCAFFOLDING' }
+  | { type: 'SELECT_LAYOUT_PART'; partId: LayoutPartId | null }
+  | { type: 'SELECT_LAYOUT_TARGET'; targetId: string | null }
+  | { type: 'PLACE_LAYOUT_PART'; placement: ComponentPlacement }
+  | { type: 'RETURN_LAYOUT_PART_TO_TRAY'; partId: LayoutPartId }
+  | { type: 'ROTATE_LAYOUT_PART'; partId: LayoutPartId; delta: number }
+  | { type: 'SET_COIN_CELL_FACE'; face: CoinCellFace }
+  | { type: 'SET_LAYOUT_COMPARISON_MODE'; mode: LayoutComparisonMode }
+  | { type: 'SET_LAYOUT_VIEW'; zoom: number; pan: readonly [number, number] }
+  | { type: 'TOGGLE_LAYOUT_HINT' }
+  | { type: 'TOGGLE_LAYOUT_TARGET_OUTLINES' }
+  | { type: 'UNDO_LAYOUT' }
+  | { type: 'REDO_LAYOUT' }
+  | { type: 'RESET_LAYOUT' }
+  | { type: 'CHECK_LAYOUT' }
   | { type: 'RESET_PROGRESS' }

@@ -11,17 +11,28 @@ import {
   scaffoldingIsComplete,
   validationStatusForScaffolding,
 } from '../utils/scaffolding'
+import {
+  isLayoutPartId,
+  isValidNormalizedPlacement,
+  validateLayout,
+} from '../utils/componentLayout'
+import { LAYOUT_TARGET_BY_ID } from '../data/componentLayout'
 import type {
+  ComponentPlacement,
   LabAction,
   LabState,
+  LayoutHistoryEntry,
+  LayoutPartId,
   ScaffoldingEnclosurePartId,
   ScaffoldingHistoryEntry,
 } from '../types'
 
+// Keep the existing key so a completed Phase 2A session is migrated rather
+// than discarded when Phase 2B fields are added.
 export const STELLA_Q2_SESSION_KEY = 'exstella.stella-q2.phase-2a.v1'
 
 export const INITIAL_LAB_STATE: LabState = {
-  version: 2,
+  version: 3,
   mode: 'intro',
   guidance: 'standard',
   activeBuildStepId: BUILD_STEPS[0].id,
@@ -37,6 +48,17 @@ export const INITIAL_LAB_STATE: LabState = {
   scaffoldValidation: 'idle',
   scaffoldUndoHistory: [],
   scaffoldRedoHistory: [],
+  selectedLayoutPartId: null,
+  selectedLayoutTargetId: null,
+  layoutPlacements: [],
+  layoutComparisonMode: 'diagram',
+  layoutZoom: 1,
+  layoutPan: [0, 0],
+  layoutHintVisible: false,
+  layoutTargetOutlinesVisible: true,
+  layoutValidation: 'idle',
+  layoutUndoHistory: [],
+  layoutRedoHistory: [],
 }
 
 function validStepId(stepId: string) {
@@ -76,6 +98,24 @@ function scaffoldTargetIsRemovable(scaffoldId: string) {
   return SCAFFOLD_TARGET_BY_ID.get(scaffoldId)?.kind === 'removable'
 }
 
+function validLayoutTargetId(targetId: string | null) {
+  return targetId === null || LAYOUT_TARGET_BY_ID.has(targetId)
+}
+
+function validLayoutComparisonMode(mode: unknown) {
+  return mode === 'diagram' || mode === 'build-one' || mode === 'side-by-side' || mode === 'overlay'
+}
+
+function validLayoutHistoryEntry(value: unknown): value is LayoutHistoryEntry {
+  if (!value || typeof value !== 'object') return false
+  const entry = value as Partial<LayoutHistoryEntry>
+  return Array.isArray(entry.placements)
+    && entry.placements.every(isValidNormalizedPlacement)
+    && new Set(entry.placements.map((placement) => placement.partId)).size === entry.placements.length
+    && (entry.selectedLayoutPartId === null || isLayoutPartId(entry.selectedLayoutPartId ?? null))
+    && validLayoutTargetId(entry.selectedLayoutTargetId ?? null)
+}
+
 function snapshotScaffolding(state: LabState): ScaffoldingHistoryEntry {
   return {
     removedScaffoldIds: [...state.removedScaffoldIds],
@@ -108,6 +148,42 @@ function applyScaffoldingSnapshot(
       ? updated.completedBuildStepIds
       : updated.completedBuildStepIds.filter((id) => id !== 'remove-scaffolding'),
   }
+}
+
+function snapshotLayout(state: LabState): LayoutHistoryEntry {
+  return {
+    placements: state.layoutPlacements.map((placement) => ({ ...placement })),
+    selectedLayoutPartId: state.selectedLayoutPartId,
+    selectedLayoutTargetId: state.selectedLayoutTargetId,
+  }
+}
+
+function applyLayoutSnapshot(
+  state: LabState,
+  snapshot: LayoutHistoryEntry,
+  historyKey: 'layoutUndoHistory' | 'layoutRedoHistory',
+): LabState {
+  const otherHistoryKey = historyKey === 'layoutUndoHistory' ? 'layoutRedoHistory' : 'layoutUndoHistory'
+  const updated = {
+    ...state,
+    layoutPlacements: snapshot.placements.map((placement) => ({ ...placement })),
+    selectedLayoutPartId: snapshot.selectedLayoutPartId,
+    selectedLayoutTargetId: snapshot.selectedLayoutTargetId,
+    [historyKey]: state[historyKey].slice(0, -1),
+    [otherHistoryKey]: [...state[otherHistoryKey], snapshotLayout(state)],
+  } as LabState
+  const result = validateLayout(updated.layoutPlacements)
+  return {
+    ...updated,
+    layoutValidation: result.status === 'valid' ? 'idle' : result.status,
+    completedBuildStepIds: result.status === 'valid'
+      ? updated.completedBuildStepIds
+      : updated.completedBuildStepIds.filter((id) => id !== 'parts-layout'),
+  }
+}
+
+function normalizeRotation(rotation: number) {
+  return ((rotation % 360) + 360) % 360
 }
 
 function adjacentStepId(activeId: string, delta: -1 | 1) {
@@ -235,6 +311,120 @@ export function labReducer(state: LabState, action: LabAction): LabState {
           : state.completedBuildStepIds,
       }
     }
+    case 'SELECT_LAYOUT_PART':
+      return action.partId === null || isLayoutPartId(action.partId)
+        ? { ...state, selectedLayoutPartId: action.partId, layoutValidation: 'idle' }
+        : state
+    case 'SELECT_LAYOUT_TARGET':
+      return validLayoutTargetId(action.targetId)
+        ? { ...state, selectedLayoutTargetId: action.targetId, layoutValidation: 'idle' }
+        : state
+    case 'PLACE_LAYOUT_PART': {
+      const placement = action.placement
+      if (!isValidNormalizedPlacement(placement)) return state
+      const nextPlacement: ComponentPlacement = {
+        ...placement,
+        rotation: normalizeRotation(placement.rotation),
+      }
+      const nextPlacements = [
+        ...state.layoutPlacements.filter((item) => item.partId !== nextPlacement.partId),
+        nextPlacement,
+      ]
+      return {
+        ...state,
+        layoutPlacements: nextPlacements,
+        selectedLayoutPartId: nextPlacement.partId,
+        selectedLayoutTargetId: nextPlacement.targetId,
+        layoutUndoHistory: [...state.layoutUndoHistory, snapshotLayout(state)],
+        layoutRedoHistory: [],
+        layoutValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'parts-layout'),
+      }
+    }
+    case 'RETURN_LAYOUT_PART_TO_TRAY': {
+      if (!isLayoutPartId(action.partId) || !state.layoutPlacements.some((item) => item.partId === action.partId)) return state
+      return {
+        ...state,
+        layoutPlacements: state.layoutPlacements.filter((item) => item.partId !== action.partId),
+        selectedLayoutPartId: action.partId,
+        selectedLayoutTargetId: null,
+        layoutUndoHistory: [...state.layoutUndoHistory, snapshotLayout(state)],
+        layoutRedoHistory: [],
+        layoutValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'parts-layout'),
+      }
+    }
+    case 'ROTATE_LAYOUT_PART': {
+      if (!isLayoutPartId(action.partId)) return state
+      const placement = state.layoutPlacements.find((item) => item.partId === action.partId)
+      if (!placement) return state
+      return {
+        ...state,
+        layoutPlacements: state.layoutPlacements.map((item) => item.partId === action.partId
+          ? { ...item, rotation: normalizeRotation(item.rotation + action.delta) }
+          : item),
+        layoutUndoHistory: [...state.layoutUndoHistory, snapshotLayout(state)],
+        layoutRedoHistory: [],
+        layoutValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'parts-layout'),
+      }
+    }
+    case 'SET_COIN_CELL_FACE': {
+      const coin = state.layoutPlacements.find((item) => item.partId === 'cr1220')
+      if (!coin) return state
+      return {
+        ...state,
+        layoutPlacements: state.layoutPlacements.map((item) => item.partId === 'cr1220' ? { ...item, face: action.face } : item),
+        layoutUndoHistory: [...state.layoutUndoHistory, snapshotLayout(state)],
+        layoutRedoHistory: [],
+        layoutValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'parts-layout'),
+      }
+    }
+    case 'SET_LAYOUT_COMPARISON_MODE':
+      return validLayoutComparisonMode(action.mode) ? { ...state, layoutComparisonMode: action.mode } : state
+    case 'SET_LAYOUT_VIEW':
+      return {
+        ...state,
+        layoutZoom: Math.min(2.4, Math.max(0.7, action.zoom)),
+        layoutPan: [
+          Math.min(220, Math.max(-220, action.pan[0])),
+          Math.min(220, Math.max(-220, action.pan[1])),
+        ],
+      }
+    case 'TOGGLE_LAYOUT_HINT':
+      return { ...state, layoutHintVisible: !state.layoutHintVisible }
+    case 'TOGGLE_LAYOUT_TARGET_OUTLINES':
+      return { ...state, layoutTargetOutlinesVisible: !state.layoutTargetOutlinesVisible }
+    case 'UNDO_LAYOUT': {
+      const snapshot = state.layoutUndoHistory[state.layoutUndoHistory.length - 1]
+      return snapshot ? applyLayoutSnapshot(state, snapshot, 'layoutUndoHistory') : state
+    }
+    case 'REDO_LAYOUT': {
+      const snapshot = state.layoutRedoHistory[state.layoutRedoHistory.length - 1]
+      return snapshot ? applyLayoutSnapshot(state, snapshot, 'layoutRedoHistory') : state
+    }
+    case 'RESET_LAYOUT':
+      return {
+        ...state,
+        layoutPlacements: [],
+        selectedLayoutPartId: null,
+        selectedLayoutTargetId: null,
+        layoutUndoHistory: [...state.layoutUndoHistory, snapshotLayout(state)],
+        layoutRedoHistory: [],
+        layoutValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'parts-layout'),
+      }
+    case 'CHECK_LAYOUT': {
+      const result = validateLayout(state.layoutPlacements)
+      return {
+        ...state,
+        layoutValidation: result.status,
+        completedBuildStepIds: result.status === 'valid' && !state.completedBuildStepIds.includes('parts-layout')
+          ? [...state.completedBuildStepIds, 'parts-layout']
+          : state.completedBuildStepIds,
+      }
+    }
     case 'RESET_PROGRESS':
       return { ...INITIAL_LAB_STATE, mode: state.mode, guidance: state.guidance }
     default:
@@ -246,8 +436,30 @@ export function validatePersistedState(value: unknown): LabState | null {
   if (!value || typeof value !== 'object') return null
 
   const candidate = value as Partial<LabState>
+  const persistedVersion = (value as { version?: unknown }).version
+  // Preserve completed Phase 2A work from the immediately preceding state
+  // schema while adding empty, deterministic Phase 2B layout state.
+  if (persistedVersion === 2) {
+    const migrated = {
+      ...INITIAL_LAB_STATE,
+      ...candidate,
+      version: 3 as const,
+      selectedLayoutPartId: null,
+      selectedLayoutTargetId: null,
+      layoutPlacements: [],
+      layoutComparisonMode: 'diagram' as const,
+      layoutZoom: 1,
+      layoutPan: [0, 0] as const,
+      layoutHintVisible: false,
+      layoutTargetOutlinesVisible: true,
+      layoutValidation: 'idle' as const,
+      layoutUndoHistory: [],
+      layoutRedoHistory: [],
+    }
+    return validatePersistedState(migrated)
+  }
   if (
-    candidate.version !== 2 ||
+    candidate.version !== 3 ||
     (candidate.mode !== 'intro' && candidate.mode !== 'build') ||
     !validStepId(candidate.activeBuildStepId ?? '') ||
     !validPartId(candidate.selectedPartId ?? '') ||
@@ -270,7 +482,24 @@ export function validatePersistedState(value: unknown): LabState | null {
     !Array.isArray(candidate.scaffoldUndoHistory) ||
     !candidate.scaffoldUndoHistory.every(validHistoryEntry) ||
     !Array.isArray(candidate.scaffoldRedoHistory) ||
-    !candidate.scaffoldRedoHistory.every(validHistoryEntry)
+    !candidate.scaffoldRedoHistory.every(validHistoryEntry) ||
+    (candidate.selectedLayoutPartId !== null && !isLayoutPartId(candidate.selectedLayoutPartId ?? null)) ||
+    !validLayoutTargetId(candidate.selectedLayoutTargetId ?? null) ||
+    !Array.isArray(candidate.layoutPlacements) ||
+    !candidate.layoutPlacements.every(isValidNormalizedPlacement) ||
+    new Set(candidate.layoutPlacements.map((placement) => placement.partId)).size !== candidate.layoutPlacements.length ||
+    !validLayoutComparisonMode(candidate.layoutComparisonMode) ||
+    typeof candidate.layoutZoom !== 'number' ||
+    !Array.isArray(candidate.layoutPan) ||
+    candidate.layoutPan.length !== 2 ||
+    !candidate.layoutPan.every((coordinate) => typeof coordinate === 'number' && Number.isFinite(coordinate)) ||
+    typeof candidate.layoutHintVisible !== 'boolean' ||
+    typeof candidate.layoutTargetOutlinesVisible !== 'boolean' ||
+    !['idle', 'incomplete', 'valid', 'wrong-part', 'wrong-orientation', 'coin-face-down', 'target-occupied', 'cables-not-available'].includes(candidate.layoutValidation ?? '') ||
+    !Array.isArray(candidate.layoutUndoHistory) ||
+    !candidate.layoutUndoHistory.every(validLayoutHistoryEntry) ||
+    !Array.isArray(candidate.layoutRedoHistory) ||
+    !candidate.layoutRedoHistory.every(validLayoutHistoryEntry)
   ) {
     return null
   }

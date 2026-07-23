@@ -12,6 +12,7 @@ import StepInstruction from './StepInstruction'
 import StepNavigator from './StepNavigator'
 
 const ScaffoldingWorkspace = lazy(() => import('./scaffolding/ScaffoldingWorkspace'))
+const LayoutWorkspace = lazy(() => import('./layout/LayoutWorkspace'))
 
 interface BuildWorkspaceProps {
   state: LabState
@@ -25,6 +26,7 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
   const selectedPart = PART_BY_ID.get(state.selectedPartId) ?? PARTS_LIST[0]
   const activeIndex = BUILD_STEPS.findIndex((step) => step.id === activeStep.id)
   const isScaffoldingStep = activeStep.id === 'remove-scaffolding'
+  const isLayoutStep = activeStep.id === 'parts-layout'
   const progressPercent = Math.round(
     (state.completedBuildStepIds.length / BUILD_STEPS.length) * 100,
   )
@@ -48,6 +50,10 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
     }
     if (step?.id === 'remove-scaffolding') {
       dispatch({ type: 'SELECT_SCAFFOLDING_PART', partId: 'top-housing' })
+    }
+    if (step?.id === 'parts-layout') {
+      dispatch({ type: 'SELECT_LAYOUT_PART', partId: 'thing-plus-rp2040' })
+      dispatch({ type: 'SELECT_LAYOUT_TARGET', targetId: 'microcontroller-outline' })
     }
   }
 
@@ -83,14 +89,14 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
               <span aria-hidden="true">←</span> Lab overview
             </button>
             <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-300">
-              STELLA-Q2 · Phase 2A interactive scaffolding
+              STELLA-Q2 · interactive build workspace
             </p>
             <h1 className="mt-2 text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
               Physical build workspace
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
               Follow the official 12-step construction sequence. Step 4 provides a
-              source-backed 3D scaffolding-removal simulation with photo evidence.
+              source-backed simulations and guided layout activities with official photo evidence.
             </p>
           </div>
 
@@ -157,8 +163,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
 
         <section
           className="min-w-0"
-          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : undefined}
-          aria-labelledby={isScaffoldingStep ? undefined : 'workspace-reference-title'}
+          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : isLayoutStep ? 'Interactive components layout workspace' : undefined}
+          aria-labelledby={isScaffoldingStep || isLayoutStep ? undefined : 'workspace-reference-title'}
         >
           {isScaffoldingStep ? (
             <Suspense
@@ -169,6 +175,16 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
               }
             >
               <ScaffoldingWorkspace state={state} dispatch={dispatch} />
+            </Suspense>
+          ) : isLayoutStep ? (
+            <Suspense
+              fallback={
+                <div className="sq2-panel min-h-[34rem] rounded-sm p-6 text-sm text-slate-400">
+                  Loading the Step 5 component layout…
+                </div>
+              }
+            >
+              <LayoutWorkspace state={state} dispatch={dispatch} />
             </Suspense>
           ) : (
             <>
@@ -229,6 +245,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                 dispatch(
                   isScaffoldingStep
                     ? { type: 'CHECK_SCAFFOLDING' }
+                    : isLayoutStep
+                      ? { type: 'CHECK_LAYOUT' }
                     : { type: 'COMPLETE_BUILD_STEP', stepId: activeStep.id },
                 )
               }
@@ -238,10 +256,14 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
               {state.completedBuildStepIds.includes(activeStep.id)
                 ? isScaffoldingStep
                   ? '✓ Scaffolding validated'
-                  : '✓ Marked reviewed'
+                  : isLayoutStep
+                    ? '✓ Layout validated'
+                    : '✓ Marked reviewed'
                 : isScaffoldingStep
                   ? 'Check scaffolding'
-                  : 'Mark step reviewed'}
+                  : isLayoutStep
+                    ? 'Check layout'
+                    : 'Mark step reviewed'}
             </button>
             <button
               type="button"
