@@ -16,7 +16,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
   const lastElementScroll = useRef(new WeakMap())
   // Lessons keeps its editorial masthead visible while its own grid scrolls;
   // other long-form pages retain the hide-on-scroll behavior.
-  const shouldAutoHide = active !== 'home' && active !== 'mission-control' && active !== 'lessons' && active !== 'animations'
+  const shouldAutoHide = active !== 'home' && active !== 'mission-control' && active !== 'lessons' && active !== 'animations' && active !== 'games'
 
   // Close on Escape and lock body scroll while the drawer is open.
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
       const next = readWindowScroll()
       const previous = lastWindowScroll.current
       const delta = next - previous
-      if (active === 'animations') setScrolled(next > 16)
+      if (active === 'animations' || active === 'games') setScrolled(next > 16)
       if (Math.abs(delta) < threshold) return
       if (shouldAutoHide) setHidden(delta > 0 && next > 36)
       lastWindowScroll.current = next
@@ -57,7 +57,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
       if (typeof target.scrollTop !== 'number') return
 
       const next = target.scrollTop
-      if (active === 'animations') setScrolled(next > 16)
+      if (active === 'animations' || active === 'games') setScrolled(next > 16)
       if (!lastElementScroll.current.has(target)) {
         lastElementScroll.current.set(target, next)
         return
@@ -74,8 +74,8 @@ export default function Masthead({ active = 'home', onNavigate }) {
     window.addEventListener('scroll', handleWindowScroll, { passive: true })
     document.addEventListener('scroll', handleElementScroll, true)
 
-    if (active === 'animations') {
-      const gallery = document.querySelector('main.cm-animations')
+    if (active === 'animations' || active === 'games') {
+      const gallery = document.querySelector('main.cm-animations, main.cm-games')
       if (gallery) setScrolled(gallery.scrollTop > 16)
     }
 
@@ -101,7 +101,9 @@ export default function Masthead({ active = 'home', onNavigate }) {
   const linkColor = isLight ? 'text-[#333] hover:text-black' : 'text-white/85 hover:text-white'
   const autoHidden = shouldAutoHide && hidden && !menuOpen
   const isMissionControl = active === 'mission-control'
-  const isAnimations = active === 'animations'
+  // Animations and Games share the same full-bleed hero + gallery treatment:
+  // a transparent masthead over the hero that turns solid black on scroll.
+  const isAnimations = active === 'animations' || active === 'games'
   const isFixedOverlay = isMissionControl || isAnimations
 
   return (

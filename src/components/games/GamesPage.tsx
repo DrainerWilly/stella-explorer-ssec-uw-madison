@@ -1,10 +1,5 @@
 // @ts-nocheck
-import { useMemo, useState } from 'react'
-import '@fontsource/baloo-2/600.css'
-import '@fontsource/baloo-2/700.css'
-import '@fontsource/baloo-2/800.css'
-import Icon from '../Icon'
-import GameCard from './GameCard'
+import { useState } from 'react'
 import SpectralDetective from './SpectralDetective'
 import OrbitArchitect from './OrbitArchitect'
 import SignalSort from './SignalSort'
@@ -13,9 +8,7 @@ import PixelDetective from './PixelDetective'
 import FalseColorPainter from './FalseColorPainter'
 import WindowWatchers from './WindowWatchers'
 import SatelliteMatch from './SatelliteMatch'
-import { Starfield, DoodlePlanet, DoodleTelescope, DoodleRocket, DoodleEarth } from './doodles'
-import { GAMES, GAME_ACCENT, getGame } from '../../data/games'
-import { loadProgress, patchCount } from '../../utils/gameProgress'
+import { GAMES, getGame } from '../../data/games'
 
 // id → game component
 const REGISTRY = {
@@ -29,151 +22,109 @@ const REGISTRY = {
   'ndvi-ranger': NdviRanger,
 }
 
-const FILTERS = [
-  { id: 'all', label: 'All games', icon: 'games' },
-  { id: 'easy', label: 'Quick & easy', icon: 'star' },
-  { id: 'brainy', label: 'Brainy', icon: 'rocket' },
-]
+const IOSEVKA =
+  "'Iosevka', 'Iosevka Nerd Font', 'Iosevka Fixed', 'Roboto Mono', 'SFMono-Regular', Consolas, monospace"
 
-// The collected-patches strip: one slot per game, filled once the player earns
-// at least one star in it.
-function StickerBook({ progress }) {
-  const collected = patchCount(progress, GAMES.map((g) => g.id))
+// Per-game gallery imagery — public-domain NASA / USGS stills, matched to each
+// game's remote-sensing topic.
+const GAME_IMAGES = {
+  'pixel-detective': {
+    image: 'landsat/natural-color.jpg',
+    alt: 'USGS/NASA Landsat natural-color satellite image of a coastal landscape',
+  },
+  'false-color-painter': {
+    image: 'landsat/false-color.jpg',
+    alt: 'USGS/NASA Landsat false-color infrared image with vegetation shown in red',
+  },
+  'window-watchers': {
+    image: 'assets/animations/nasa/atmospheric-windows.png',
+    alt: 'NASA Earth Observatory graph of atmospheric transmission windows by wavelength',
+  },
+  'satellite-match': {
+    image: 'assets/animations/nasa/tdrs-fleet.jpg',
+    alt: 'NASA Scientific Visualization Studio rendering of the Tracking and Data Relay Satellite fleet',
+  },
+  'spectral-detective': {
+    image: 'assets/animations/nasa/spectral-signature.jpg',
+    alt: 'NASA visualization pairing hyperspectral Earth imagery with measured spectral signatures',
+  },
+  'orbit-architect': {
+    image: 'assets/animations/nasa/landsat-orbit.png',
+    alt: 'NASA Scientific Visualization Studio rendering of the Landsat orbit and observation swath',
+  },
+  'signal-sort': {
+    image: 'assets/animations/nasa/electromagnetic-spectrum.jpg',
+    alt: 'NASA Goddard Conceptual Image Lab visualization of the electromagnetic spectrum',
+  },
+  'ndvi-ranger': {
+    image: 'assets/home/nasa-crop-circles.jpg',
+    alt: 'NASA Earth Observatory image of center-pivot irrigation crop fields',
+  },
+}
+
+function GameGalleryCard({ card, index, onOpen }) {
   return (
-    <div className="relative rounded-2xl border-2 border-dashed border-white/15 bg-white/[0.04] px-4 py-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <Icon name="trophy" className="h-5 w-5 text-amber-300" />
-          <span className="font-game text-sm font-bold text-white">
-            Mission patches: {collected} / {GAMES.length}
-          </span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {GAMES.map((g) => {
-            const stars = progress[g.id]?.stars ?? 0
-            const accent = GAME_ACCENT[g.color]
-            const earned = stars > 0
-            return (
-              <span
-                key={g.id}
-                title={earned ? `${g.title}: ${stars} star${stars > 1 ? 's' : ''}` : `${g.title}: not earned yet`}
-                className={`relative grid h-9 w-9 place-items-center rounded-full border-2 transition-transform hover:scale-110 ${
-                  earned ? 'border-transparent' : 'border-dashed border-white/20 opacity-50'
-                }`}
-                style={earned ? { backgroundColor: `${accent}30`, borderColor: `${accent}80` } : undefined}
-              >
-                <Icon name={g.icon} className="h-4 w-4" style={{ color: earned ? accent : 'rgb(255 255 255 / 0.35)' }} />
-                {stars > 0 && (
-                  <span
-                    className="absolute -bottom-1 -right-1 grid h-4 w-4 place-items-center rounded-full text-[8px] font-black text-[#1a1500]"
-                    style={{ backgroundColor: '#ffd97a' }}
-                  >
-                    {stars}
-                  </span>
-                )}
-              </span>
-            )
-          })}
-        </div>
-      </div>
-      <p className="mt-1.5 text-[11px] text-white/40">
-        Finish a game to earn its patch. Score 90% or better for all three stars!
-      </p>
-    </div>
+    <button
+      type="button"
+      onClick={() => onOpen(card.id)}
+      className="group relative min-h-[220px] overflow-hidden bg-black text-left outline-none sm:min-h-[260px] lg:min-h-[310px]"
+      aria-label={`Play ${card.title}`}
+    >
+      <img
+        src={card.image}
+        alt={card.alt}
+        loading={index < 3 ? 'eager' : 'lazy'}
+        className="absolute inset-0 h-full w-full object-cover opacity-90 transition duration-500 group-hover:scale-[1.035] group-hover:opacity-100"
+      />
+      <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/25 transition duration-500 group-hover:from-black/65" />
+      <span className="absolute inset-x-0 bottom-0 flex min-h-[86px] items-end p-5 sm:p-6">
+        <span
+          className="text-[1.35rem] font-medium leading-tight text-white drop-shadow-[0_2px_10px_rgb(0_0_0_/_0.8)] sm:text-[1.55rem]"
+          style={{ fontFamily: IOSEVKA }}
+        >
+          {card.title}
+        </span>
+      </span>
+    </button>
   )
 }
 
 export default function GamesPage() {
   const [selectedId, setSelectedId] = useState(null)
-  const [filter, setFilter] = useState('all')
-  // Re-read progress whenever we return from a game (selectedId → null).
-  const progress = useMemo(() => loadProgress(), [selectedId])
 
   const game = selectedId ? getGame(selectedId) : null
   const GameComponent = selectedId ? REGISTRY[selectedId] : null
 
+  // Playing a game is a full-screen takeover (GameShell owns the layout).
   if (game && GameComponent) {
     return <GameComponent game={game} onExit={() => setSelectedId(null)} />
   }
 
-  const shown = GAMES.filter((g) => {
-    if (filter === 'easy') return g.difficulty === 'Easy'
-    if (filter === 'brainy') return g.difficulty !== 'Easy'
-    return true
-  })
+  const cards = GAMES.map((g) => ({ id: g.id, title: g.title, ...GAME_IMAGES[g.id] }))
 
   return (
-    <main className="order-1 relative flex-1 overflow-x-hidden overflow-y-auto scroll-soft bg-[#070d24] lg:order-2">
-      <Starfield />
-
-      {/* floating doodles around the header */}
-      <div aria-hidden="true" className="pointer-events-none absolute left-[3%] top-24 hidden md:block" style={{ '--tilt': '-8deg' }}>
-        <div className="g-float"><DoodlePlanet className="h-20 w-20" /></div>
-      </div>
-      <div aria-hidden="true" className="pointer-events-none absolute right-[5%] top-14 hidden md:block" style={{ '--tilt': '6deg' }}>
-        <div className="g-float" style={{ animationDelay: '1.2s' }}><DoodleRocket className="h-20 w-20" /></div>
-      </div>
-      <div aria-hidden="true" className="pointer-events-none absolute right-[16%] top-52 hidden lg:block" style={{ '--tilt': '-4deg' }}>
-        <div className="g-float" style={{ animationDelay: '2.4s' }}><DoodleTelescope className="h-16 w-16" /></div>
-      </div>
-
-      <div className="relative px-5 py-8 sm:px-8 lg:px-10">
-        {/* ---------- header ---------- */}
-        <header className="mx-auto max-w-3xl text-center">
-          <div className="mx-auto flex items-center justify-center gap-3">
-            <div className="g-wobble"><DoodleEarth className="h-14 w-14 sm:h-16 sm:w-16" /></div>
-            <h1 className="font-game text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-              Space{' '}
-              <span className="bg-gradient-to-r from-amber-300 via-rose-300 to-sky-300 bg-clip-text text-transparent">
-                Arcade
-              </span>
+    <main className="cm-games order-1 relative flex-1 overflow-x-hidden overflow-y-auto scroll-soft bg-black lg:order-2">
+      <div className="relative min-h-full bg-black">
+        <header className="relative h-[35vh] min-h-[240px] max-h-[380px] overflow-hidden border-b border-black bg-black">
+          <img
+            src="assets/media/landsat-in-orbit.jpg"
+            alt="Rendered view of a Landsat satellite in orbit above Earth"
+            className="absolute inset-0 h-full w-full object-cover opacity-55"
+          />
+          <div className="absolute inset-0 bg-black/55" />
+          <div className="relative flex h-full items-center px-7 pt-4 sm:px-12 lg:px-24">
+            <h1
+              className="text-5xl font-semibold leading-none text-white sm:text-6xl lg:text-7xl"
+              style={{ fontFamily: IOSEVKA }}
+            >
+              Remote Sensing Games
             </h1>
           </div>
-
-          {/* crayon underline squiggle */}
-          <svg viewBox="0 0 260 14" className="mx-auto mt-1 h-3.5 w-56" fill="none" aria-hidden="true">
-            <path
-              d="M6 9C40 3 80 11 120 7s80-6 134-1"
-              stroke="#ffd97a"
-              strokeWidth="4"
-              strokeLinecap="round"
-            />
-          </svg>
-
-          <p className="mx-auto mt-3 max-w-xl font-game text-[15px] leading-relaxed text-sky-100/80 sm:text-base">
-            Play like a NASA scientist! Read light fingerprints, paint with invisible colors, and
-            see Earth the way satellites do. Every game earns you a mission patch.
-          </p>
         </header>
 
-        {/* ---------- sticker book ---------- */}
-        <div className="mx-auto mt-6 max-w-3xl">
-          <StickerBook progress={progress} />
-        </div>
-
-        {/* ---------- filters ---------- */}
-        <div className="mx-auto mt-6 flex max-w-3xl flex-wrap justify-center gap-2">
-          {FILTERS.map((f) => (
-            <button
-              key={f.id}
-              onClick={() => setFilter(f.id)}
-              aria-pressed={filter === f.id}
-              className={`inline-flex items-center gap-1.5 rounded-full border-2 px-4 py-2 font-game text-sm font-bold transition-all ${
-                filter === f.id
-                  ? 'border-amber-300/70 bg-amber-300/15 text-amber-200'
-                  : 'border-white/10 bg-white/[0.04] text-white/60 hover:border-white/25 hover:text-white'
-              }`}
-            >
-              <Icon name={f.icon} className="h-4 w-4" />
-              {f.label}
-            </button>
-          ))}
-        </div>
-
-        {/* ---------- game cards ---------- */}
-        <div className="mx-auto mt-7 grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-          {shown.map((g, i) => (
-            <GameCard key={g.id} game={g} index={i} record={progress[g.id]} onPlay={setSelectedId} />
+        <div className="grid grid-cols-1 gap-2.5 bg-black px-2.5 pb-2.5 pt-1 sm:grid-cols-2 lg:grid-cols-3">
+          {cards.map((card, i) => (
+            <GameGalleryCard key={card.id} card={card} index={i} onOpen={setSelectedId} />
           ))}
         </div>
       </div>

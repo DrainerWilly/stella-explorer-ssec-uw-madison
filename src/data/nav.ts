@@ -42,7 +42,7 @@ export const NAV = [
   {
     id: 'games',
     icon: 'games',
-    label: 'Space Arcade',
+    label: 'Remote Sensing Games',
     image: 'assets/home/nasa-crop-circles.jpg',
     imageAlt: 'Aerial view of center-pivot agricultural fields used in NASA Landsat education materials',
     accent: '#4ec41b',

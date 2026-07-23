@@ -192,9 +192,11 @@ html { scroll-behavior: smooth; }
   background: #ffffff;
 }
 
-/* The animations gallery uses a transparent masthead over its hero image;
-   keep the gallery flush with the viewport so the hero sits beneath it. */
-.cm-floating-nav-content > main.cm-animations::before {
+/* The animations and games galleries use a transparent masthead over their
+   hero image; keep the gallery flush with the viewport so the hero sits
+   beneath it. */
+.cm-floating-nav-content > main.cm-animations::before,
+.cm-floating-nav-content > main.cm-games::before {
   height: 0;
 }
 
