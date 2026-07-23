@@ -17,8 +17,8 @@ export const LABEL = 'text-[10px] font-bold uppercase tracking-[0.18em] text-whi
 
 // square icon button
 export const GHOST_BTN =
-  'grid h-9 w-9 place-items-center rounded-lg border border-white/10 bg-white/5 text-white/70 transition-colors hover:bg-white/10 hover:text-white'
+  'mc-liquid-glass grid h-9 w-9 place-items-center rounded-lg text-white/70 transition-colors hover:text-white'
 
 // small text chip
 export const CHIP =
-  'inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[11px] font-bold text-white/70'
+  'mc-liquid-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold text-white/70'

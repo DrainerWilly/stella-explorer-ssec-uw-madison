@@ -34,6 +34,10 @@ const Step9Preview = lazy(() =>
   import('./features/stellaQ2/components/routing/Step9Preview'),
 )
 
+const Step10Preview = lazy(() =>
+  import('./features/stellaQ2/components/cover/Step10Preview'),
+)
+
 export default function App() {
   const [page, setPage] = useState('home')
   const [category, setCategory] = useState('all')
@@ -49,6 +53,9 @@ export default function App() {
   }
   if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('stella-step9-preview')) {
     return <AppShell><Suspense fallback={<div className="min-h-screen bg-[#030916]" />}><Step9Preview /></Suspense></AppShell>
+  }
+  if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('stella-step10-preview')) {
+    return <AppShell><Suspense fallback={<div className="min-h-screen bg-[#030916]" />}><Step10Preview /></Suspense></AppShell>
   }
 
   // Navigation is tracked in browser history so the back/forward buttons

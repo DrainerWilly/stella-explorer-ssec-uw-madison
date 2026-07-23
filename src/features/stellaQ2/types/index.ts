@@ -103,6 +103,34 @@ export type CableRouteStatus = 'loose' | 'editing' | 'routed'
 export type CableRouteValidationStatus = 'idle' | 'valid' | 'missing-route' | 'endpoint-changed' | 'too-long' | 'too-taut' | 'housing-collision' | 'component-collision' | 'retainer-collision' | 'cover-contact' | 'latch-collision' | 'cable-pinched' | 'outside-corridor'
 export type RoutingValidationStatus = 'idle' | 'retainers-incomplete' | 'incomplete' | 'endpoint-changed' | 'too-long' | 'too-taut' | 'housing-collision' | 'component-collision' | 'retainer-collision' | 'cover-contact' | 'latch-collision' | 'cable-pinched' | 'outside-corridor' | 'valid'
 
+export type CoverLatchId = 'front-left-latch' | 'front-right-latch' | 'rear-left-latch' | 'rear-right-latch'
+export type CoverLatchState = 'disengaged' | 'aligned' | 'engaging' | 'engaged'
+export type CoverInstallationState = 'staged' | 'aligned' | 'partiallySeated' | 'fullySeated' | 'latched'
+export type CoverAlignmentStatus = 'idle' | 'reversed' | 'wrong-rotation' | 'offset' | 'aligned'
+export type CoverValidationStatus = 'idle' | 'step9-incomplete' | 'reversed' | 'wrong-rotation' | 'not-aligned' | 'clearance-failed' | 'partially-seated' | 'not-seated' | 'latches-open' | 'valid'
+export type CoverCameraPreset = 'fit' | 'cover' | 'top' | 'bottom' | 'front' | 'rear' | 'left' | 'right' | 'front-latches' | 'rear-latches' | 'interior'
+export type CoverComparisonMode = 'workspace' | 'build-four' | 'side-by-side' | 'build-four-large' | 'annotated' | 'transparent-comparison'
+
+export interface BottomCoverState {
+  positionMm: readonly [number, number, number]
+  rotation: readonly [number, number, number]
+  state: CoverInstallationState
+  seatingProgress: number
+}
+
+export interface CoverLatchInstallation {
+  latchId: CoverLatchId
+  state: CoverLatchState
+}
+
+export interface CoverHistoryEntry {
+  cover: BottomCoverState
+  latches: CoverLatchInstallation[]
+  selectedLatchId: CoverLatchId | null
+  alignment: CoverAlignmentStatus
+  clearanceIssues: string[]
+}
+
 export interface CableRouteState {
   cableId: string
   endpointA: string | null
@@ -300,7 +328,7 @@ export interface ScaffoldingHistoryEntry {
 }
 
 export interface LabState {
-  version: 7
+  version: 8
   mode: LabMode
   guidance: GuidanceLevel
   activeBuildStepId: string
@@ -385,6 +413,28 @@ export interface LabState {
   routingValidation: RoutingValidationStatus
   routingUndoHistory: RoutingHistoryEntry[]
   routingRedoHistory: RoutingHistoryEntry[]
+  bottomCover: BottomCoverState
+  coverLatches: CoverLatchInstallation[]
+  selectedCoverLatchId: CoverLatchId | null
+  coverAlignment: CoverAlignmentStatus
+  coverClearanceIssues: string[]
+  coverCameraPreset: CoverCameraPreset
+  coverCameraResetCount: number
+  coverComparisonMode: CoverComparisonMode
+  coverHintVisible: boolean
+  coverTransparent: boolean
+  coverWireframe: boolean
+  coverHousingTransparent: boolean
+  coverMatingPerimeterVisible: boolean
+  coverLatchTargetsVisible: boolean
+  coverClearanceRegionsVisible: boolean
+  coverIsolated: boolean
+  coverCableIsolation: boolean
+  coverExplodedView: boolean
+  coverCrossSectionVisible: boolean
+  coverValidation: CoverValidationStatus
+  coverUndoHistory: CoverHistoryEntry[]
+  coverRedoHistory: CoverHistoryEntry[]
 }
 
 export type LabAction =
@@ -496,4 +546,35 @@ export type LabAction =
   | { type: 'REDO_ROUTING' }
   | { type: 'RESET_ROUTING' }
   | { type: 'CHECK_ROUTING' }
+  | { type: 'MOVE_BOTTOM_COVER'; positionMm: readonly [number, number, number] }
+  | { type: 'ROTATE_BOTTOM_COVER'; rotation: readonly [number, number, number] }
+  | { type: 'SET_BOTTOM_COVER_FACE'; face: 'interior-toward-housing' | 'reversed' }
+  | { type: 'ALIGN_BOTTOM_COVER' }
+  | { type: 'PARTIALLY_SEAT_BOTTOM_COVER' }
+  | { type: 'SEAT_BOTTOM_COVER' }
+  | { type: 'RETURN_BOTTOM_COVER_TO_STAGING' }
+  | { type: 'SELECT_COVER_LATCH'; latchId: CoverLatchId | null }
+  | { type: 'ENGAGE_COVER_LATCH'; latchId: CoverLatchId }
+  | { type: 'DISENGAGE_COVER_LATCH'; latchId: CoverLatchId }
+  | { type: 'ENGAGE_ALL_COVER_LATCHES' }
+  | { type: 'REOPEN_BOTTOM_COVER' }
+  | { type: 'CHECK_COVER_CLEARANCE' }
+  | { type: 'SET_COVER_CAMERA'; preset: CoverCameraPreset }
+  | { type: 'RESET_COVER_CAMERA' }
+  | { type: 'SET_COVER_COMPARISON_MODE'; mode: CoverComparisonMode }
+  | { type: 'TOGGLE_COVER_HINT' }
+  | { type: 'TOGGLE_COVER_TRANSPARENCY' }
+  | { type: 'TOGGLE_COVER_WIREFRAME' }
+  | { type: 'TOGGLE_COVER_HOUSING_TRANSPARENCY' }
+  | { type: 'TOGGLE_COVER_MATING_PERIMETER' }
+  | { type: 'TOGGLE_COVER_LATCH_TARGETS' }
+  | { type: 'TOGGLE_COVER_CLEARANCE_REGIONS' }
+  | { type: 'TOGGLE_COVER_ISOLATION' }
+  | { type: 'TOGGLE_COVER_CABLE_ISOLATION' }
+  | { type: 'TOGGLE_COVER_EXPLODED' }
+  | { type: 'TOGGLE_COVER_CROSS_SECTION' }
+  | { type: 'UNDO_COVER_INSTALLATION' }
+  | { type: 'REDO_COVER_INSTALLATION' }
+  | { type: 'RESET_COVER_INSTALLATION' }
+  | { type: 'CHECK_COVER_INSTALLATION' }
   | { type: 'RESET_PROGRESS' }

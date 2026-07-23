@@ -37,6 +37,8 @@ import { RETAINER_CAMERA_PRESETS, RETAINER_BY_ID, RETAINER_TARGET_BY_ID } from '
 import { createInitialRetainerInstallations, isRetainerId, isValidRetainerInstallation, retainerInstallationFor, validateRetainers } from '../utils/retainers'
 import { ROUTING_CAMERA_PRESETS, ROUTING_CORRIDOR_BY_ID } from '../data/routing'
 import { createLooseCableRoutes, isRoutingCableId, isValidCableRouteState, suggestedRouteFor, validateCableRoute, validateRoutingStep } from '../utils/routing'
+import { BOTTOM_COVER_TARGET, COVER_CAMERA_PRESETS, COVER_COMPARISON_MODES, COVER_LATCHES, createInitialBottomCoverState, createInitialCoverLatches } from '../data/coverInstallation'
+import { coverAlignmentStatus, coverHistoryEntry, isCoverLatchId, isValidBottomCoverState, isValidCoverHistoryEntry, isValidCoverLatches, validateBottomCoverInstallation, validateCoverClearance } from '../utils/coverInstallation'
 import type {
   CableConnectionState,
   ComponentPlacement,
@@ -45,6 +47,7 @@ import type {
   EnclosurePartId,
   RetainerHistoryEntry,
   RoutingHistoryEntry,
+  CoverHistoryEntry,
   LabAction,
   LabState,
   LayoutHistoryEntry,
@@ -58,7 +61,7 @@ import type {
 export const STELLA_Q2_SESSION_KEY = 'exstella.stella-q2.phase-2a.v1'
 
 export const INITIAL_LAB_STATE: LabState = {
-  version: 7,
+  version: 8,
   mode: 'intro',
   guidance: 'standard',
   activeBuildStepId: BUILD_STEPS[0].id,
@@ -143,6 +146,28 @@ export const INITIAL_LAB_STATE: LabState = {
   routingValidation: 'idle',
   routingUndoHistory: [],
   routingRedoHistory: [],
+  bottomCover: createInitialBottomCoverState(),
+  coverLatches: createInitialCoverLatches(),
+  selectedCoverLatchId: null,
+  coverAlignment: 'idle',
+  coverClearanceIssues: [],
+  coverCameraPreset: 'fit',
+  coverCameraResetCount: 0,
+  coverComparisonMode: 'workspace',
+  coverHintVisible: false,
+  coverTransparent: false,
+  coverWireframe: false,
+  coverHousingTransparent: false,
+  coverMatingPerimeterVisible: true,
+  coverLatchTargetsVisible: true,
+  coverClearanceRegionsVisible: false,
+  coverIsolated: false,
+  coverCableIsolation: false,
+  coverExplodedView: false,
+  coverCrossSectionVisible: false,
+  coverValidation: 'idle',
+  coverUndoHistory: [],
+  coverRedoHistory: [],
 }
 
 function validStepId(stepId: string) {
@@ -210,6 +235,7 @@ function validRetainerHistoryEntry(value: unknown): value is RetainerHistoryEntr
     && Array.isArray(entry.cableBlockedRetainerIds) && entry.cableBlockedRetainerIds.every((id) => isRetainerId(id))
 }
 function validRoutingComparisonMode(mode: unknown) { return mode === 'workspace' || mode === 'build-three' || mode === 'build-four' || mode === 'photos-side-by-side' || mode === 'workspace-build-four' || mode === 'build-four-large' || mode === 'annotated' }
+function validCoverComparisonMode(mode: unknown) { return COVER_COMPARISON_MODES.includes(mode as typeof COVER_COMPARISON_MODES[number]) }
 function validRoutingHistoryEntry(value: unknown): value is RoutingHistoryEntry {
   if (!value || typeof value !== 'object') return false
   const entry = value as Partial<RoutingHistoryEntry>
@@ -335,6 +361,48 @@ function snapshotRouting(state: LabState): RoutingHistoryEntry {
 function applyRoutingSnapshot(state: LabState, snapshot: RoutingHistoryEntry, historyKey: 'routingUndoHistory' | 'routingRedoHistory'): LabState {
   const other = historyKey === 'routingUndoHistory' ? 'routingRedoHistory' : 'routingUndoHistory'
   return { ...state, cableRoutes: snapshot.routes.map((route) => ({ ...route, controlPointsMm: route.controlPointsMm.map((point) => [...point] as const), corridorIds: [...route.corridorIds], validationIssues: [...route.validationIssues] })), selectedRoutingCableId: snapshot.selectedCableId, selectedRoutePointIndex: snapshot.selectedRoutePointIndex, [historyKey]: state[historyKey].slice(0, -1), [other]: [...state[other], snapshotRouting(state)], routingValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'wire-routing') } as LabState
+}
+function snapshotCover(state: LabState): CoverHistoryEntry {
+  return coverHistoryEntry(state.bottomCover, state.coverLatches, state.selectedCoverLatchId, state.coverAlignment, state.coverClearanceIssues)
+}
+function applyCoverSnapshot(state: LabState, snapshot: CoverHistoryEntry, historyKey: 'coverUndoHistory' | 'coverRedoHistory'): LabState {
+  const other = historyKey === 'coverUndoHistory' ? 'coverRedoHistory' : 'coverUndoHistory'
+  return {
+    ...state,
+    bottomCover: { ...snapshot.cover, positionMm: [...snapshot.cover.positionMm], rotation: [...snapshot.cover.rotation] },
+    coverLatches: snapshot.latches.map((item) => ({ ...item })),
+    selectedCoverLatchId: snapshot.selectedLatchId,
+    coverAlignment: snapshot.alignment,
+    coverClearanceIssues: [...snapshot.clearanceIssues],
+    [historyKey]: state[historyKey].slice(0, -1),
+    [other]: [...state[other], snapshotCover(state)],
+    coverValidation: 'idle',
+    completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'bottom-cover'),
+  } as LabState
+}
+function coverValidationArgs(state: LabState) {
+  return {
+    layout: state.layoutPlacements,
+    connections: state.step6Connections,
+    coinInstalled: state.coinCellInstalled,
+    placements: state.enclosurePlacements,
+    microSdInstalled: state.microSdInstalled,
+    retainers: state.retainerInstallations,
+    blockedRetainers: state.cableBlockedRetainerIds,
+    routes: state.cableRoutes,
+    cover: state.bottomCover,
+    latches: state.coverLatches,
+  }
+}
+function withCoverHistory(state: LabState, changes: Partial<LabState>): LabState {
+  return {
+    ...state,
+    ...changes,
+    coverUndoHistory: [...state.coverUndoHistory, snapshotCover(state)],
+    coverRedoHistory: [],
+    coverValidation: 'idle',
+    completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'bottom-cover'),
+  }
 }
 function applyRetainerSnapshot(state: LabState, snapshot: RetainerHistoryEntry, historyKey: 'retainerUndoHistory' | 'retainerRedoHistory'): LabState {
   const other = historyKey === 'retainerUndoHistory' ? 'retainerRedoHistory' : 'retainerUndoHistory'
@@ -981,6 +1049,108 @@ export function labReducer(state: LabState, action: LabAction): LabState {
       const validation = validateRoutingStep({ layout: state.layoutPlacements, connections: state.step6Connections, coinInstalled: state.coinCellInstalled, placements: state.enclosurePlacements, microSdInstalled: state.microSdInstalled, retainers: state.retainerInstallations, blockedRetainers: state.cableBlockedRetainerIds, routes: state.cableRoutes })
       return { ...state, routingValidation: validation.status, completedBuildStepIds: validation.status === 'valid' && !state.completedBuildStepIds.includes('wire-routing') ? [...state.completedBuildStepIds, 'wire-routing'] : state.completedBuildStepIds }
     }
+    case 'MOVE_BOTTOM_COVER':
+      return withCoverHistory(state, {
+        bottomCover: { ...state.bottomCover, positionMm: action.positionMm, state: 'staged', seatingProgress: 0 },
+        coverLatches: createInitialCoverLatches(),
+        coverAlignment: 'idle',
+        coverClearanceIssues: [],
+      })
+    case 'ROTATE_BOTTOM_COVER':
+      return withCoverHistory(state, {
+        bottomCover: { ...state.bottomCover, rotation: action.rotation, state: 'staged', seatingProgress: 0 },
+        coverLatches: createInitialCoverLatches(),
+        coverAlignment: 'idle',
+      })
+    case 'SET_BOTTOM_COVER_FACE': {
+      const rotation = action.face === 'reversed' ? BOTTOM_COVER_TARGET.reversedRotation : BOTTOM_COVER_TARGET.targetRotation
+      return withCoverHistory(state, {
+        bottomCover: { ...state.bottomCover, rotation, state: 'staged', seatingProgress: 0 },
+        coverLatches: createInitialCoverLatches(),
+        coverAlignment: action.face === 'reversed' ? 'reversed' : 'idle',
+      })
+    }
+    case 'ALIGN_BOTTOM_COVER': {
+      const clearance = validateCoverClearance(coverValidationArgs(state))
+      if (!clearance.prerequisiteValid) return { ...state, coverValidation: 'step9-incomplete', coverClearanceIssues: clearance.issues.map((issue) => issue.message) }
+      if (!clearance.valid) return { ...state, coverValidation: 'clearance-failed', coverClearanceIssues: clearance.issues.map((issue) => issue.message) }
+      const alignment = coverAlignmentStatus({ ...state.bottomCover, positionMm: BOTTOM_COVER_TARGET.alignedPositionMm })
+      if (alignment !== 'aligned') return { ...state, coverAlignment: alignment, coverValidation: alignment === 'reversed' ? 'reversed' : 'wrong-rotation' }
+      return withCoverHistory(state, {
+        bottomCover: { ...state.bottomCover, positionMm: BOTTOM_COVER_TARGET.alignedPositionMm, state: 'aligned', seatingProgress: 0 },
+        coverLatches: state.coverLatches.map((item) => ({ ...item, state: 'aligned' })),
+        coverAlignment: 'aligned',
+        coverClearanceIssues: [],
+      })
+    }
+    case 'PARTIALLY_SEAT_BOTTOM_COVER': {
+      const clearance = validateCoverClearance(coverValidationArgs(state))
+      if (!clearance.valid || coverAlignmentStatus(state.bottomCover) !== 'aligned') return { ...state, coverValidation: clearance.prerequisiteValid ? 'clearance-failed' : 'step9-incomplete', coverClearanceIssues: clearance.issues.map((issue) => issue.message) }
+      const a = BOTTOM_COVER_TARGET.alignedPositionMm; const b = BOTTOM_COVER_TARGET.targetPositionMm
+      return withCoverHistory(state, {
+        bottomCover: { ...state.bottomCover, positionMm: [a[0], a[1], (a[2] + b[2]) / 2], state: 'partiallySeated', seatingProgress: .5 },
+        coverAlignment: 'aligned',
+      })
+    }
+    case 'SEAT_BOTTOM_COVER': {
+      const clearance = validateCoverClearance(coverValidationArgs(state))
+      if (!clearance.valid) return { ...state, coverValidation: clearance.prerequisiteValid ? 'clearance-failed' : 'step9-incomplete', coverClearanceIssues: clearance.issues.map((issue) => issue.message) }
+      if (coverAlignmentStatus(state.bottomCover) !== 'aligned' || state.bottomCover.state === 'staged') return { ...state, coverValidation: 'not-aligned', coverAlignment: coverAlignmentStatus(state.bottomCover) }
+      return withCoverHistory(state, {
+        bottomCover: { ...state.bottomCover, positionMm: BOTTOM_COVER_TARGET.targetPositionMm, state: 'fullySeated', seatingProgress: 1 },
+        coverLatches: state.coverLatches.map((item) => ({ ...item, state: 'aligned' })),
+        coverAlignment: 'aligned',
+      })
+    }
+    case 'RETURN_BOTTOM_COVER_TO_STAGING':
+      return withCoverHistory(state, { bottomCover: createInitialBottomCoverState(), coverLatches: createInitialCoverLatches(), selectedCoverLatchId: null, coverAlignment: 'idle', coverClearanceIssues: [] })
+    case 'SELECT_COVER_LATCH':
+      return action.latchId === null || isCoverLatchId(action.latchId) ? { ...state, selectedCoverLatchId: action.latchId } : state
+    case 'ENGAGE_COVER_LATCH': {
+      if (!isCoverLatchId(action.latchId) || state.bottomCover.state !== 'fullySeated' && state.bottomCover.state !== 'latched') return { ...state, coverValidation: 'not-seated' }
+      const clearance = validateCoverClearance(coverValidationArgs(state))
+      if (!clearance.valid) return { ...state, coverValidation: clearance.prerequisiteValid ? 'clearance-failed' : 'step9-incomplete', coverClearanceIssues: clearance.issues.map((issue) => issue.message) }
+      const latches = state.coverLatches.map((item) => item.latchId === action.latchId ? { ...item, state: 'engaged' as const } : item)
+      return withCoverHistory(state, { coverLatches: latches, selectedCoverLatchId: action.latchId, bottomCover: { ...state.bottomCover, state: latches.every((item) => item.state === 'engaged') ? 'latched' : 'fullySeated' } })
+    }
+    case 'DISENGAGE_COVER_LATCH': {
+      if (!isCoverLatchId(action.latchId)) return state
+      return withCoverHistory(state, { coverLatches: state.coverLatches.map((item) => item.latchId === action.latchId ? { ...item, state: 'aligned' } : item), bottomCover: { ...state.bottomCover, state: 'fullySeated' }, selectedCoverLatchId: action.latchId })
+    }
+    case 'ENGAGE_ALL_COVER_LATCHES': {
+      if (state.bottomCover.state !== 'fullySeated' && state.bottomCover.state !== 'latched') return { ...state, coverValidation: 'not-seated' }
+      const clearance = validateCoverClearance(coverValidationArgs(state))
+      if (!clearance.valid) return { ...state, coverValidation: clearance.prerequisiteValid ? 'clearance-failed' : 'step9-incomplete', coverClearanceIssues: clearance.issues.map((issue) => issue.message) }
+      return withCoverHistory(state, { coverLatches: state.coverLatches.map((item) => ({ ...item, state: 'engaged' })), bottomCover: { ...state.bottomCover, state: 'latched' } })
+    }
+    case 'REOPEN_BOTTOM_COVER':
+      return withCoverHistory(state, { bottomCover: { ...state.bottomCover, positionMm: BOTTOM_COVER_TARGET.alignedPositionMm, state: 'aligned', seatingProgress: 0 }, coverLatches: state.coverLatches.map((item) => ({ ...item, state: 'aligned' })), coverAlignment: 'aligned' })
+    case 'CHECK_COVER_CLEARANCE': {
+      const clearance = validateCoverClearance(coverValidationArgs(state))
+      return { ...state, coverClearanceIssues: clearance.issues.map((issue) => issue.message), coverValidation: clearance.valid ? 'idle' : clearance.prerequisiteValid ? 'clearance-failed' : 'step9-incomplete' }
+    }
+    case 'SET_COVER_CAMERA': return COVER_CAMERA_PRESETS.includes(action.preset) ? { ...state, coverCameraPreset: action.preset } : state
+    case 'RESET_COVER_CAMERA': return { ...state, coverCameraPreset: 'fit', coverCameraResetCount: state.coverCameraResetCount + 1 }
+    case 'SET_COVER_COMPARISON_MODE': return validCoverComparisonMode(action.mode) ? { ...state, coverComparisonMode: action.mode } : state
+    case 'TOGGLE_COVER_HINT': return { ...state, coverHintVisible: !state.coverHintVisible }
+    case 'TOGGLE_COVER_TRANSPARENCY': return { ...state, coverTransparent: !state.coverTransparent }
+    case 'TOGGLE_COVER_WIREFRAME': return { ...state, coverWireframe: !state.coverWireframe }
+    case 'TOGGLE_COVER_HOUSING_TRANSPARENCY': return { ...state, coverHousingTransparent: !state.coverHousingTransparent }
+    case 'TOGGLE_COVER_MATING_PERIMETER': return { ...state, coverMatingPerimeterVisible: !state.coverMatingPerimeterVisible }
+    case 'TOGGLE_COVER_LATCH_TARGETS': return { ...state, coverLatchTargetsVisible: !state.coverLatchTargetsVisible }
+    case 'TOGGLE_COVER_CLEARANCE_REGIONS': return { ...state, coverClearanceRegionsVisible: !state.coverClearanceRegionsVisible }
+    case 'TOGGLE_COVER_ISOLATION': return { ...state, coverIsolated: !state.coverIsolated }
+    case 'TOGGLE_COVER_CABLE_ISOLATION': return { ...state, coverCableIsolation: !state.coverCableIsolation }
+    case 'TOGGLE_COVER_EXPLODED': return { ...state, coverExplodedView: !state.coverExplodedView }
+    case 'TOGGLE_COVER_CROSS_SECTION': return { ...state, coverCrossSectionVisible: !state.coverCrossSectionVisible }
+    case 'UNDO_COVER_INSTALLATION': { const snapshot = state.coverUndoHistory[state.coverUndoHistory.length - 1]; return snapshot ? applyCoverSnapshot(state, snapshot, 'coverUndoHistory') : state }
+    case 'REDO_COVER_INSTALLATION': { const snapshot = state.coverRedoHistory[state.coverRedoHistory.length - 1]; return snapshot ? applyCoverSnapshot(state, snapshot, 'coverRedoHistory') : state }
+    case 'RESET_COVER_INSTALLATION':
+      return withCoverHistory(state, { bottomCover: createInitialBottomCoverState(), coverLatches: createInitialCoverLatches(), selectedCoverLatchId: null, coverAlignment: 'idle', coverClearanceIssues: [] })
+    case 'CHECK_COVER_INSTALLATION': {
+      const validation = validateBottomCoverInstallation(coverValidationArgs(state))
+      return { ...state, coverValidation: validation.status, coverClearanceIssues: validation.status === 'valid' ? [] : validation.messages, completedBuildStepIds: validation.status === 'valid' && !state.completedBuildStepIds.includes('bottom-cover') ? [...state.completedBuildStepIds, 'bottom-cover'] : state.completedBuildStepIds }
+    }
     case 'RESET_PROGRESS':
       return { ...INITIAL_LAB_STATE, mode: state.mode, guidance: state.guidance }
     default:
@@ -1073,8 +1243,38 @@ export function validatePersistedState(value: unknown): LabState | null {
       cableRoutes: createLooseCableRoutes(persistedConnections, persistedPlacements), selectedRoutingCableId: null, selectedRoutePointIndex: null, routingCameraPreset: 'fit' as const, routingComparisonMode: 'workspace' as const, routingHintVisible: false, routingControlPointsVisible: true, routingCorridorsVisible: true, routingCollisionRegionsVisible: false, bottomCoverGhostVisible: false, routingTransparentHousing: false, routingWireframeHousing: false, routingIsolateSelectedCable: false, routingValidation: 'idle' as const, routingUndoHistory: [], routingRedoHistory: [] }
     return validatePersistedState(migrated)
   }
+  if (persistedVersion === 7) {
+    const migrated = {
+      ...INITIAL_LAB_STATE,
+      ...candidate,
+      version: 8 as const,
+      bottomCover: createInitialBottomCoverState(),
+      coverLatches: createInitialCoverLatches(),
+      selectedCoverLatchId: null,
+      coverAlignment: 'idle' as const,
+      coverClearanceIssues: [],
+      coverCameraPreset: 'fit' as const,
+      coverCameraResetCount: 0,
+      coverComparisonMode: 'workspace' as const,
+      coverHintVisible: false,
+      coverTransparent: false,
+      coverWireframe: false,
+      coverHousingTransparent: false,
+      coverMatingPerimeterVisible: true,
+      coverLatchTargetsVisible: true,
+      coverClearanceRegionsVisible: false,
+      coverIsolated: false,
+      coverCableIsolation: false,
+      coverExplodedView: false,
+      coverCrossSectionVisible: false,
+      coverValidation: 'idle' as const,
+      coverUndoHistory: [],
+      coverRedoHistory: [],
+    }
+    return validatePersistedState(migrated)
+  }
   if (
-    persistedVersion !== 7 ||
+    persistedVersion !== 8 ||
     (candidate.mode !== 'intro' && candidate.mode !== 'build') ||
     !validStepId(candidate.activeBuildStepId ?? '') ||
     !validPartId(candidate.selectedPartId ?? '') ||
@@ -1167,7 +1367,17 @@ export function validatePersistedState(value: unknown): LabState | null {
     !ROUTING_CAMERA_PRESETS.includes(candidate.routingCameraPreset ?? 'fit') || !validRoutingComparisonMode(candidate.routingComparisonMode) ||
     typeof candidate.routingHintVisible !== 'boolean' || typeof candidate.routingControlPointsVisible !== 'boolean' || typeof candidate.routingCorridorsVisible !== 'boolean' || typeof candidate.routingCollisionRegionsVisible !== 'boolean' || typeof candidate.bottomCoverGhostVisible !== 'boolean' || typeof candidate.routingTransparentHousing !== 'boolean' || typeof candidate.routingWireframeHousing !== 'boolean' || typeof candidate.routingIsolateSelectedCable !== 'boolean' ||
     !['idle','retainers-incomplete','incomplete','endpoint-changed','too-long','too-taut','housing-collision','component-collision','retainer-collision','cover-contact','latch-collision','cable-pinched','outside-corridor','valid'].includes(candidate.routingValidation ?? '') ||
-    !Array.isArray(candidate.routingUndoHistory) || !candidate.routingUndoHistory.every(validRoutingHistoryEntry) || !Array.isArray(candidate.routingRedoHistory) || !candidate.routingRedoHistory.every(validRoutingHistoryEntry)
+    !Array.isArray(candidate.routingUndoHistory) || !candidate.routingUndoHistory.every(validRoutingHistoryEntry) || !Array.isArray(candidate.routingRedoHistory) || !candidate.routingRedoHistory.every(validRoutingHistoryEntry) ||
+    !isValidBottomCoverState(candidate.bottomCover) || !isValidCoverLatches(candidate.coverLatches) ||
+    (candidate.selectedCoverLatchId !== null && !isCoverLatchId(candidate.selectedCoverLatchId ?? null)) ||
+    !['idle','reversed','wrong-rotation','offset','aligned'].includes(candidate.coverAlignment ?? '') ||
+    !Array.isArray(candidate.coverClearanceIssues) || !candidate.coverClearanceIssues.every((issue) => typeof issue === 'string') ||
+    !COVER_CAMERA_PRESETS.includes(candidate.coverCameraPreset ?? 'fit') || typeof candidate.coverCameraResetCount !== 'number' || !Number.isInteger(candidate.coverCameraResetCount) || candidate.coverCameraResetCount < 0 || !validCoverComparisonMode(candidate.coverComparisonMode) ||
+    typeof candidate.coverHintVisible !== 'boolean' || typeof candidate.coverTransparent !== 'boolean' || typeof candidate.coverWireframe !== 'boolean' || typeof candidate.coverHousingTransparent !== 'boolean' ||
+    typeof candidate.coverMatingPerimeterVisible !== 'boolean' || typeof candidate.coverLatchTargetsVisible !== 'boolean' || typeof candidate.coverClearanceRegionsVisible !== 'boolean' ||
+    typeof candidate.coverIsolated !== 'boolean' || typeof candidate.coverCableIsolation !== 'boolean' || typeof candidate.coverExplodedView !== 'boolean' || typeof candidate.coverCrossSectionVisible !== 'boolean' ||
+    !['idle','step9-incomplete','reversed','wrong-rotation','not-aligned','clearance-failed','partially-seated','not-seated','latches-open','valid'].includes(candidate.coverValidation ?? '') ||
+    !Array.isArray(candidate.coverUndoHistory) || !candidate.coverUndoHistory.every(isValidCoverHistoryEntry) || !Array.isArray(candidate.coverRedoHistory) || !candidate.coverRedoHistory.every(isValidCoverHistoryEntry)
   ) {
     return null
   }

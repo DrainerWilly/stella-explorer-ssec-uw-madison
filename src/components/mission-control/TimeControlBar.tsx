@@ -62,17 +62,17 @@ export default function TimeControlBar({
   }
 
   const iconBtn =
-    'grid h-7 w-7 place-items-center rounded-full text-white/60 transition-colors hover:bg-white/10 hover:text-white disabled:opacity-25 disabled:hover:bg-transparent'
+    'mc-liquid-glass grid h-7 w-7 place-items-center rounded-lg text-white/60 transition-colors hover:text-white disabled:opacity-25 disabled:hover:bg-transparent'
 
   return (
-    <div className="overflow-hidden rounded-full border border-white/10 bg-[#0b1a3d]/85 shadow-[0_10px_40px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+    <div className="mc-liquid-glass overflow-hidden rounded-full shadow-[0_10px_40px_-12px_rgba(0,0,0,0.9)]">
       {/* control row */}
       <div className="flex items-center gap-1.5 px-2 py-1.5">
         {/* play/pause */}
         <button
           onClick={onPlayPause}
           aria-label={playing ? 'Pause' : 'Play'}
-          className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-white transition-colors hover:bg-white/20"
+          className="mc-liquid-glass grid h-9 w-9 place-items-center rounded-lg text-white transition-colors"
         >
           <Icon name={playing ? 'pause' : 'play'} className="h-[18px] w-[18px]" />
         </button>
@@ -114,7 +114,7 @@ export default function TimeControlBar({
           onClick={onLive}
           aria-pressed={following}
           title="Return to the current time at real rate"
-          className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors ${
+          className={`mc-liquid-glass inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider transition-colors ${
             following ? '' : 'text-white/55 hover:bg-white/10 hover:text-white'
           }`}
           style={following ? { backgroundColor: ACCENT, color: ACCENT_INK } : undefined}

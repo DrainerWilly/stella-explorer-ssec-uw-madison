@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 // A big-image "thumb" for the Lessons grid, echoing visualjournal.it: the
-// NASA/USGS image fades in on load and dims on hover/focus to reveal the
+// NASA/USGS image dims on hover/focus to reveal the
 // lesson caption. The whole thumb is one focusable, keyboard-accessible button.
 export default function LessonCard({ lesson, onOpen }) {
   const imgRef = useRef(null)

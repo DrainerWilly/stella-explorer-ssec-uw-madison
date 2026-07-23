@@ -22,6 +22,15 @@ export const NAV = [
     blurb: 'Follow real Earth-observing satellites in a live 3D orbit view and watch Landsat pass overhead.',
   },
   {
+    id: 'lessons',
+    icon: 'lessons',
+    label: 'Lessons',
+    image: 'assets/home/nasa-stella-field-lesson.jpg',
+    imageAlt: 'Students collecting vegetation measurements during a NASA STELLA field campaign',
+    accent: '#fca344',
+    blurb: 'Classroom-ready activities that connect STELLA field measurements to Landsat imagery.',
+  },
+  {
     id: 'animations',
     icon: 'animation',
     label: 'Animations',
@@ -38,15 +47,6 @@ export const NAV = [
     imageAlt: 'Aerial view of center-pivot agricultural fields used in NASA Landsat education materials',
     accent: '#4ec41b',
     blurb: 'Playful science games that turn remote-sensing ideas into something you can experiment with.',
-  },
-  {
-    id: 'lessons',
-    icon: 'lessons',
-    label: 'Lessons',
-    image: 'assets/home/nasa-stella-field-lesson.jpg',
-    imageAlt: 'Students collecting vegetation measurements during a NASA STELLA field campaign',
-    accent: '#fca344',
-    blurb: 'Classroom-ready activities that connect STELLA field measurements to Landsat imagery.',
   },
   {
     id: 'device',

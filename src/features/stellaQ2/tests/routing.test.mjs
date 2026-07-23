@@ -83,7 +83,7 @@ test('routing reducer supports undo, redo, selected reset, full reset, completio
   assert.equal(checked.routingValidation, 'valid')
   assert.ok(checked.completedBuildStepIds.includes('wire-routing'))
   const migrated = validatePersistedState({ ...fixture, version: 6, cableRoutes: undefined })
-  assert.equal(migrated?.version, 7)
+  assert.equal(migrated?.version, 8)
   assert.ok(migrated?.completedBuildStepIds.includes('retainer-clips'))
   assert.equal(migrated?.cableRoutes.length, 6)
 })

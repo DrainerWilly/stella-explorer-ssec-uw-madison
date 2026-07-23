@@ -9,7 +9,7 @@ export default function LessonsPage({ lessons, onOpenLesson }) {
   return (
     <main className="cm-lessons order-1 flex-1 overflow-y-auto overflow-x-hidden scroll-soft">
       <h1 className="sr-only">Lessons &amp; activities</h1>
-      <div className="mx-auto w-full max-w-[1728px] px-4 pb-14 pt-0 sm:pb-20">
+      <div className="mx-auto w-full max-w-[1728px] px-4 pb-4 pt-0 sm:pb-5">
         <LessonCardGrid lessons={lessons} onOpenLesson={onOpenLesson} />
       </div>
     </main>

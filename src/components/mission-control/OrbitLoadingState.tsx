@@ -73,22 +73,23 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
   }, [])
 
   return (
-    <div className="relative min-h-[100svh] w-full flex-1 overflow-hidden bg-[#040817] text-white lg:min-h-screen">
+    <div
+      className="relative min-h-[100svh] w-full flex-1 overflow-hidden bg-[#040817] text-white lg:min-h-screen"
+      style={{ fontFamily: "'Iosevka', 'Iosevka Nerd Font', 'Iosevka Fixed', 'Roboto Mono', monospace" }}
+    >
       <div
         aria-hidden="true"
         className="absolute inset-0"
         style={{
-          background:
-            'radial-gradient(circle at 72% 45%, rgba(56,189,248,0.16), transparent 34%), radial-gradient(circle at 18% 18%, rgba(79,70,229,0.22), transparent 32%), linear-gradient(135deg, #030613 0%, #06102a 48%, #09142d 100%)',
+          background: 'linear-gradient(135deg, #030613 0%, #06102a 52%, #09142d 100%)',
         }}
       />
-      <div aria-hidden="true" className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_0,rgba(0,0,0,0.42)_72%)]" />
       <div aria-hidden="true" className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
 
       <div className="relative z-10 grid min-h-[100svh] w-full items-center gap-8 px-6 pb-10 pt-28 sm:px-8 md:pt-32 lg:min-h-screen lg:grid-cols-[minmax(320px,0.42fr)_minmax(380px,0.58fr)] lg:px-12 lg:pb-12 lg:pt-32 xl:px-16">
         <section className="max-w-xl text-left">
           <h2 className="text-4xl font-semibold leading-[0.95] tracking-[-0.04em] sm:text-5xl xl:text-6xl">
-            <span className="bg-gradient-to-b from-white to-sky-200/60 bg-clip-text text-transparent">
+            <span className="text-white">
               {label}
               <span className="motion-safe:animate-pulse">…</span>
             </span>
@@ -100,7 +101,7 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
               <span>Live TLE</span>
             </div>
             <div className="mt-3 h-[3px] overflow-hidden rounded-full bg-white/10">
-              <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-transparent via-sky-200 to-transparent motion-safe:animate-loader-sweep" />
+              <div className="h-full w-1/3 rounded-full bg-sky-200/75 motion-safe:animate-loader-sweep" />
             </div>
           </div>
 
@@ -126,11 +127,7 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
         </section>
 
         <section className="relative mx-auto flex w-full max-w-[660px] items-center justify-center py-6 lg:py-0">
-          <div aria-hidden="true" className="absolute h-[82%] w-[82%] rounded-full border border-sky-200/10" />
-          <div aria-hidden="true" className="absolute h-[98%] w-[98%] rounded-full border border-sky-200/5" />
-          <div aria-hidden="true" className="absolute h-[118%] w-[118%] rounded-full border border-sky-200/[0.035]" />
-
-          <div className="relative aspect-square w-[min(70vw,560px)] overflow-hidden rounded-full border border-white/10 bg-black shadow-[0_0_90px_rgba(56,189,248,0.22)]">
+          <div className="relative aspect-square w-[min(70vw,560px)] overflow-hidden rounded-full border border-white/10 bg-black">
             <iframe
               title={`Radiant shader: ${shader.name}`}
               src={`${import.meta.env.BASE_URL}${RADIANT_SHADER_BASE}${shader.file}`}
@@ -143,11 +140,7 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
             />
             <div
               aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_0_80px_rgba(0,0,0,0.72),inset_0_0_8px_rgba(255,255,255,0.22)]"
-            />
-            <div
-              aria-hidden="true"
-              className="pointer-events-none absolute inset-0 rounded-full bg-[radial-gradient(circle_at_34%_22%,rgba(255,255,255,0.18),transparent_19%),radial-gradient(circle_at_center,transparent_48%,rgba(2,6,23,0.62)_100%)]"
+              className="pointer-events-none absolute inset-0 rounded-full shadow-[inset_0_0_70px_rgba(0,0,0,0.72)]"
             />
           </div>
         </section>

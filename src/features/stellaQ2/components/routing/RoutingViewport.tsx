@@ -13,7 +13,7 @@ import type { CableConnectionState, CableRouteState, EnclosurePlacement, Retaine
 const cableColors = ['#70d6ff', '#c084fc', '#f9a8d4', '#fde68a']
 function centeredGeometry(source: THREE.BufferGeometry) { const copy = source.clone(); copy.computeVertexNormals(); copy.computeBoundingBox(); const center = copy.boundingBox?.getCenter(new THREE.Vector3()) ?? new THREE.Vector3(); copy.translate(-center.x, -center.y, -center.z); return copy }
 
-function SourceMesh({ url, color, opacity, wireframe = false, position = [0, 0, 0] }: { url: string; color: string; opacity: number; wireframe?: boolean; position?: [number, number, number] }) {
+export function SourceMesh({ url, color, opacity, wireframe = false, position = [0, 0, 0] }: { url: string; color: string; opacity: number; wireframe?: boolean; position?: [number, number, number] }) {
   const source = useLoader(STLLoader, url) as THREE.BufferGeometry
   const geometry = useMemo(() => centeredGeometry(source), [source])
   useEffect(() => () => geometry.dispose(), [geometry])
@@ -29,15 +29,15 @@ function CameraDirector({ preset }: { preset: RoutingCameraPreset }) {
   return null
 }
 
-function Components({ placements }: { placements: EnclosurePlacement[] }) {
+export function Components({ placements }: { placements: EnclosurePlacement[] }) {
   return <group>{placements.filter((item) => item.partId !== 'micro-sd-card').map((placement) => { const slot = ENCLOSURE_SLOT_BY_PART_ID.get(placement.partId); if (!slot) return null; const color = placement.partId === 'battery-400' ? '#d8dee4' : placement.partId === 'oled-display' ? '#245f89' : placement.partId === 'pcf8523-clock' ? '#222b34' : '#b8323b'; return <mesh key={placement.partId} position={[placement.positionMm[0] * .01, placement.positionMm[1] * .01, placement.positionMm[2] * .01]}><boxGeometry args={[slot.footprintMm[0] * .01, slot.footprintMm[1] * .01, slot.thicknessMm * .01]} /><meshStandardMaterial color={color} roughness={.58} /></mesh> })}</group>
 }
 
-function InstalledRetainers({ installations }: { installations: RetainerInstallation[] }) {
+export function InstalledRetainers({ installations }: { installations: RetainerInstallation[] }) {
   return <group>{RETAINERS.map((definition) => { const item = installations.find((candidate) => candidate.retainerId === definition.id); if (!item || item.installationState !== 'installed') return null; return <Suspense key={definition.id} fallback={null}><group position={[item.positionMm[0] * .01, item.positionMm[1] * .01, item.positionMm[2] * .01]}><SourceMesh url={definition.stlUrl} color="#a7b0ba" opacity={.92} /></group></Suspense> })}</group>
 }
 
-function RouteLines({ routes, connections, placements, selectedId, isolate, showPoints, selectedPoint, onSelect, onSelectPoint, onMovePoint }: { routes: CableRouteState[]; connections: CableConnectionState[]; placements: EnclosurePlacement[]; selectedId: string | null; isolate: boolean; showPoints: boolean; selectedPoint: number | null; onSelect: (id: string) => void; onSelectPoint: (index: number) => void; onMovePoint: (id: string, index: number, point: readonly [number, number, number]) => void }) {
+export function RouteLines({ routes, connections, placements, selectedId, isolate, showPoints, selectedPoint, onSelect, onSelectPoint, onMovePoint }: { routes: CableRouteState[]; connections: CableConnectionState[]; placements: EnclosurePlacement[]; selectedId: string | null; isolate: boolean; showPoints: boolean; selectedPoint: number | null; onSelect: (id: string) => void; onSelectPoint: (index: number) => void; onMovePoint: (id: string, index: number, point: readonly [number, number, number]) => void }) {
   return <group>{routes.map((route, routeIndex) => {
     if (isolate && route.cableId !== selectedId) return null
     const connection = connections.find((item) => item.cableId === route.cableId); if (!connection) return null

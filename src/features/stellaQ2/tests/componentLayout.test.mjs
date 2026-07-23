@@ -94,7 +94,7 @@ test('Phase 2B layout supports deterministic placement, undo, redo, reset, valid
     version: 2,
   }
   const migrated = validatePersistedState(phase2a)
-  assert.equal(migrated?.version, 7)
+  assert.equal(migrated?.version, 8)
   assert.deepEqual(migrated?.layoutPlacements, [])
   assert.deepEqual(validatePersistedState(structuredClone(INITIAL_LAB_STATE)), INITIAL_LAB_STATE)
 })

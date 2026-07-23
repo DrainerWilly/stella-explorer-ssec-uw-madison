@@ -53,6 +53,7 @@ export default function SceneControls({ settings, onChange, onResetCamera }) {
             <Row label="Ground track" checked={settings.groundTrack} onChange={(v) => onChange('groundTrack', v)} />
             <Row label="Lat/lon grid" checked={settings.grid} onChange={(v) => onChange('grid', v)} />
             <Row label="Cities" checked={settings.cities} onChange={(v) => onChange('cities', v)} />
+            <Row label="Full Earth lighting" checked={settings.fullEarthLight} onChange={(v) => onChange('fullEarthLight', v)} />
           </div>
 
           <button

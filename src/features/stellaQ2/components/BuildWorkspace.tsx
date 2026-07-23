@@ -17,6 +17,7 @@ const ConnectionsWorkspace = lazy(() => import('./connections/ConnectionsWorkspa
 const EnclosureWorkspace = lazy(() => import('./enclosure/EnclosureWorkspace'))
 const RetainerWorkspace = lazy(() => import('./retainers/RetainerWorkspace'))
 const RoutingWorkspace = lazy(() => import('./routing/RoutingWorkspace'))
+const CoverWorkspace = lazy(() => import('./cover/CoverWorkspace'))
 
 interface BuildWorkspaceProps {
   state: LabState
@@ -35,6 +36,7 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
   const isEnclosurePlacementStep = activeStep.id === 'enclosure-placement'
   const isRetainerStep = activeStep.id === 'retainer-clips'
   const isRoutingStep = activeStep.id === 'wire-routing'
+  const isCoverStep = activeStep.id === 'bottom-cover'
   const progressPercent = Math.round(
     (state.completedBuildStepIds.length / BUILD_STEPS.length) * 100,
   )
@@ -183,8 +185,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
 
         <section
           className="min-w-0"
-          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : isLayoutStep ? 'Interactive components layout workspace' : isConnectionsStep ? 'Interactive cable connections workspace' : isEnclosurePlacementStep ? 'Interactive enclosure placement workspace' : isRetainerStep ? 'Interactive retainer installation workspace' : isRoutingStep ? 'Interactive final wire routing workspace' : undefined}
-          aria-labelledby={isScaffoldingStep || isLayoutStep || isConnectionsStep || isEnclosurePlacementStep || isRetainerStep || isRoutingStep ? undefined : 'workspace-reference-title'}
+          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : isLayoutStep ? 'Interactive components layout workspace' : isConnectionsStep ? 'Interactive cable connections workspace' : isEnclosurePlacementStep ? 'Interactive enclosure placement workspace' : isRetainerStep ? 'Interactive retainer installation workspace' : isRoutingStep ? 'Interactive final wire routing workspace' : isCoverStep ? 'Interactive bottom cover installation workspace' : undefined}
+          aria-labelledby={isScaffoldingStep || isLayoutStep || isConnectionsStep || isEnclosurePlacementStep || isRetainerStep || isRoutingStep || isCoverStep ? undefined : 'workspace-reference-title'}
         >
           {isScaffoldingStep ? (
             <Suspense
@@ -221,6 +223,10 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
           ) : isRoutingStep ? (
             <Suspense fallback={<div className="sq2-panel min-h-[34rem] rounded-sm p-6 text-sm text-slate-400">Loading the Step 9 wire-routing workspace…</div>}>
               <RoutingWorkspace state={state} dispatch={dispatch} />
+            </Suspense>
+          ) : isCoverStep ? (
+            <Suspense fallback={<div className="sq2-panel min-h-[34rem] rounded-sm p-6 text-sm text-slate-400">Loading the Step 10 bottom-cover workspace…</div>}>
+              <CoverWorkspace state={state} dispatch={dispatch} />
             </Suspense>
           ) : (
             <>
@@ -291,6 +297,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                             ? { type: 'CHECK_RETAINERS' }
                             : isRoutingStep
                               ? { type: 'CHECK_ROUTING' }
+                              : isCoverStep
+                                ? { type: 'CHECK_COVER_INSTALLATION' }
                     : { type: 'COMPLETE_BUILD_STEP', stepId: activeStep.id },
                 )
               }
@@ -310,6 +318,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                           ? '✓ Retainers validated'
                           : isRoutingStep
                             ? '✓ Routing validated'
+                            : isCoverStep
+                              ? '✓ Bottom cover validated'
                     : '✓ Marked reviewed'
                 : isScaffoldingStep
                   ? 'Check scaffolding'
@@ -323,6 +333,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                         ? 'Check retainer clips'
                         : isRoutingStep
                           ? 'Check final wire routing'
+                          : isCoverStep
+                            ? 'Check bottom-cover installation'
                     : 'Mark step reviewed'}
             </button>
             <button
