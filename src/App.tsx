@@ -176,7 +176,7 @@ export default function App() {
               /* Brief, lightweight screen while the Mission Control chunk loads;
                  the richer shader loading state renders once the chunk is in.
                  Kept on the same #050b1f base so the handoff is seamless. */
-              <div className="order-1 grid flex-1 place-items-center bg-[#050b1f] px-6 text-center">
+              <div className="order-1 grid flex-1 place-items-center bg-[#08090c] px-6 text-center">
                 <div className="flex flex-col items-center gap-4">
                   <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full rounded-full bg-sky-400 opacity-75 motion-safe:animate-ping" />

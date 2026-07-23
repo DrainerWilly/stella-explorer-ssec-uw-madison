@@ -74,17 +74,17 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
 
   return (
     <div
-      className="relative min-h-[100svh] w-full flex-1 overflow-hidden bg-[#040817] text-white lg:min-h-screen"
+      className="relative min-h-[100svh] w-full flex-1 overflow-hidden bg-[#08090c] text-white lg:min-h-screen"
       style={{ fontFamily: "'Iosevka', 'Iosevka Nerd Font', 'Iosevka Fixed', 'Roboto Mono', monospace" }}
     >
       <div
         aria-hidden="true"
         className="absolute inset-0"
         style={{
-          background: 'linear-gradient(135deg, #030613 0%, #06102a 52%, #09142d 100%)',
+          background: 'linear-gradient(135deg, #07080b 0%, #0d0f13 52%, #15181d 100%)',
         }}
       />
-      <div aria-hidden="true" className="absolute inset-0 opacity-[0.18] [background-image:linear-gradient(rgba(148,163,184,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(148,163,184,0.08)_1px,transparent_1px)] [background-size:56px_56px]" />
+      <div aria-hidden="true" className="absolute inset-0 opacity-[0.14] [background-image:linear-gradient(rgba(203,213,225,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(203,213,225,0.07)_1px,transparent_1px)] [background-size:56px_56px]" />
 
       <div className="relative z-10 grid min-h-[100svh] w-full items-center gap-8 px-6 pb-10 pt-28 sm:px-8 md:pt-32 lg:min-h-screen lg:grid-cols-[minmax(320px,0.42fr)_minmax(380px,0.58fr)] lg:px-12 lg:pb-12 lg:pt-32 xl:px-16">
         <section className="max-w-xl text-left">

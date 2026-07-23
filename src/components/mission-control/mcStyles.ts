@@ -10,7 +10,7 @@ export const ACCENT_INK = '#062033' // dark text on cyan
 
 // floating translucent panel
 export const PANEL =
-  'rounded-xl border border-white/10 bg-[#0b1a3d]/85 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl'
+  'rounded-xl border border-white/10 bg-[#0d0f13]/95 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl'
 
 // uppercase micro-label
 export const LABEL = 'text-[10px] font-bold uppercase tracking-[0.18em] text-white/40'

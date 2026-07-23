@@ -342,6 +342,15 @@ export default function MissionControlPage({ onNavigate }) {
         <Icon name="reset" className="h-4 w-4" />
       </button>
       <button
+        onClick={() => setShowMethodology(true)}
+        title="References"
+        aria-label="References"
+        className="mc-liquid-glass hidden h-9 items-center gap-1.5 rounded-lg px-3 text-[10px] font-bold uppercase tracking-[0.14em] text-white/60 transition-colors hover:text-white lg:inline-flex"
+      >
+        <Icon name="book" className="h-3.5 w-3.5" />
+        References
+      </button>
+      <button
         onClick={() => setShowOverlay(true)}
         title="How to use"
         aria-label="How to use Satellite Tracker"
@@ -455,7 +464,7 @@ export default function MissionControlPage({ onNavigate }) {
             its neighboring source link always remain anchored near the corner. */}
         <div className="pointer-events-none absolute bottom-4 left-4 z-30 flex w-[248px] flex-col">
           {railOpen && (
-            <div className="pointer-events-auto flex h-[min(64vh,36rem)] min-h-0 flex-col rounded-t-xl border border-b-0 border-white/10 bg-[#0b1a3d]/90 p-2.5 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
+            <div className="pointer-events-auto flex h-[min(64vh,36rem)] min-h-0 flex-col rounded-t-xl border border-b-0 border-white/10 bg-[#0d0f13]/95 p-2.5 shadow-[0_12px_48px_-12px_rgba(0,0,0,0.9)] backdrop-blur-xl">
               {catalogEl}
             </div>
           )}
@@ -468,13 +477,6 @@ export default function MissionControlPage({ onNavigate }) {
             Satellites
             <span className="ml-auto rounded-full bg-white/10 px-1.5 text-[10px] tabular-nums">{prop.valid.length}</span>
             <Icon name="chevron" className={`h-3.5 w-3.5 transition-transform ${railOpen ? '-rotate-90' : 'rotate-90'}`} />
-          </button>
-          <button
-            onClick={() => setShowMethodology(true)}
-            className="pointer-events-auto mt-2 inline-flex w-fit items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-white/40 transition-colors hover:text-white/80"
-          >
-            <Icon name="book" className="h-3.5 w-3.5" />
-            Sources & methodology
           </button>
         </div>
 
@@ -589,7 +591,7 @@ export default function MissionControlPage({ onNavigate }) {
           className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-white/10 bg-white/5 px-3 py-2.5 text-[10px] font-bold uppercase tracking-[0.15em] text-white/60"
         >
           <Icon name="book" className="h-3.5 w-3.5" />
-          Sources & methodology
+          References
         </button>
       </div>
 

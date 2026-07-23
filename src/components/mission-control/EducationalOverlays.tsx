@@ -41,7 +41,7 @@ export default function EducationalOverlays({ open, onClose, onOpenLesson }) {
       onClick={onClose}
     >
       <div
-        className="scroll-soft max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-white/10 bg-[#0b1a3d] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.9)] sm:rounded-2xl"
+        className="scroll-soft max-h-[88vh] w-full max-w-lg overflow-y-auto rounded-t-2xl border border-white/10 bg-[#0d0f13] p-6 shadow-[0_24px_80px_rgba(0,0,0,0.9)] sm:rounded-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between gap-4">
