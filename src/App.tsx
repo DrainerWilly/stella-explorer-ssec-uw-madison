@@ -30,6 +30,10 @@ const Step7Preview = lazy(() =>
   import('./features/stellaQ2/components/enclosure/Step7Preview'),
 )
 
+const Step9Preview = lazy(() =>
+  import('./features/stellaQ2/components/routing/Step9Preview'),
+)
+
 export default function App() {
   const [page, setPage] = useState('home')
   const [category, setCategory] = useState('all')
@@ -42,6 +46,9 @@ export default function App() {
   // excluded from production navigation and does not touch session progress.
   if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('stella-step7-preview')) {
     return <AppShell><Suspense fallback={<div className="min-h-screen bg-[#030916]" />}><Step7Preview /></Suspense></AppShell>
+  }
+  if (import.meta.env.DEV && new URLSearchParams(window.location.search).has('stella-step9-preview')) {
+    return <AppShell><Suspense fallback={<div className="min-h-screen bg-[#030916]" />}><Step9Preview /></Suspense></AppShell>
   }
 
   // Navigation is tracked in browser history so the back/forward buttons
@@ -100,7 +107,7 @@ export default function App() {
           scrolls internally; on mobile the document scrolls. */}
       <div
         className={`flex min-h-screen w-full flex-col lg:h-screen lg:min-h-0 lg:overflow-hidden ${
-          isMissionControl ? 'relative bg-[#050b1f]' : 'bg-app'
+          isMissionControl ? 'relative bg-[#050b1f]' : page === 'lessons' ? 'bg-white' : 'bg-app'
         }`}
       >
         <div className={isMissionControl ? 'lg:absolute lg:inset-x-0 lg:top-0 lg:z-40' : undefined}>

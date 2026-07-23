@@ -23,6 +23,8 @@ export const CATEGORIES = [
 ]
 
 // color keys map to Tailwind theme colors (pink, yellow, lavender, cardmint, blue, coral)
+// Every `image` is public-domain imagery from official sources (NASA / USGS);
+// `credit` records the source for the on-card attribution.
 export const LESSONS = [
   {
     id: 'how-landsat-images',
@@ -36,6 +38,8 @@ export const LESSONS = [
     minutes: 25,
     category: 'landsat',
     grades: ['middle', 'high'],
+    image: 'landsat/natural-color.jpg',
+    credit: 'USGS/NASA Landsat',
   },
   {
     id: 'spectrum-intro',
@@ -49,6 +53,8 @@ export const LESSONS = [
     minutes: 40,
     category: 'spectrum',
     grades: ['middle', 'high'],
+    image: 'assets/nasa/ems-diagram-09172025.jpg',
+    credit: 'NASA',
   },
   {
     id: 'measure-leaf',
@@ -61,6 +67,8 @@ export const LESSONS = [
     minutes: 20,
     category: 'stella',
     grades: ['elementary', 'middle'],
+    image: 'assets/home/nasa-stella-field-lesson.jpg',
+    credit: 'NASA STELLA',
   },
   {
     id: 'satellites-see',
@@ -73,6 +81,8 @@ export const LESSONS = [
     minutes: 15,
     category: 'landsat',
     grades: ['high', 'middle'],
+    image: 'assets/media/landsat-in-orbit.jpg',
+    credit: 'NASA/USGS',
   },
   {
     id: 'compare-surfaces',
@@ -85,6 +95,8 @@ export const LESSONS = [
     minutes: 25,
     category: 'vegetation',
     grades: ['middle', 'high'],
+    image: 'assets/home/nasa-crop-circles.jpg',
+    credit: 'NASA Earth Observatory',
   },
   {
     id: 'visible-infrared',
@@ -97,6 +109,8 @@ export const LESSONS = [
     minutes: 12,
     category: 'spectrum',
     grades: ['middle'],
+    image: 'landsat/false-color.jpg',
+    credit: 'USGS/NASA Landsat',
   },
   {
     id: 'urban-heat',
@@ -109,6 +123,8 @@ export const LESSONS = [
     minutes: 20,
     category: 'urban',
     grades: ['high'],
+    image: 'assets/videos/posters/urban-heat-islands.jpg',
+    credit: 'NASA',
   },
   {
     id: 'water-from-space',
@@ -121,18 +137,8 @@ export const LESSONS = [
     minutes: 18,
     category: 'water',
     grades: ['middle', 'high'],
-  },
-  {
-    id: 'field-investigation',
-    color: 'cardmint',
-    label: 'Teacher Guide',
-    icon: 'book',
-    title: 'Build Your Own Field Investigation',
-    meta: 'Teacher demo • 30 min',
-    badge: 'Teacher',
-    minutes: 30,
-    category: 'teacher',
-    grades: ['middle', 'high'],
+    image: 'assets/lessons/water-quality-bloom.jpg',
+    credit: 'NASA Goddard Space Flight Center',
   },
 ]
 

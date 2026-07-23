@@ -1,68 +1,47 @@
 // @ts-nocheck
-import Icon from './Icon'
+import { useEffect, useRef, useState } from 'react'
 
-// Pastel accent hexes (mirror tailwind theme) used as glows/tints on the dark
-// glass cards instead of full fills.
-const ACCENT = {
-  pink: '#F7BFC4',
-  yellow: '#FFE2AC',
-  lavender: '#D8D2FF',
-  cardmint: '#BDEFD8',
-  blue: '#CDEBFF',
-  coral: '#F7A7A7',
-}
-
+// A big-image "thumb" for the Lessons grid, echoing visualjournal.it: the
+// NASA/USGS image fades in on load and dims on hover/focus to reveal the
+// lesson caption. The whole thumb is one focusable, keyboard-accessible button.
 export default function LessonCard({ lesson, onOpen }) {
-  const accent = ACCENT[lesson.color] || '#CDEBFF'
+  const imgRef = useRef(null)
+  const [loaded, setLoaded] = useState(false)
+
+  // Cached images may already be complete before onLoad can fire.
+  useEffect(() => {
+    if (imgRef.current?.complete) setLoaded(true)
+  }, [])
+
+  const openable = Boolean(lesson.route)
 
   return (
     <button
       onClick={() => onOpen?.(lesson)}
-      aria-label={lesson.route ? `Open lesson: ${lesson.title}` : lesson.title}
-      style={{ '--accent': accent }}
-      className="group relative flex cursor-pointer flex-col overflow-hidden rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-left backdrop-blur-sm transition-all duration-300 hover:-translate-y-1 hover:border-[color:var(--accent)]/40 hover:bg-white/[0.07] hover:shadow-[0_18px_50px_-20px_var(--accent)]"
+      aria-label={`${openable ? 'Open lesson' : 'Lesson'}: ${lesson.title}. ${lesson.badge}, ${lesson.minutes} minutes.`}
+      className="cm-thumb"
     >
-      {/* accent glow that blooms on hover */}
-      <span
-        aria-hidden="true"
-        className="pointer-events-none absolute -right-10 -top-10 h-28 w-28 rounded-full opacity-40 blur-3xl transition-opacity duration-300 group-hover:opacity-80"
-        style={{ backgroundColor: accent }}
+      <img
+        ref={imgRef}
+        src={`${import.meta.env.BASE_URL}${lesson.image}`}
+        alt=""
+        loading="lazy"
+        onLoad={() => setLoaded(true)}
+        className={`cm-thumb__img${loaded ? ' cm-thumb__img--loaded' : ''}`}
       />
+      <span aria-hidden="true" className="cm-thumb__scrim" />
+      <span className="cm-thumb__credit">{lesson.credit}</span>
 
-      {/* top row: icon + badge */}
-      <div className="relative mb-8 flex items-start justify-between">
-        <span className="flex items-center gap-2.5">
-          <span
-            className="grid h-10 w-10 place-items-center rounded-xl ring-1 ring-white/10"
-            style={{ backgroundColor: `${accent}22`, color: accent }}
-          >
-            <Icon name={lesson.icon} className="h-[19px] w-[19px]" />
-          </span>
-          <span className="text-[13px] font-bold uppercase tracking-wider text-white/50">
-            {lesson.label}
-          </span>
+      <span className="cm-thumb__cap">
+        <span className="cm-thumb__kicker">{lesson.label}</span>
+        <span className="cm-thumb__title">{lesson.title}</span>
+        <span className="cm-thumb__meta">
+          <span>{lesson.meta}</span>
+          <svg className="cm-thumb__arrow" width="17" height="11" viewBox="0 0 17 11" fill="none" aria-hidden="true">
+            <path d="M1 5.5h14M11 1l4.5 4.5L11 10" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </span>
-        <span className="inline-flex items-center gap-1 rounded-full border border-white/10 bg-white/5 px-2.5 py-1 text-[11px] font-bold text-white/70">
-          <Icon name="star" className="h-3 w-3" style={{ color: accent }} />
-          {lesson.badge}
-        </span>
-      </div>
-
-      {/* title */}
-      <h3 className="relative text-xl font-extrabold leading-snug tracking-tight text-white">
-        {lesson.title}
-      </h3>
-
-      {/* meta + arrow */}
-      <div className="relative mt-3 flex items-end justify-between">
-        <span className="text-[13px] font-medium text-white/45">{lesson.meta}</span>
-        <span
-          className="grid h-8 w-8 place-items-center rounded-full border border-white/10 bg-white/5 text-white/60 transition-all group-hover:border-[color:var(--accent)]/50 group-hover:text-white"
-          style={{ '--accent': accent }}
-        >
-          <Icon name="chevron" className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-        </span>
-      </div>
+      </span>
     </button>
   )
 }

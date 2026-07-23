@@ -85,8 +85,11 @@ export default function Masthead({ active = 'home', onNavigate }) {
     onNavigate?.(id)
   }
 
-  const ink = 'text-white'
-  const linkColor = 'text-white/85 hover:text-white'
+  // The Lessons page is a light, visualjournal-style layout, so the navbar
+  // there is white with black text instead of the default dark treatment.
+  const isLight = active === 'lessons'
+  const ink = isLight ? 'text-[#111]' : 'text-white'
+  const linkColor = isLight ? 'text-[#333] hover:text-black' : 'text-white/85 hover:text-white'
   const autoHidden = shouldAutoHide && hidden && !menuOpen
   const isMissionControl = active === 'mission-control'
 
@@ -101,7 +104,9 @@ export default function Masthead({ active = 'home', onNavigate }) {
           ? `fixed inset-x-0 top-0 z-50 pb-5 ${
               isMissionControl
                 ? 'bg-transparent shadow-none'
-                : 'bg-[#050b1f] shadow-[0_18px_44px_rgba(2,6,23,0.22)]'
+                : isLight
+                  ? 'border-b border-black/10 bg-white'
+                  : 'bg-[#050b1f] shadow-[0_18px_44px_rgba(2,6,23,0.22)]'
             }`
           : 'relative z-30 shrink-0 bg-transparent'
       } ${

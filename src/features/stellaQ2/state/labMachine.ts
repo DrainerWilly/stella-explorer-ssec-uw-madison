@@ -35,6 +35,8 @@ import {
 import { ENCLOSURE_CAMERA_PRESETS, ENCLOSURE_SLOT_BY_ID } from '../data/enclosure'
 import { RETAINER_CAMERA_PRESETS, RETAINER_BY_ID, RETAINER_TARGET_BY_ID } from '../data/retainers'
 import { createInitialRetainerInstallations, isRetainerId, isValidRetainerInstallation, retainerInstallationFor, validateRetainers } from '../utils/retainers'
+import { ROUTING_CAMERA_PRESETS, ROUTING_CORRIDOR_BY_ID } from '../data/routing'
+import { createLooseCableRoutes, isRoutingCableId, isValidCableRouteState, suggestedRouteFor, validateCableRoute, validateRoutingStep } from '../utils/routing'
 import type {
   CableConnectionState,
   ComponentPlacement,
@@ -42,6 +44,7 @@ import type {
   EnclosureHistoryEntry,
   EnclosurePartId,
   RetainerHistoryEntry,
+  RoutingHistoryEntry,
   LabAction,
   LabState,
   LayoutHistoryEntry,
@@ -55,7 +58,7 @@ import type {
 export const STELLA_Q2_SESSION_KEY = 'exstella.stella-q2.phase-2a.v1'
 
 export const INITIAL_LAB_STATE: LabState = {
-  version: 6,
+  version: 7,
   mode: 'intro',
   guidance: 'standard',
   activeBuildStepId: BUILD_STEPS[0].id,
@@ -124,6 +127,22 @@ export const INITIAL_LAB_STATE: LabState = {
   retainerValidation: 'idle',
   retainerUndoHistory: [],
   retainerRedoHistory: [],
+  cableRoutes: createLooseCableRoutes(createInitialStep6Connections(), createInitialEnclosurePlacements()),
+  selectedRoutingCableId: null,
+  selectedRoutePointIndex: null,
+  routingCameraPreset: 'fit',
+  routingComparisonMode: 'workspace',
+  routingHintVisible: false,
+  routingControlPointsVisible: true,
+  routingCorridorsVisible: true,
+  routingCollisionRegionsVisible: false,
+  bottomCoverGhostVisible: false,
+  routingTransparentHousing: false,
+  routingWireframeHousing: false,
+  routingIsolateSelectedCable: false,
+  routingValidation: 'idle',
+  routingUndoHistory: [],
+  routingRedoHistory: [],
 }
 
 function validStepId(stepId: string) {
@@ -189,6 +208,15 @@ function validRetainerHistoryEntry(value: unknown): value is RetainerHistoryEntr
     && (entry.selectedRetainerId === null || isRetainerId(entry.selectedRetainerId ?? null))
     && validRetainerTargetId(entry.selectedRetainerTargetId ?? null)
     && Array.isArray(entry.cableBlockedRetainerIds) && entry.cableBlockedRetainerIds.every((id) => isRetainerId(id))
+}
+function validRoutingComparisonMode(mode: unknown) { return mode === 'workspace' || mode === 'build-three' || mode === 'build-four' || mode === 'photos-side-by-side' || mode === 'workspace-build-four' || mode === 'build-four-large' || mode === 'annotated' }
+function validRoutingHistoryEntry(value: unknown): value is RoutingHistoryEntry {
+  if (!value || typeof value !== 'object') return false
+  const entry = value as Partial<RoutingHistoryEntry>
+  return Array.isArray(entry.routes) && entry.routes.length === 6 && entry.routes.every(isValidCableRouteState)
+    && new Set(entry.routes.map((route) => route.cableId)).size === entry.routes.length
+    && (entry.selectedCableId === null || isRoutingCableId(entry.selectedCableId ?? null))
+    && (entry.selectedRoutePointIndex === null || (typeof entry.selectedRoutePointIndex === 'number' && Number.isInteger(entry.selectedRoutePointIndex) && entry.selectedRoutePointIndex >= 0))
 }
 
 function validEnclosureSlotId(slotId: string | null) {
@@ -301,6 +329,13 @@ function snapshotEnclosure(state: LabState): EnclosureHistoryEntry {
 function snapshotRetainers(state: LabState): RetainerHistoryEntry {
   return { installations: state.retainerInstallations.map((item) => ({ ...item })), selectedRetainerId: state.selectedRetainerId, selectedRetainerTargetId: state.selectedRetainerTargetId, cableBlockedRetainerIds: [...state.cableBlockedRetainerIds] }
 }
+function snapshotRouting(state: LabState): RoutingHistoryEntry {
+  return { routes: state.cableRoutes.map((route) => ({ ...route, controlPointsMm: route.controlPointsMm.map((point) => [...point] as const), corridorIds: [...route.corridorIds], validationIssues: [...route.validationIssues] })), selectedCableId: state.selectedRoutingCableId, selectedRoutePointIndex: state.selectedRoutePointIndex }
+}
+function applyRoutingSnapshot(state: LabState, snapshot: RoutingHistoryEntry, historyKey: 'routingUndoHistory' | 'routingRedoHistory'): LabState {
+  const other = historyKey === 'routingUndoHistory' ? 'routingRedoHistory' : 'routingUndoHistory'
+  return { ...state, cableRoutes: snapshot.routes.map((route) => ({ ...route, controlPointsMm: route.controlPointsMm.map((point) => [...point] as const), corridorIds: [...route.corridorIds], validationIssues: [...route.validationIssues] })), selectedRoutingCableId: snapshot.selectedCableId, selectedRoutePointIndex: snapshot.selectedRoutePointIndex, [historyKey]: state[historyKey].slice(0, -1), [other]: [...state[other], snapshotRouting(state)], routingValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'wire-routing') } as LabState
+}
 function applyRetainerSnapshot(state: LabState, snapshot: RetainerHistoryEntry, historyKey: 'retainerUndoHistory' | 'retainerRedoHistory'): LabState {
   const other = historyKey === 'retainerUndoHistory' ? 'retainerRedoHistory' : 'retainerUndoHistory'
   const updated = { ...state, retainerInstallations: snapshot.installations.map((item) => ({ ...item })), selectedRetainerId: snapshot.selectedRetainerId, selectedRetainerTargetId: snapshot.selectedRetainerTargetId, cableBlockedRetainerIds: [...snapshot.cableBlockedRetainerIds], [historyKey]: state[historyKey].slice(0, -1), [other]: [...state[other], snapshotRetainers(state)] } as LabState
@@ -401,9 +436,11 @@ export function labReducer(state: LabState, action: LabAction): LabState {
     case 'RETURN_TO_INTRO':
       return { ...state, mode: 'intro' }
     case 'SELECT_BUILD_STEP':
-      return validStepId(action.stepId)
-        ? { ...state, activeBuildStepId: action.stepId }
-        : state
+      if (!validStepId(action.stepId)) return state
+      if (action.stepId === 'wire-routing' && state.cableRoutes.every((route) => !route.endpointA || !route.endpointB)) {
+        return { ...state, activeBuildStepId: action.stepId, cableRoutes: createLooseCableRoutes(state.step6Connections, state.enclosurePlacements), selectedRoutingCableId: state.step6Connections[0]?.cableId ?? null }
+      }
+      return { ...state, activeBuildStepId: action.stepId }
     case 'COMPLETE_BUILD_STEP': {
       if (!validStepId(action.stepId) || state.completedBuildStepIds.includes(action.stepId)) {
         return state
@@ -873,6 +910,77 @@ export function labReducer(state: LabState, action: LabAction): LabState {
       const validation = validateRetainers(state.layoutPlacements, state.step6Connections, state.coinCellInstalled, state.enclosurePlacements, state.microSdInstalled, state.retainerInstallations, state.cableBlockedRetainerIds)
       return { ...state, retainerValidation: validation.status, completedBuildStepIds: validation.status === 'valid' && !state.completedBuildStepIds.includes('retainer-clips') ? [...state.completedBuildStepIds, 'retainer-clips'] : state.completedBuildStepIds }
     }
+    case 'INITIALIZE_ROUTING':
+      return { ...state, cableRoutes: createLooseCableRoutes(state.step6Connections, state.enclosurePlacements), selectedRoutingCableId: state.step6Connections[0]?.cableId ?? null, selectedRoutePointIndex: null, routingValidation: 'idle', routingUndoHistory: [], routingRedoHistory: [] }
+    case 'SELECT_ROUTING_CABLE':
+      return action.cableId === null || isRoutingCableId(action.cableId) ? { ...state, selectedRoutingCableId: action.cableId, selectedRoutePointIndex: null, routingValidation: 'idle' } : state
+    case 'SELECT_ROUTE_POINT':
+      return action.index === null || (Number.isInteger(action.index) && action.index >= 0) ? { ...state, selectedRoutePointIndex: action.index } : state
+    case 'ADD_ROUTE_POINT': {
+      if (!isRoutingCableId(action.cableId)) return state
+      const corridor = action.corridorId ? ROUTING_CORRIDOR_BY_ID.get(action.corridorId) : undefined
+      const point = action.pointMm ?? corridor?.preferredControlPointMm ?? [0, 0, 20]
+      const route = state.cableRoutes.find((item) => item.cableId === action.cableId)
+      if (!route) return state
+      return { ...state, cableRoutes: state.cableRoutes.map((item) => item.cableId === action.cableId ? { ...item, controlPointsMm: [...item.controlPointsMm, point], corridorIds: corridor && !item.corridorIds.includes(corridor.id) ? [...item.corridorIds, corridor.id] : item.corridorIds, status: 'editing', validationStatus: 'idle', validationIssues: [] } : item), selectedRoutingCableId: action.cableId, selectedRoutePointIndex: route.controlPointsMm.length, routingUndoHistory: [...state.routingUndoHistory, snapshotRouting(state)], routingRedoHistory: [], routingValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'wire-routing') }
+    }
+    case 'MOVE_ROUTE_POINT': {
+      if (!isRoutingCableId(action.cableId) || action.index < 0) return state
+      const route = state.cableRoutes.find((item) => item.cableId === action.cableId)
+      if (!route || action.index >= route.controlPointsMm.length) return state
+      return { ...state, cableRoutes: state.cableRoutes.map((item) => item.cableId === action.cableId ? { ...item, controlPointsMm: item.controlPointsMm.map((point, index) => index === action.index ? action.pointMm : point), status: 'editing', validationStatus: 'idle', validationIssues: [] } : item), selectedRoutingCableId: action.cableId, selectedRoutePointIndex: action.index, routingUndoHistory: [...state.routingUndoHistory, snapshotRouting(state)], routingRedoHistory: [], routingValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'wire-routing') }
+    }
+    case 'REMOVE_ROUTE_POINT': {
+      if (!isRoutingCableId(action.cableId) || action.index < 0) return state
+      const route = state.cableRoutes.find((item) => item.cableId === action.cableId)
+      if (!route || action.index >= route.controlPointsMm.length) return state
+      return { ...state, cableRoutes: state.cableRoutes.map((item) => item.cableId === action.cableId ? { ...item, controlPointsMm: item.controlPointsMm.filter((_, index) => index !== action.index), status: 'editing', validationStatus: 'idle', validationIssues: [] } : item), selectedRoutePointIndex: null, routingUndoHistory: [...state.routingUndoHistory, snapshotRouting(state)], routingRedoHistory: [], routingValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'wire-routing') }
+    }
+    case 'MOVE_ROUTE_CORRIDOR': {
+      const route = state.cableRoutes.find((item) => item.cableId === action.cableId)
+      if (!route || action.corridorIndex < 0 || action.corridorIndex >= route.corridorIds.length) return state
+      const nextIndex = Math.max(0, Math.min(route.corridorIds.length - 1, action.corridorIndex + action.direction))
+      if (nextIndex === action.corridorIndex) return state
+      const next = [...route.corridorIds]; [next[action.corridorIndex], next[nextIndex]] = [next[nextIndex], next[action.corridorIndex]]
+      return { ...state, cableRoutes: state.cableRoutes.map((item) => item.cableId === route.cableId ? { ...item, corridorIds: next, status: 'editing', validationStatus: 'idle', validationIssues: [] } : item), routingUndoHistory: [...state.routingUndoHistory, snapshotRouting(state)], routingRedoHistory: [], routingValidation: 'idle' }
+    }
+    case 'APPLY_SUGGESTED_ROUTE': {
+      const connection = state.step6Connections.find((item) => item.cableId === action.cableId)
+      if (!connection) return state
+      const suggested = suggestedRouteFor(connection, state.enclosurePlacements)
+      return { ...state, cableRoutes: state.cableRoutes.map((item) => item.cableId === action.cableId ? suggested : item), selectedRoutingCableId: action.cableId, selectedRoutePointIndex: null, routingUndoHistory: [...state.routingUndoHistory, snapshotRouting(state)], routingRedoHistory: [], routingValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'wire-routing') }
+    }
+    case 'RESET_SELECTED_ROUTE': {
+      const loose = createLooseCableRoutes(state.step6Connections, state.enclosurePlacements).find((item) => item.cableId === action.cableId)
+      if (!loose) return state
+      return { ...state, cableRoutes: state.cableRoutes.map((item) => item.cableId === action.cableId ? loose : item), selectedRoutingCableId: action.cableId, selectedRoutePointIndex: null, routingUndoHistory: [...state.routingUndoHistory, snapshotRouting(state)], routingRedoHistory: [], routingValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'wire-routing') }
+    }
+    case 'MARK_ROUTE_READY':
+      return isRoutingCableId(action.cableId) ? { ...state, cableRoutes: state.cableRoutes.map((item) => item.cableId === action.cableId ? { ...item, status: 'routed', validationStatus: 'idle', validationIssues: [] } : item), routingUndoHistory: [...state.routingUndoHistory, snapshotRouting(state)], routingRedoHistory: [], routingValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'wire-routing') } : state
+    case 'CHECK_SELECTED_ROUTE': {
+      const route = state.cableRoutes.find((item) => item.cableId === action.cableId)
+      const connection = state.step6Connections.find((item) => item.cableId === action.cableId)
+      if (!route) return state
+      const result = validateCableRoute(route, connection, state.enclosurePlacements, state.retainerInstallations, state.cableBlockedRetainerIds)
+      return { ...state, cableRoutes: state.cableRoutes.map((item) => item.cableId === action.cableId ? { ...item, validationStatus: result.status, validationIssues: result.issues } : item), routingValidation: result.status === 'valid' ? 'idle' : result.status === 'missing-route' ? 'incomplete' : result.status }
+    }
+    case 'SET_ROUTING_CAMERA': return ROUTING_CAMERA_PRESETS.includes(action.preset) ? { ...state, routingCameraPreset: action.preset } : state
+    case 'SET_ROUTING_COMPARISON_MODE': return validRoutingComparisonMode(action.mode) ? { ...state, routingComparisonMode: action.mode } : state
+    case 'TOGGLE_ROUTING_HINT': return { ...state, routingHintVisible: !state.routingHintVisible }
+    case 'TOGGLE_ROUTING_CONTROL_POINTS': return { ...state, routingControlPointsVisible: !state.routingControlPointsVisible }
+    case 'TOGGLE_ROUTING_CORRIDORS': return { ...state, routingCorridorsVisible: !state.routingCorridorsVisible }
+    case 'TOGGLE_ROUTING_COLLISIONS': return { ...state, routingCollisionRegionsVisible: !state.routingCollisionRegionsVisible }
+    case 'TOGGLE_BOTTOM_COVER_GHOST': return { ...state, bottomCoverGhostVisible: !state.bottomCoverGhostVisible }
+    case 'TOGGLE_ROUTING_TRANSPARENCY': return { ...state, routingTransparentHousing: !state.routingTransparentHousing }
+    case 'TOGGLE_ROUTING_WIREFRAME': return { ...state, routingWireframeHousing: !state.routingWireframeHousing }
+    case 'TOGGLE_ROUTING_ISOLATION': return { ...state, routingIsolateSelectedCable: !state.routingIsolateSelectedCable }
+    case 'UNDO_ROUTING': { const snapshot = state.routingUndoHistory[state.routingUndoHistory.length - 1]; return snapshot ? applyRoutingSnapshot(state, snapshot, 'routingUndoHistory') : state }
+    case 'REDO_ROUTING': { const snapshot = state.routingRedoHistory[state.routingRedoHistory.length - 1]; return snapshot ? applyRoutingSnapshot(state, snapshot, 'routingRedoHistory') : state }
+    case 'RESET_ROUTING': return { ...state, cableRoutes: createLooseCableRoutes(state.step6Connections, state.enclosurePlacements), selectedRoutePointIndex: null, routingValidation: 'idle', routingUndoHistory: [...state.routingUndoHistory, snapshotRouting(state)], routingRedoHistory: [], completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'wire-routing') }
+    case 'CHECK_ROUTING': {
+      const validation = validateRoutingStep({ layout: state.layoutPlacements, connections: state.step6Connections, coinInstalled: state.coinCellInstalled, placements: state.enclosurePlacements, microSdInstalled: state.microSdInstalled, retainers: state.retainerInstallations, blockedRetainers: state.cableBlockedRetainerIds, routes: state.cableRoutes })
+      return { ...state, routingValidation: validation.status, completedBuildStepIds: validation.status === 'valid' && !state.completedBuildStepIds.includes('wire-routing') ? [...state.completedBuildStepIds, 'wire-routing'] : state.completedBuildStepIds }
+    }
     case 'RESET_PROGRESS':
       return { ...INITIAL_LAB_STATE, mode: state.mode, guidance: state.guidance }
     default:
@@ -958,8 +1066,15 @@ export function validatePersistedState(value: unknown): LabState | null {
       selectedRetainerId: null, selectedRetainerTargetId: null, retainerInstallations: createInitialRetainerInstallations(), cableBlockedRetainerIds: [], retainerCameraPreset: 'fit' as const, retainerComparisonMode: 'workspace' as const, retainerHintVisible: false, retainerTargetsVisible: true, retainerCableClearanceVisible: true, retainerTransparentHousing: false, retainerWireframeHousing: false, retainerIsolateSelected: false, retainerValidation: 'idle' as const, retainerUndoHistory: [], retainerRedoHistory: [] }
     return validatePersistedState(migrated)
   }
+  if (persistedVersion === 6) {
+    const persistedConnections = Array.isArray(candidate.step6Connections) ? candidate.step6Connections as CableConnectionState[] : createInitialStep6Connections()
+    const persistedPlacements = Array.isArray(candidate.enclosurePlacements) ? candidate.enclosurePlacements : createInitialEnclosurePlacements()
+    const migrated = { ...INITIAL_LAB_STATE, ...candidate, version: 7 as const,
+      cableRoutes: createLooseCableRoutes(persistedConnections, persistedPlacements), selectedRoutingCableId: null, selectedRoutePointIndex: null, routingCameraPreset: 'fit' as const, routingComparisonMode: 'workspace' as const, routingHintVisible: false, routingControlPointsVisible: true, routingCorridorsVisible: true, routingCollisionRegionsVisible: false, bottomCoverGhostVisible: false, routingTransparentHousing: false, routingWireframeHousing: false, routingIsolateSelectedCable: false, routingValidation: 'idle' as const, routingUndoHistory: [], routingRedoHistory: [] }
+    return validatePersistedState(migrated)
+  }
   if (
-    persistedVersion !== 6 ||
+    persistedVersion !== 7 ||
     (candidate.mode !== 'intro' && candidate.mode !== 'build') ||
     !validStepId(candidate.activeBuildStepId ?? '') ||
     !validPartId(candidate.selectedPartId ?? '') ||
@@ -1045,7 +1160,14 @@ export function validatePersistedState(value: unknown): LabState | null {
     !RETAINER_CAMERA_PRESETS.includes(candidate.retainerCameraPreset ?? 'fit') || !validRetainerComparisonMode(candidate.retainerComparisonMode) ||
     typeof candidate.retainerHintVisible !== 'boolean' || typeof candidate.retainerTargetsVisible !== 'boolean' || typeof candidate.retainerCableClearanceVisible !== 'boolean' || typeof candidate.retainerTransparentHousing !== 'boolean' || typeof candidate.retainerWireframeHousing !== 'boolean' || typeof candidate.retainerIsolateSelected !== 'boolean' ||
     !['idle','enclosure-incomplete','incomplete','wrong-target','wrong-orientation','not-seated','target-occupied','housing-collision','component-collision','cable-pinched','valid'].includes(candidate.retainerValidation ?? '') ||
-    !Array.isArray(candidate.retainerUndoHistory) || !candidate.retainerUndoHistory.every(validRetainerHistoryEntry) || !Array.isArray(candidate.retainerRedoHistory) || !candidate.retainerRedoHistory.every(validRetainerHistoryEntry)
+    !Array.isArray(candidate.retainerUndoHistory) || !candidate.retainerUndoHistory.every(validRetainerHistoryEntry) || !Array.isArray(candidate.retainerRedoHistory) || !candidate.retainerRedoHistory.every(validRetainerHistoryEntry) ||
+    !Array.isArray(candidate.cableRoutes) || candidate.cableRoutes.length !== 6 || !candidate.cableRoutes.every(isValidCableRouteState) || new Set(candidate.cableRoutes.map((route) => route.cableId)).size !== candidate.cableRoutes.length ||
+    (candidate.selectedRoutingCableId !== null && !isRoutingCableId(candidate.selectedRoutingCableId ?? null)) ||
+    (candidate.selectedRoutePointIndex !== null && (typeof candidate.selectedRoutePointIndex !== 'number' || !Number.isInteger(candidate.selectedRoutePointIndex) || candidate.selectedRoutePointIndex < 0)) ||
+    !ROUTING_CAMERA_PRESETS.includes(candidate.routingCameraPreset ?? 'fit') || !validRoutingComparisonMode(candidate.routingComparisonMode) ||
+    typeof candidate.routingHintVisible !== 'boolean' || typeof candidate.routingControlPointsVisible !== 'boolean' || typeof candidate.routingCorridorsVisible !== 'boolean' || typeof candidate.routingCollisionRegionsVisible !== 'boolean' || typeof candidate.bottomCoverGhostVisible !== 'boolean' || typeof candidate.routingTransparentHousing !== 'boolean' || typeof candidate.routingWireframeHousing !== 'boolean' || typeof candidate.routingIsolateSelectedCable !== 'boolean' ||
+    !['idle','retainers-incomplete','incomplete','endpoint-changed','too-long','too-taut','housing-collision','component-collision','retainer-collision','cover-contact','latch-collision','cable-pinched','outside-corridor','valid'].includes(candidate.routingValidation ?? '') ||
+    !Array.isArray(candidate.routingUndoHistory) || !candidate.routingUndoHistory.every(validRoutingHistoryEntry) || !Array.isArray(candidate.routingRedoHistory) || !candidate.routingRedoHistory.every(validRoutingHistoryEntry)
   ) {
     return null
   }

@@ -57,5 +57,3 @@ for face in 0 1 2 3 4 5; do
     -filter Lanczos -resize 512x512 -strip -quality 90 -define webp:method=6 \
     "$output_dir/day_512_${face}.webp"
 done
-
-echo "Wrote NASA Eyes day faces to $output_dir"

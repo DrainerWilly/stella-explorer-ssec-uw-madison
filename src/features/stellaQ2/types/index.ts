@@ -97,6 +97,29 @@ export type RetainerCameraPreset = EnclosureCameraPreset | 'selected-retainer'
 export type RetainerComparisonMode = 'workspace' | 'build-three' | 'side-by-side' | 'build-four-next'
 export type RetainerValidationStatus = 'idle' | 'enclosure-incomplete' | 'incomplete' | 'wrong-target' | 'wrong-orientation' | 'not-seated' | 'target-occupied' | 'housing-collision' | 'component-collision' | 'cable-pinched' | 'valid'
 
+export type RoutingCameraPreset = 'fit' | 'top' | 'build-four' | 'front' | 'back' | 'left' | 'right' | 'selected-cable'
+export type RoutingComparisonMode = 'workspace' | 'build-three' | 'build-four' | 'photos-side-by-side' | 'workspace-build-four' | 'build-four-large' | 'annotated'
+export type CableRouteStatus = 'loose' | 'editing' | 'routed'
+export type CableRouteValidationStatus = 'idle' | 'valid' | 'missing-route' | 'endpoint-changed' | 'too-long' | 'too-taut' | 'housing-collision' | 'component-collision' | 'retainer-collision' | 'cover-contact' | 'latch-collision' | 'cable-pinched' | 'outside-corridor'
+export type RoutingValidationStatus = 'idle' | 'retainers-incomplete' | 'incomplete' | 'endpoint-changed' | 'too-long' | 'too-taut' | 'housing-collision' | 'component-collision' | 'retainer-collision' | 'cover-contact' | 'latch-collision' | 'cable-pinched' | 'outside-corridor' | 'valid'
+
+export interface CableRouteState {
+  cableId: string
+  endpointA: string | null
+  endpointB: string | null
+  controlPointsMm: Array<readonly [number, number, number]>
+  corridorIds: string[]
+  status: CableRouteStatus
+  validationStatus: CableRouteValidationStatus
+  validationIssues: string[]
+}
+
+export interface RoutingHistoryEntry {
+  routes: CableRouteState[]
+  selectedCableId: string | null
+  selectedRoutePointIndex: number | null
+}
+
 export interface CableConnectionState {
   cableId: string
   kind: 'qwiic' | 'power'
@@ -277,7 +300,7 @@ export interface ScaffoldingHistoryEntry {
 }
 
 export interface LabState {
-  version: 6
+  version: 7
   mode: LabMode
   guidance: GuidanceLevel
   activeBuildStepId: string
@@ -346,6 +369,22 @@ export interface LabState {
   retainerValidation: RetainerValidationStatus
   retainerUndoHistory: RetainerHistoryEntry[]
   retainerRedoHistory: RetainerHistoryEntry[]
+  cableRoutes: CableRouteState[]
+  selectedRoutingCableId: string | null
+  selectedRoutePointIndex: number | null
+  routingCameraPreset: RoutingCameraPreset
+  routingComparisonMode: RoutingComparisonMode
+  routingHintVisible: boolean
+  routingControlPointsVisible: boolean
+  routingCorridorsVisible: boolean
+  routingCollisionRegionsVisible: boolean
+  bottomCoverGhostVisible: boolean
+  routingTransparentHousing: boolean
+  routingWireframeHousing: boolean
+  routingIsolateSelectedCable: boolean
+  routingValidation: RoutingValidationStatus
+  routingUndoHistory: RoutingHistoryEntry[]
+  routingRedoHistory: RoutingHistoryEntry[]
 }
 
 export type LabAction =
@@ -432,4 +471,29 @@ export type LabAction =
   | { type: 'REDO_RETAINER' }
   | { type: 'RESET_RETAINERS' }
   | { type: 'CHECK_RETAINERS' }
+  | { type: 'INITIALIZE_ROUTING' }
+  | { type: 'SELECT_ROUTING_CABLE'; cableId: string | null }
+  | { type: 'SELECT_ROUTE_POINT'; index: number | null }
+  | { type: 'ADD_ROUTE_POINT'; cableId: string; pointMm?: readonly [number, number, number]; corridorId?: string }
+  | { type: 'MOVE_ROUTE_POINT'; cableId: string; index: number; pointMm: readonly [number, number, number] }
+  | { type: 'REMOVE_ROUTE_POINT'; cableId: string; index: number }
+  | { type: 'MOVE_ROUTE_CORRIDOR'; cableId: string; corridorIndex: number; direction: -1 | 1 }
+  | { type: 'APPLY_SUGGESTED_ROUTE'; cableId: string }
+  | { type: 'RESET_SELECTED_ROUTE'; cableId: string }
+  | { type: 'MARK_ROUTE_READY'; cableId: string }
+  | { type: 'CHECK_SELECTED_ROUTE'; cableId: string }
+  | { type: 'SET_ROUTING_CAMERA'; preset: RoutingCameraPreset }
+  | { type: 'SET_ROUTING_COMPARISON_MODE'; mode: RoutingComparisonMode }
+  | { type: 'TOGGLE_ROUTING_HINT' }
+  | { type: 'TOGGLE_ROUTING_CONTROL_POINTS' }
+  | { type: 'TOGGLE_ROUTING_CORRIDORS' }
+  | { type: 'TOGGLE_ROUTING_COLLISIONS' }
+  | { type: 'TOGGLE_BOTTOM_COVER_GHOST' }
+  | { type: 'TOGGLE_ROUTING_TRANSPARENCY' }
+  | { type: 'TOGGLE_ROUTING_WIREFRAME' }
+  | { type: 'TOGGLE_ROUTING_ISOLATION' }
+  | { type: 'UNDO_ROUTING' }
+  | { type: 'REDO_ROUTING' }
+  | { type: 'RESET_ROUTING' }
+  | { type: 'CHECK_ROUTING' }
   | { type: 'RESET_PROGRESS' }

@@ -128,6 +128,12 @@ html { scroll-behavior: smooth; }
   height: clamp(4.75rem, 5.5vw, 5.75rem);
 }
 
+/* The big-image grid begins flush against the end of the (full-height) navbar,
+   so the Lessons spacer matches the navbar height instead of the taller default. */
+.cm-floating-nav-content > main.cm-lessons::before {
+  height: clamp(5rem, 4vw + 2.7rem, 5.7rem);
+}
+
 /* ---- home hero video treatment ---- */
 @keyframes cm-hero-video-zoom {
   from { transform: scale(1.1); }
@@ -353,4 +359,138 @@ html { scroll-behavior: smooth; }
     font-size: clamp(1.7rem, 9vw, 2.85rem);
   }
   .cm-wordmark { font-size: 1.5rem; letter-spacing: 0.16em; }
+}
+
+/* ==========================================================================
+   Lessons page — a split, big-image grid inspired by the composition and
+   fade/hover interactions of visualjournal.it, built with our own SSEC
+   content and NASA/USGS public-domain imagery. Two columns on desktop, one on
+   mobile; each thumb fades in on load and dims to reveal its caption on
+   hover/focus.
+   ========================================================================== */
+.cm-lessons {
+  background: #ffffff;
+  color: #111111;
+  /* Closest freely-licensed match to the reference's commercial "Metro Sans";
+     single weight (400), no bold — see the header. */
+  font-family: 'Hanken Grotesk', 'Inter', system-ui, -apple-system, sans-serif;
+  font-weight: 400;
+}
+.cm-lessons :where(h1, h2, h3, strong, b) { font-weight: 400; }
+
+.cm-vj-grid {
+  display: grid;
+  grid-auto-flow: dense;
+  gap: 0.75rem;
+  grid-template-columns: 100%;
+}
+@media (min-width: 750px) {
+  .cm-vj-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+.cm-thumb {
+  position: relative;
+  display: block;
+  width: 100%;
+  padding-bottom: 66%;
+  overflow: hidden;
+  background: #ffffff;
+  cursor: pointer;
+  appearance: none;
+  border: 0;
+  padding-top: 0;
+  color: #fff;
+}
+.cm-thumb__img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 400ms ease-in-out;
+}
+.cm-thumb__img--loaded { opacity: 1; }
+/* reference hover: the image simply dims to reveal the light backdrop — no zoom */
+.cm-thumb:hover .cm-thumb__img,
+.cm-thumb:focus-visible .cm-thumb__img {
+  opacity: 0.5;
+}
+/* permanent legibility scrim behind the caption */
+.cm-thumb__scrim {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.62) 0%, rgba(0, 0, 0, 0.12) 34%, rgba(0, 0, 0, 0) 62%);
+  transition: opacity 500ms var(--cm-ease);
+}
+.cm-thumb__cap {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 1rem 1.15rem 1.1rem;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  text-align: left;
+}
+.cm-thumb__kicker {
+  font-size: 0.68rem;
+  font-weight: 400;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.82);
+}
+.cm-thumb__title {
+  margin-top: 0.35rem;
+  font-size: clamp(1.2rem, 2.1vw, 1.6rem);
+  font-weight: 400;
+  line-height: 1.14;
+  letter-spacing: -0.01em;
+  text-wrap: balance;
+}
+/* meta row: revealed / lifted on hover-focus */
+.cm-thumb__meta {
+  margin-top: 0.55rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.85);
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 450ms var(--cm-ease), transform 450ms var(--cm-ease);
+}
+.cm-thumb:hover .cm-thumb__meta,
+.cm-thumb:focus-visible .cm-thumb__meta {
+  opacity: 1;
+  transform: none;
+}
+.cm-thumb__arrow { transition: transform 450ms var(--cm-ease); }
+.cm-thumb:hover .cm-thumb__arrow,
+.cm-thumb:focus-visible .cm-thumb__arrow { transform: translateX(4px); }
+.cm-thumb:focus-visible {
+  outline: 2px solid #111;
+  outline-offset: 3px;
+}
+.cm-thumb__credit {
+  position: absolute;
+  top: 0.55rem;
+  right: 0.7rem;
+  z-index: 2;
+  font-size: 0.6rem;
+  letter-spacing: 0.04em;
+  color: rgba(17, 17, 17, 0.7);
+  text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+  opacity: 0;
+  transition: opacity 450ms var(--cm-ease);
+}
+.cm-thumb:hover .cm-thumb__credit,
+.cm-thumb:focus-visible .cm-thumb__credit { opacity: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-thumb__img, .cm-thumb__meta, .cm-thumb__arrow, .cm-thumb__scrim, .cm-thumb__credit {
+    transition: none;
+  }
 }

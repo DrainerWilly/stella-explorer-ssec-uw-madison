@@ -76,7 +76,7 @@ test('Step 7 reducer preserves Step 6 state while supporting placement, undo, re
 
   const phase2c = { ...INITIAL_LAB_STATE, version: 4 }
   const migrated = validatePersistedState(phase2c)
-  assert.equal(migrated?.version, 6)
+  assert.equal(migrated?.version, 7)
   assert.equal(migrated?.enclosurePlacements.length, createInitialEnclosurePlacements().length)
   assert.deepEqual(validatePersistedState(structuredClone(INITIAL_LAB_STATE)), INITIAL_LAB_STATE)
 })
