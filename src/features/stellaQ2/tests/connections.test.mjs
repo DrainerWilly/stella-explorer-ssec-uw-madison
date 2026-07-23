@@ -76,7 +76,7 @@ test('reducer rejects incompatible or occupied connector assignments and preserv
 
   const phase2b = { ...INITIAL_LAB_STATE, version: 3 }
   const migrated = validatePersistedState(phase2b)
-  assert.equal(migrated?.version, 5)
+  assert.equal(migrated?.version, 6)
   assert.equal(migrated?.step6Connections.length, 6)
   assert.deepEqual(validatePersistedState(structuredClone(INITIAL_LAB_STATE)), INITIAL_LAB_STATE)
 })

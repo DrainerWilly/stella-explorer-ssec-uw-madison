@@ -91,6 +91,12 @@ export type EnclosureValidationStatus =
   | 'micro-sd-missing'
   | 'valid'
 
+export type RetainerId = 'clock-retainer' | 'display-retainer' | 'processor-retainer' | 'button-retainer' | 'battery-retainer'
+export type RetainerInstallationState = 'tray' | 'aligned' | 'installing' | 'installed'
+export type RetainerCameraPreset = EnclosureCameraPreset | 'selected-retainer'
+export type RetainerComparisonMode = 'workspace' | 'build-three' | 'side-by-side' | 'build-four-next'
+export type RetainerValidationStatus = 'idle' | 'enclosure-incomplete' | 'incomplete' | 'wrong-target' | 'wrong-orientation' | 'not-seated' | 'target-occupied' | 'housing-collision' | 'component-collision' | 'cable-pinched' | 'valid'
+
 export interface CableConnectionState {
   cableId: string
   kind: 'qwiic' | 'power'
@@ -118,6 +124,21 @@ export interface EnclosureHistoryEntry {
   selectedEnclosureComponentId: EnclosurePartId | null
   selectedEnclosureSlotId: string | null
   microSdInstalled: boolean
+}
+
+export interface RetainerInstallation {
+  retainerId: RetainerId
+  targetId: string | null
+  positionMm: readonly [number, number, number]
+  rotation: readonly [number, number, number]
+  installationState: RetainerInstallationState
+}
+
+export interface RetainerHistoryEntry {
+  installations: RetainerInstallation[]
+  selectedRetainerId: RetainerId | null
+  selectedRetainerTargetId: string | null
+  cableBlockedRetainerIds: RetainerId[]
 }
 
 export interface ComponentPlacement {
@@ -256,7 +277,7 @@ export interface ScaffoldingHistoryEntry {
 }
 
 export interface LabState {
-  version: 5
+  version: 6
   mode: LabMode
   guidance: GuidanceLevel
   activeBuildStepId: string
@@ -310,6 +331,21 @@ export interface LabState {
   enclosureValidation: EnclosureValidationStatus
   enclosureUndoHistory: EnclosureHistoryEntry[]
   enclosureRedoHistory: EnclosureHistoryEntry[]
+  selectedRetainerId: RetainerId | null
+  selectedRetainerTargetId: string | null
+  retainerInstallations: RetainerInstallation[]
+  cableBlockedRetainerIds: RetainerId[]
+  retainerCameraPreset: RetainerCameraPreset
+  retainerComparisonMode: RetainerComparisonMode
+  retainerHintVisible: boolean
+  retainerTargetsVisible: boolean
+  retainerCableClearanceVisible: boolean
+  retainerTransparentHousing: boolean
+  retainerWireframeHousing: boolean
+  retainerIsolateSelected: boolean
+  retainerValidation: RetainerValidationStatus
+  retainerUndoHistory: RetainerHistoryEntry[]
+  retainerRedoHistory: RetainerHistoryEntry[]
 }
 
 export type LabAction =
@@ -378,4 +414,22 @@ export type LabAction =
   | { type: 'REDO_ENCLOSURE' }
   | { type: 'RESET_ENCLOSURE' }
   | { type: 'CHECK_ENCLOSURE' }
+  | { type: 'SELECT_RETAINER'; retainerId: RetainerId | null }
+  | { type: 'SELECT_RETAINER_TARGET'; targetId: string | null }
+  | { type: 'PLACE_RETAINER'; installation: RetainerInstallation }
+  | { type: 'REMOVE_RETAINER'; retainerId: RetainerId }
+  | { type: 'ROTATE_RETAINER'; retainerId: RetainerId; delta: number }
+  | { type: 'TOGGLE_RETAINER_CABLE_CLEARANCE'; retainerId: RetainerId }
+  | { type: 'SET_RETAINER_CAMERA'; preset: RetainerCameraPreset }
+  | { type: 'SET_RETAINER_COMPARISON_MODE'; mode: RetainerComparisonMode }
+  | { type: 'TOGGLE_RETAINER_HINT' }
+  | { type: 'TOGGLE_RETAINER_TARGETS' }
+  | { type: 'TOGGLE_RETAINER_CLEARANCES' }
+  | { type: 'TOGGLE_RETAINER_TRANSPARENCY' }
+  | { type: 'TOGGLE_RETAINER_WIREFRAME' }
+  | { type: 'TOGGLE_RETAINER_ISOLATION' }
+  | { type: 'UNDO_RETAINER' }
+  | { type: 'REDO_RETAINER' }
+  | { type: 'RESET_RETAINERS' }
+  | { type: 'CHECK_RETAINERS' }
   | { type: 'RESET_PROGRESS' }

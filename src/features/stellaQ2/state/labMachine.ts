@@ -33,12 +33,15 @@ import {
   validateEnclosure,
 } from '../utils/enclosure'
 import { ENCLOSURE_CAMERA_PRESETS, ENCLOSURE_SLOT_BY_ID } from '../data/enclosure'
+import { RETAINER_CAMERA_PRESETS, RETAINER_BY_ID, RETAINER_TARGET_BY_ID } from '../data/retainers'
+import { createInitialRetainerInstallations, isRetainerId, isValidRetainerInstallation, retainerInstallationFor, validateRetainers } from '../utils/retainers'
 import type {
   CableConnectionState,
   ComponentPlacement,
   ConnectionHistoryEntry,
   EnclosureHistoryEntry,
   EnclosurePartId,
+  RetainerHistoryEntry,
   LabAction,
   LabState,
   LayoutHistoryEntry,
@@ -52,7 +55,7 @@ import type {
 export const STELLA_Q2_SESSION_KEY = 'exstella.stella-q2.phase-2a.v1'
 
 export const INITIAL_LAB_STATE: LabState = {
-  version: 5,
+  version: 6,
   mode: 'intro',
   guidance: 'standard',
   activeBuildStepId: BUILD_STEPS[0].id,
@@ -106,6 +109,21 @@ export const INITIAL_LAB_STATE: LabState = {
   enclosureValidation: 'idle',
   enclosureUndoHistory: [],
   enclosureRedoHistory: [],
+  selectedRetainerId: null,
+  selectedRetainerTargetId: null,
+  retainerInstallations: createInitialRetainerInstallations(),
+  cableBlockedRetainerIds: [],
+  retainerCameraPreset: 'fit',
+  retainerComparisonMode: 'workspace',
+  retainerHintVisible: false,
+  retainerTargetsVisible: true,
+  retainerCableClearanceVisible: true,
+  retainerTransparentHousing: false,
+  retainerWireframeHousing: false,
+  retainerIsolateSelected: false,
+  retainerValidation: 'idle',
+  retainerUndoHistory: [],
+  retainerRedoHistory: [],
 }
 
 function validStepId(stepId: string) {
@@ -159,6 +177,18 @@ function validConnectionComparisonMode(mode: unknown) {
 
 function validEnclosureComparisonMode(mode: unknown) {
   return mode === 'workspace' || mode === 'build-three' || mode === 'side-by-side' || mode === 'overlay'
+}
+function validRetainerComparisonMode(mode: unknown) { return mode === 'workspace' || mode === 'build-three' || mode === 'side-by-side' || mode === 'build-four-next' }
+function validRetainerTargetId(targetId: string | null) { return targetId === null || RETAINER_TARGET_BY_ID.has(targetId) }
+function validRetainerHistoryEntry(value: unknown): value is RetainerHistoryEntry {
+  if (!value || typeof value !== 'object') return false
+  const entry = value as Partial<RetainerHistoryEntry>
+  return Array.isArray(entry.installations) && entry.installations.every(isValidRetainerInstallation)
+    && entry.installations.length === createInitialRetainerInstallations().length
+    && new Set(entry.installations.map((item) => item.retainerId)).size === entry.installations.length
+    && (entry.selectedRetainerId === null || isRetainerId(entry.selectedRetainerId ?? null))
+    && validRetainerTargetId(entry.selectedRetainerTargetId ?? null)
+    && Array.isArray(entry.cableBlockedRetainerIds) && entry.cableBlockedRetainerIds.every((id) => isRetainerId(id))
 }
 
 function validEnclosureSlotId(slotId: string | null) {
@@ -267,6 +297,14 @@ function snapshotEnclosure(state: LabState): EnclosureHistoryEntry {
     selectedEnclosureSlotId: state.selectedEnclosureSlotId,
     microSdInstalled: state.microSdInstalled,
   }
+}
+function snapshotRetainers(state: LabState): RetainerHistoryEntry {
+  return { installations: state.retainerInstallations.map((item) => ({ ...item })), selectedRetainerId: state.selectedRetainerId, selectedRetainerTargetId: state.selectedRetainerTargetId, cableBlockedRetainerIds: [...state.cableBlockedRetainerIds] }
+}
+function applyRetainerSnapshot(state: LabState, snapshot: RetainerHistoryEntry, historyKey: 'retainerUndoHistory' | 'retainerRedoHistory'): LabState {
+  const other = historyKey === 'retainerUndoHistory' ? 'retainerRedoHistory' : 'retainerUndoHistory'
+  const updated = { ...state, retainerInstallations: snapshot.installations.map((item) => ({ ...item })), selectedRetainerId: snapshot.selectedRetainerId, selectedRetainerTargetId: snapshot.selectedRetainerTargetId, cableBlockedRetainerIds: [...snapshot.cableBlockedRetainerIds], [historyKey]: state[historyKey].slice(0, -1), [other]: [...state[other], snapshotRetainers(state)] } as LabState
+  return { ...updated, retainerValidation: 'idle', completedBuildStepIds: updated.completedBuildStepIds.filter((id) => id !== 'retainer-clips') }
 }
 
 function applyEnclosureSnapshot(
@@ -798,6 +836,43 @@ export function labReducer(state: LabState, action: LabAction): LabState {
           : state.completedBuildStepIds,
       }
     }
+    case 'SELECT_RETAINER':
+      return action.retainerId === null || isRetainerId(action.retainerId) ? { ...state, selectedRetainerId: action.retainerId, retainerValidation: 'idle' } : state
+    case 'SELECT_RETAINER_TARGET':
+      return validRetainerTargetId(action.targetId) ? { ...state, selectedRetainerTargetId: action.targetId, retainerValidation: 'idle' } : state
+    case 'PLACE_RETAINER': {
+      if (!isValidRetainerInstallation(action.installation)) return state
+      const retainer = RETAINER_BY_ID.get(action.installation.retainerId)!
+      if (action.installation.targetId && action.installation.targetId !== `${retainer.id}-target`) return { ...state, retainerValidation: 'wrong-target' }
+      if (action.installation.targetId && state.retainerInstallations.some((item) => item.retainerId !== retainer.id && item.targetId === action.installation.targetId)) return { ...state, retainerValidation: 'target-occupied' }
+      return { ...state, retainerInstallations: state.retainerInstallations.map((item) => item.retainerId === retainer.id ? action.installation : item), selectedRetainerId: retainer.id, selectedRetainerTargetId: action.installation.targetId, retainerUndoHistory: [...state.retainerUndoHistory, snapshotRetainers(state)], retainerRedoHistory: [], retainerValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'retainer-clips') }
+    }
+    case 'REMOVE_RETAINER': {
+      if (!isRetainerId(action.retainerId)) return state
+      const tray = createInitialRetainerInstallations().find((item) => item.retainerId === action.retainerId)!
+      return { ...state, retainerInstallations: state.retainerInstallations.map((item) => item.retainerId === action.retainerId ? tray : item), selectedRetainerId: action.retainerId, selectedRetainerTargetId: null, retainerUndoHistory: [...state.retainerUndoHistory, snapshotRetainers(state)], retainerRedoHistory: [], retainerValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'retainer-clips') }
+    }
+    case 'ROTATE_RETAINER': {
+      if (!isRetainerId(action.retainerId)) return state
+      return { ...state, retainerInstallations: state.retainerInstallations.map((item) => item.retainerId === action.retainerId ? { ...item, rotation: [item.rotation[0], item.rotation[1], normalizeRotation(item.rotation[2] + action.delta)], installationState: 'aligned' } : item), retainerUndoHistory: [...state.retainerUndoHistory, snapshotRetainers(state)], retainerRedoHistory: [], retainerValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'retainer-clips') }
+    }
+    case 'TOGGLE_RETAINER_CABLE_CLEARANCE':
+      return isRetainerId(action.retainerId) ? { ...state, cableBlockedRetainerIds: state.cableBlockedRetainerIds.includes(action.retainerId) ? state.cableBlockedRetainerIds.filter((id) => id !== action.retainerId) : [...state.cableBlockedRetainerIds, action.retainerId], retainerUndoHistory: [...state.retainerUndoHistory, snapshotRetainers(state)], retainerRedoHistory: [], retainerValidation: 'idle' } : state
+    case 'SET_RETAINER_CAMERA': return RETAINER_CAMERA_PRESETS.includes(action.preset) ? { ...state, retainerCameraPreset: action.preset } : state
+    case 'SET_RETAINER_COMPARISON_MODE': return validRetainerComparisonMode(action.mode) ? { ...state, retainerComparisonMode: action.mode } : state
+    case 'TOGGLE_RETAINER_HINT': return { ...state, retainerHintVisible: !state.retainerHintVisible }
+    case 'TOGGLE_RETAINER_TARGETS': return { ...state, retainerTargetsVisible: !state.retainerTargetsVisible }
+    case 'TOGGLE_RETAINER_CLEARANCES': return { ...state, retainerCableClearanceVisible: !state.retainerCableClearanceVisible }
+    case 'TOGGLE_RETAINER_TRANSPARENCY': return { ...state, retainerTransparentHousing: !state.retainerTransparentHousing }
+    case 'TOGGLE_RETAINER_WIREFRAME': return { ...state, retainerWireframeHousing: !state.retainerWireframeHousing }
+    case 'TOGGLE_RETAINER_ISOLATION': return { ...state, retainerIsolateSelected: !state.retainerIsolateSelected }
+    case 'UNDO_RETAINER': { const snapshot = state.retainerUndoHistory[state.retainerUndoHistory.length - 1]; return snapshot ? applyRetainerSnapshot(state, snapshot, 'retainerUndoHistory') : state }
+    case 'REDO_RETAINER': { const snapshot = state.retainerRedoHistory[state.retainerRedoHistory.length - 1]; return snapshot ? applyRetainerSnapshot(state, snapshot, 'retainerRedoHistory') : state }
+    case 'RESET_RETAINERS': return { ...state, selectedRetainerId: null, selectedRetainerTargetId: null, retainerInstallations: createInitialRetainerInstallations(), cableBlockedRetainerIds: [], retainerUndoHistory: [...state.retainerUndoHistory, snapshotRetainers(state)], retainerRedoHistory: [], retainerValidation: 'idle', completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'retainer-clips') }
+    case 'CHECK_RETAINERS': {
+      const validation = validateRetainers(state.layoutPlacements, state.step6Connections, state.coinCellInstalled, state.enclosurePlacements, state.microSdInstalled, state.retainerInstallations, state.cableBlockedRetainerIds)
+      return { ...state, retainerValidation: validation.status, completedBuildStepIds: validation.status === 'valid' && !state.completedBuildStepIds.includes('retainer-clips') ? [...state.completedBuildStepIds, 'retainer-clips'] : state.completedBuildStepIds }
+    }
     case 'RESET_PROGRESS':
       return { ...INITIAL_LAB_STATE, mode: state.mode, guidance: state.guidance }
     default:
@@ -876,8 +951,15 @@ export function validatePersistedState(value: unknown): LabState | null {
     }
     return validatePersistedState(migrated)
   }
+  // Phase 2E adds deterministic Step 8 retainer state while preserving the
+  // completed Step 7 enclosure exactly as it was saved.
+  if (persistedVersion === 5) {
+    const migrated = { ...INITIAL_LAB_STATE, ...candidate, version: 6 as const,
+      selectedRetainerId: null, selectedRetainerTargetId: null, retainerInstallations: createInitialRetainerInstallations(), cableBlockedRetainerIds: [], retainerCameraPreset: 'fit' as const, retainerComparisonMode: 'workspace' as const, retainerHintVisible: false, retainerTargetsVisible: true, retainerCableClearanceVisible: true, retainerTransparentHousing: false, retainerWireframeHousing: false, retainerIsolateSelected: false, retainerValidation: 'idle' as const, retainerUndoHistory: [], retainerRedoHistory: [] }
+    return validatePersistedState(migrated)
+  }
   if (
-    persistedVersion !== 5 ||
+    persistedVersion !== 6 ||
     (candidate.mode !== 'intro' && candidate.mode !== 'build') ||
     !validStepId(candidate.activeBuildStepId ?? '') ||
     !validPartId(candidate.selectedPartId ?? '') ||
@@ -954,7 +1036,16 @@ export function validatePersistedState(value: unknown): LabState | null {
     !Array.isArray(candidate.enclosureUndoHistory) ||
     !candidate.enclosureUndoHistory.every(validEnclosureHistoryEntry) ||
     !Array.isArray(candidate.enclosureRedoHistory) ||
-    !candidate.enclosureRedoHistory.every(validEnclosureHistoryEntry)
+    !candidate.enclosureRedoHistory.every(validEnclosureHistoryEntry) ||
+    (candidate.selectedRetainerId !== null && !isRetainerId(candidate.selectedRetainerId ?? null)) ||
+    !validRetainerTargetId(candidate.selectedRetainerTargetId ?? null) ||
+    !Array.isArray(candidate.retainerInstallations) || candidate.retainerInstallations.length !== createInitialRetainerInstallations().length || !candidate.retainerInstallations.every(isValidRetainerInstallation) ||
+    new Set(candidate.retainerInstallations.map((item) => item.retainerId)).size !== candidate.retainerInstallations.length ||
+    !Array.isArray(candidate.cableBlockedRetainerIds) || !candidate.cableBlockedRetainerIds.every((id) => isRetainerId(id)) ||
+    !RETAINER_CAMERA_PRESETS.includes(candidate.retainerCameraPreset ?? 'fit') || !validRetainerComparisonMode(candidate.retainerComparisonMode) ||
+    typeof candidate.retainerHintVisible !== 'boolean' || typeof candidate.retainerTargetsVisible !== 'boolean' || typeof candidate.retainerCableClearanceVisible !== 'boolean' || typeof candidate.retainerTransparentHousing !== 'boolean' || typeof candidate.retainerWireframeHousing !== 'boolean' || typeof candidate.retainerIsolateSelected !== 'boolean' ||
+    !['idle','enclosure-incomplete','incomplete','wrong-target','wrong-orientation','not-seated','target-occupied','housing-collision','component-collision','cable-pinched','valid'].includes(candidate.retainerValidation ?? '') ||
+    !Array.isArray(candidate.retainerUndoHistory) || !candidate.retainerUndoHistory.every(validRetainerHistoryEntry) || !Array.isArray(candidate.retainerRedoHistory) || !candidate.retainerRedoHistory.every(validRetainerHistoryEntry)
   ) {
     return null
   }

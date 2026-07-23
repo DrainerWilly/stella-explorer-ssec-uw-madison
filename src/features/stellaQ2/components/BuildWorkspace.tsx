@@ -15,6 +15,7 @@ const ScaffoldingWorkspace = lazy(() => import('./scaffolding/ScaffoldingWorkspa
 const LayoutWorkspace = lazy(() => import('./layout/LayoutWorkspace'))
 const ConnectionsWorkspace = lazy(() => import('./connections/ConnectionsWorkspace'))
 const EnclosureWorkspace = lazy(() => import('./enclosure/EnclosureWorkspace'))
+const RetainerWorkspace = lazy(() => import('./retainers/RetainerWorkspace'))
 
 interface BuildWorkspaceProps {
   state: LabState
@@ -31,6 +32,7 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
   const isLayoutStep = activeStep.id === 'parts-layout'
   const isConnectionsStep = activeStep.id === 'cable-connections'
   const isEnclosurePlacementStep = activeStep.id === 'enclosure-placement'
+  const isRetainerStep = activeStep.id === 'retainer-clips'
   const progressPercent = Math.round(
     (state.completedBuildStepIds.length / BUILD_STEPS.length) * 100,
   )
@@ -62,6 +64,10 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
     if (step?.id === 'enclosure-placement') {
       dispatch({ type: 'SELECT_ENCLOSURE_COMPONENT', partId: 'triad-spectral-sensor' })
       dispatch({ type: 'SELECT_ENCLOSURE_SLOT', slotId: 'triad-optical-bay' })
+    }
+    if (step?.id === 'retainer-clips') {
+      dispatch({ type: 'SELECT_RETAINER', retainerId: 'clock-retainer' })
+      dispatch({ type: 'SELECT_RETAINER_TARGET', targetId: 'clock-retainer-target' })
     }
   }
 
@@ -171,8 +177,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
 
         <section
           className="min-w-0"
-          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : isLayoutStep ? 'Interactive components layout workspace' : isConnectionsStep ? 'Interactive cable connections workspace' : isEnclosurePlacementStep ? 'Interactive enclosure placement workspace' : undefined}
-          aria-labelledby={isScaffoldingStep || isLayoutStep || isConnectionsStep || isEnclosurePlacementStep ? undefined : 'workspace-reference-title'}
+          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : isLayoutStep ? 'Interactive components layout workspace' : isConnectionsStep ? 'Interactive cable connections workspace' : isEnclosurePlacementStep ? 'Interactive enclosure placement workspace' : isRetainerStep ? 'Interactive retainer installation workspace' : undefined}
+          aria-labelledby={isScaffoldingStep || isLayoutStep || isConnectionsStep || isEnclosurePlacementStep || isRetainerStep ? undefined : 'workspace-reference-title'}
         >
           {isScaffoldingStep ? (
             <Suspense
@@ -201,6 +207,10 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
           ) : isEnclosurePlacementStep ? (
             <Suspense fallback={<div className="sq2-panel min-h-[34rem] rounded-sm p-6 text-sm text-slate-400">Loading the Step 7 source-backed enclosure workspace…</div>}>
               <EnclosureWorkspace state={state} dispatch={dispatch} />
+            </Suspense>
+          ) : isRetainerStep ? (
+            <Suspense fallback={<div className="sq2-panel min-h-[34rem] rounded-sm p-6 text-sm text-slate-400">Loading the Step 8 supplied-retainer workspace…</div>}>
+              <RetainerWorkspace state={state} dispatch={dispatch} />
             </Suspense>
           ) : (
             <>
@@ -267,6 +277,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                         ? { type: 'CHECK_CONNECTIONS' }
                         : isEnclosurePlacementStep
                           ? { type: 'CHECK_ENCLOSURE' }
+                          : isRetainerStep
+                            ? { type: 'CHECK_RETAINERS' }
                     : { type: 'COMPLETE_BUILD_STEP', stepId: activeStep.id },
                 )
               }
@@ -282,6 +294,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                       ? '✓ Connections validated'
                       : isEnclosurePlacementStep
                         ? '✓ Placement validated'
+                        : isRetainerStep
+                          ? '✓ Retainers validated'
                     : '✓ Marked reviewed'
                 : isScaffoldingStep
                   ? 'Check scaffolding'
@@ -291,6 +305,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                     ? 'Check connections'
                     : isEnclosurePlacementStep
                       ? 'Check enclosure placement'
+                      : isRetainerStep
+                        ? 'Check retainer clips'
                     : 'Mark step reviewed'}
             </button>
             <button
