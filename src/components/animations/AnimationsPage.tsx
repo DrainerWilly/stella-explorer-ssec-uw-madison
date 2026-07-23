@@ -4,17 +4,7 @@ import '@fontsource/baloo-2/600.css'
 import '@fontsource/baloo-2/700.css'
 import '@fontsource/baloo-2/800.css'
 import Icon from '../Icon'
-import AnimationCard from './AnimationCard'
 import GradeLevelToggle from './GradeLevelToggle'
-import {
-  PhotonField,
-  DoodlePrism,
-  DoodleFlashlight,
-  DoodleBulb,
-  DoodleSun,
-  DoodleRainbow,
-  RAINBOW,
-} from './labDoodles'
 import { ANIMATIONS, DEFAULT_GRADE, getAnimation } from '../../data/animationContent'
 import { loadVisited, markVisited } from '../../utils/labNotebook'
 
@@ -45,44 +35,90 @@ const ACCENT = {
   coral: '#F7A7A7',
 }
 
-// The "experiments tried" notebook strip: one stamp per animation.
-function LabNotebook({ visited }) {
+const IOSEVKA =
+  "'Iosevka', 'Iosevka Nerd Font', 'Iosevka Fixed', 'Roboto Mono', 'SFMono-Regular', Consolas, monospace"
+
+const GALLERY_CARDS = [
+  {
+    title: 'Electromagnetic Spectrum Slider',
+    id: 'spectrumSlider',
+    image: 'assets/animations/nasa/electromagnetic-spectrum.jpg',
+    alt: 'NASA Goddard Conceptual Image Lab visualization of the electromagnetic spectrum',
+  },
+  {
+    title: 'Wave Anatomy',
+    id: 'waveAnatomy',
+    image: 'assets/animations/nasa/wave-anatomy.jpg',
+    alt: 'NASA Scientific Visualization Studio rendering of electric and magnetic fields in polarized waves',
+  },
+  {
+    title: 'Wave Behaviors',
+    id: 'waveBehaviors',
+    image: 'assets/animations/nasa/wave-behaviors.png',
+    alt: 'NASA Scientific Visualization Studio diagram of radio-wave reflection and refraction in the ionosphere',
+  },
+  {
+    title: 'Visible vs Infrared',
+    id: 'visibleInfrared',
+    image: 'assets/animations/nasa/visible-infrared.jpg',
+    alt: 'NASA Hubble visible-light and near-infrared comparison of the 30 Doradus nebula',
+  },
+  {
+    title: 'Spectral Signature Builder',
+    id: 'signatureBuilder',
+    image: 'assets/animations/nasa/spectral-signature.jpg',
+    alt: 'NASA Hyperion visualization pairing hyperspectral Earth imagery with measured spectral signatures',
+  },
+  {
+    title: 'Atmospheric Windows',
+    id: 'atmosphericWindows',
+    image: 'assets/animations/nasa/atmospheric-windows.png',
+    alt: 'NASA Earth Observatory graph of atmospheric transmission windows by wavelength',
+  },
+  {
+    title: 'Landsat Orbits',
+    id: 'visibleInfrared',
+    image: 'assets/animations/nasa/landsat-orbit.png',
+    alt: 'NASA Scientific Visualization Studio rendering of the Landsat orbit and observation swath',
+  },
+  {
+    title: 'TDRS Fleet 360',
+    id: 'waveBehaviors',
+    image: 'assets/animations/nasa/tdrs-fleet.jpg',
+    alt: 'NASA Scientific Visualization Studio rendering of the Tracking and Data Relay Satellite fleet',
+  },
+  {
+    title: 'Urban Heat Islands',
+    id: 'signatureBuilder',
+    image: 'assets/animations/nasa/urban-heat.png',
+    alt: 'NASA Scientific Visualization Studio map of modeled outgoing thermal radiation over urban areas',
+  },
+]
+
+function AnimationGalleryCard({ card, index, onOpen }) {
   return (
-    <div className="rounded-2xl border-2 border-dashed border-white/15 bg-white/[0.04] px-4 py-3">
-      <div className="flex flex-wrap items-center gap-3">
-        <div className="flex items-center gap-2">
-          <Icon name="book" className="h-5 w-5 text-amber-300" />
-          <span className="font-game text-sm font-bold text-white">
-            Experiments tried: {visited.length} / {ANIMATIONS.length}
-          </span>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {ANIMATIONS.map((a) => {
-            const done = visited.includes(a.id)
-            const accent = ACCENT[a.color]
-            return (
-              <span
-                key={a.id}
-                title={done ? `${a.title}: tried!` : `${a.title}: not tried yet`}
-                className={`grid h-9 w-9 place-items-center rounded-full border-2 transition-transform hover:scale-110 ${
-                  done ? 'border-transparent' : 'border-dashed border-white/20 opacity-50'
-                }`}
-                style={done ? { backgroundColor: `${accent}30`, borderColor: `${accent}80` } : undefined}
-              >
-                <Icon
-                  name={a.icon}
-                  className="h-4 w-4"
-                  style={{ color: done ? accent : 'rgb(255 255 255 / 0.35)' }}
-                />
-              </span>
-            )
-          })}
-        </div>
-      </div>
-      <p className="mt-1.5 text-[11px] text-white/40">
-        Open an experiment to stamp your lab notebook. Can you try all {ANIMATIONS.length}?
-      </p>
-    </div>
+    <button
+      type="button"
+      onClick={() => onOpen(card.id)}
+      className="group relative min-h-[220px] overflow-hidden bg-black text-left outline-none sm:min-h-[260px] lg:min-h-[310px]"
+      aria-label={`Open ${card.title}`}
+    >
+      <img
+        src={card.image}
+        alt={card.alt}
+        loading={index < 3 ? 'eager' : 'lazy'}
+        className="absolute inset-0 h-full w-full object-cover opacity-90 transition duration-500 group-hover:scale-[1.035] group-hover:opacity-100"
+      />
+      <span className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-black/25 transition duration-500 group-hover:from-black/65" />
+      <span className="absolute inset-x-0 bottom-0 flex min-h-[86px] items-end p-5 sm:p-6">
+        <span
+          className="text-[1.35rem] font-medium leading-tight text-white drop-shadow-[0_2px_10px_rgb(0_0_0_/_0.8)] sm:text-[1.55rem]"
+          style={{ fontFamily: IOSEVKA }}
+        >
+          {card.title}
+        </span>
+      </span>
+    </button>
   )
 }
 
@@ -105,101 +141,43 @@ export default function AnimationsPage({ initialId = null }) {
   const SelectedComponent = selectedId ? REGISTRY[selectedId] : null
   const accent = selected ? ACCENT[selected.color] : null
 
-  const backButton = (
-    <button
-      onClick={() => setSelectedId(null)}
-      className="inline-flex items-center gap-1.5 rounded-full border-2 border-white/10 bg-white/5 px-4 py-2 font-game text-sm font-bold text-white/80 transition-colors hover:border-white/25 hover:bg-white/10 hover:text-white"
-    >
-      <Icon name="back" className="h-4 w-4" />
-      Light Lab
-    </button>
-  )
-
   return (
-    <main className="order-1 relative flex-1 overflow-x-hidden overflow-y-auto scroll-soft bg-[#070d24] lg:order-2">
-      <PhotonField />
-
+    <main className="cm-animations order-1 relative flex-1 overflow-x-hidden overflow-y-auto scroll-soft bg-black lg:order-2">
       {!selected ? (
-        <div className="relative px-5 py-8 sm:px-8 lg:px-10">
-          {/* floating doodles */}
-          <div aria-hidden="true" className="pointer-events-none absolute left-[3%] top-24 hidden md:block" style={{ '--tilt': '-7deg' }}>
-            <div className="g-float"><DoodleFlashlight className="h-16 w-16" /></div>
-          </div>
-          <div aria-hidden="true" className="pointer-events-none absolute right-[4%] top-16 hidden md:block" style={{ '--tilt': '5deg' }}>
-            <div className="g-float" style={{ animationDelay: '1.4s' }}><DoodleSun className="h-16 w-16" /></div>
-          </div>
-          <div aria-hidden="true" className="pointer-events-none absolute right-[14%] top-56 hidden lg:block" style={{ '--tilt': '-4deg' }}>
-            <div className="g-float" style={{ animationDelay: '2.6s' }}><DoodleBulb className="h-14 w-14" /></div>
-          </div>
-          <div aria-hidden="true" className="pointer-events-none absolute left-[10%] top-64 hidden lg:block">
-            <div className="g-float" style={{ animationDelay: '0.7s' }}><DoodleRainbow className="h-12 w-20" /></div>
-          </div>
-
-          {/* ---------- header ---------- */}
-          <header className="mx-auto max-w-3xl text-center">
-            <div className="mx-auto flex items-center justify-center gap-2">
-              <div className="g-wobble"><DoodlePrism className="h-16 w-20 sm:h-20 sm:w-24" /></div>
-              <h1 className="font-game text-4xl font-extrabold tracking-tight text-white sm:text-5xl">
-                The{' '}
-                <span className="bg-gradient-to-r from-rose-300 via-amber-200 to-sky-300 bg-clip-text text-transparent">
-                  Light Lab
-                </span>
+        <div className="relative min-h-full bg-black">
+          <header className="relative h-[35vh] min-h-[240px] max-h-[380px] overflow-hidden border-b border-black bg-black">
+            <img
+              src="assets/animations/nasa/hero-seeing-earths-magnetism.jpg"
+              alt="NASA Scientific Visualization Studio rendering of spacecraft observing Earth’s magnetic environment"
+              className="absolute inset-0 h-full w-full object-cover opacity-55"
+            />
+            <div className="absolute inset-0 bg-black/55" />
+            <div className="relative flex h-full items-center px-7 pt-4 sm:px-12 lg:px-24">
+              <h1
+                className="text-5xl font-semibold leading-none text-white sm:text-6xl lg:text-7xl"
+                style={{ fontFamily: IOSEVKA }}
+              >
+                Animations
               </h1>
             </div>
-
-            {/* rainbow squiggle underline */}
-            <svg viewBox="0 0 260 18" className="mx-auto mt-1 h-4 w-56" fill="none" aria-hidden="true">
-              {RAINBOW.slice(0, 3).map((c, i) => (
-                <path
-                  key={c}
-                  d={`M6 ${8 + i * 3.5}C40 ${2 + i * 3.5} 80 ${10 + i * 3.5} 120 ${6 + i * 3.5}s80 -${5 - i} 134 ${i}`}
-                  stroke={c}
-                  strokeWidth="3"
-                  strokeLinecap="round"
-                />
-              ))}
-            </svg>
-
-            <p className="mx-auto mt-3 max-w-xl font-game text-[15px] leading-relaxed text-sky-100/80 sm:text-base">
-              Welcome to the lab! Bend light through prisms, stretch waves, and see the invisible
-              colors satellites use. Every experiment stamps your lab notebook.
-            </p>
           </header>
 
-          {/* ---------- notebook + grade ---------- */}
-          <div className="mx-auto mt-6 max-w-3xl">
-            <LabNotebook visited={visited} />
-          </div>
-          <div className="mx-auto mt-4 flex max-w-3xl justify-center">
-            <GradeLevelToggle value={gradeLevel} onChange={setGradeLevel} />
-          </div>
-
-          {/* ---------- experiment cards ---------- */}
-          <div className="mx-auto mt-7 grid max-w-5xl grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {ANIMATIONS.map((a, i) => (
-              <AnimationCard
-                key={a.id}
-                animation={a}
-                index={i}
-                visited={visited.includes(a.id)}
-                onOpen={setSelectedId}
-              />
+          <div className="grid grid-cols-1 gap-2.5 bg-black px-2.5 pb-2.5 pt-1 sm:grid-cols-2 lg:grid-cols-3">
+            {GALLERY_CARDS.map((card, i) => (
+              <AnimationGalleryCard key={`${card.title}-${i}`} card={card} index={i} onOpen={setSelectedId} />
             ))}
           </div>
         </div>
       ) : selected.standalone ? (
         /* standalone module: owns its full detail layout */
-        <div className="relative px-5 py-6 sm:px-8 lg:px-10 lg:py-8">
-          {backButton}
+        <div className="relative px-5 pb-6 pt-24 sm:px-8 sm:pt-28 lg:px-10 lg:pb-8">
           <div className="mt-4">
             <SelectedComponent gradeLevel={gradeLevel} onGradeChange={setGradeLevel} />
           </div>
         </div>
       ) : (
         /* detail */
-        <div className="relative mx-auto max-w-4xl px-5 py-6 sm:px-8 lg:py-8">
-          {backButton}
-
+        <div className="relative mx-auto max-w-4xl px-5 pb-6 pt-24 sm:px-8 sm:pt-28 lg:pb-8">
           {/* title row */}
           <div className="mt-5 flex flex-wrap items-center gap-3">
             <span

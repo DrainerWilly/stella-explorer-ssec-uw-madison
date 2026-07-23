@@ -11,11 +11,12 @@ const PRIMARY_NAV = NAV.filter((item) => item.id !== 'home')
 export default function Masthead({ active = 'home', onNavigate }) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [hidden, setHidden] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
   const lastWindowScroll = useRef(0)
   const lastElementScroll = useRef(new WeakMap())
   // Lessons keeps its editorial masthead visible while its own grid scrolls;
   // other long-form pages retain the hide-on-scroll behavior.
-  const shouldAutoHide = active !== 'home' && active !== 'mission-control' && active !== 'lessons'
+  const shouldAutoHide = active !== 'home' && active !== 'mission-control' && active !== 'lessons' && active !== 'animations'
 
   // Close on Escape and lock body scroll while the drawer is open.
   useEffect(() => {
@@ -32,10 +33,9 @@ export default function Masthead({ active = 'home', onNavigate }) {
 
   useEffect(() => {
     setHidden(false)
+    setScrolled(false)
     lastWindowScroll.current = window.scrollY || document.documentElement.scrollTop || 0
     lastElementScroll.current = new WeakMap()
-
-    if (!shouldAutoHide) return undefined
 
     const threshold = 3
 
@@ -45,8 +45,9 @@ export default function Masthead({ active = 'home', onNavigate }) {
       const next = readWindowScroll()
       const previous = lastWindowScroll.current
       const delta = next - previous
+      if (active === 'animations') setScrolled(next > 16)
       if (Math.abs(delta) < threshold) return
-      setHidden(delta > 0 && next > 36)
+      if (shouldAutoHide) setHidden(delta > 0 && next > 36)
       lastWindowScroll.current = next
     }
 
@@ -56,6 +57,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
       if (typeof target.scrollTop !== 'number') return
 
       const next = target.scrollTop
+      if (active === 'animations') setScrolled(next > 16)
       if (!lastElementScroll.current.has(target)) {
         lastElementScroll.current.set(target, next)
         return
@@ -65,12 +67,17 @@ export default function Masthead({ active = 'home', onNavigate }) {
       const delta = next - previous
       if (Math.abs(delta) < threshold) return
 
-      setHidden(delta > 0 && next > 36)
+      if (shouldAutoHide) setHidden(delta > 0 && next > 36)
       lastElementScroll.current.set(target, next)
     }
 
     window.addEventListener('scroll', handleWindowScroll, { passive: true })
     document.addEventListener('scroll', handleElementScroll, true)
+
+    if (active === 'animations') {
+      const gallery = document.querySelector('main.cm-animations')
+      if (gallery) setScrolled(gallery.scrollTop > 16)
+    }
 
     return () => {
       window.removeEventListener('scroll', handleWindowScroll)
@@ -94,21 +101,27 @@ export default function Masthead({ active = 'home', onNavigate }) {
   const linkColor = isLight ? 'text-[#333] hover:text-black' : 'text-white/85 hover:text-white'
   const autoHidden = shouldAutoHide && hidden && !menuOpen
   const isMissionControl = active === 'mission-control'
+  const isAnimations = active === 'animations'
+  const isFixedOverlay = isMissionControl || isAnimations
 
   return (
     <header
       aria-hidden={autoHidden ? 'true' : undefined}
       inert={autoHidden ? true : undefined}
-      className={`cm-root w-full pt-8 transition-[opacity,transform] duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] md:pt-10 ${
+      className={`cm-root w-full pt-8 transition-[background-color,border-color,box-shadow,opacity,transform] duration-500 ease-[cubic-bezier(0.19,1,0.22,1)] md:pt-10 ${
         isMissionControl ? 'cm-masthead--tracker' : ''
       } ${
-        shouldAutoHide
+        shouldAutoHide || isFixedOverlay
           ? `fixed inset-x-0 top-0 z-50 pb-5 ${
-              isMissionControl
-                ? 'bg-transparent shadow-none'
-                : isLight
-                  ? 'bg-white'
-                  : 'bg-[#050b1f] shadow-[0_18px_44px_rgba(2,6,23,0.22)]'
+              isMissionControl || (isAnimations && !scrolled)
+                ? isAnimations
+                  ? 'bg-transparent shadow-none border-b border-white/25'
+                  : 'bg-transparent shadow-none'
+                : isAnimations
+                  ? 'bg-black shadow-[0_14px_32px_rgba(0,0,0,0.35)] border-b border-transparent'
+                  : isLight
+                    ? 'bg-white'
+                    : 'bg-[#050b1f] shadow-[0_18px_44px_rgba(2,6,23,0.22)]'
             }`
           : 'relative z-30 shrink-0 bg-transparent'
       } ${

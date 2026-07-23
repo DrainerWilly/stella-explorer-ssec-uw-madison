@@ -45,6 +45,9 @@ export default function App() {
 
   // Deep-link from a lesson into a specific animation module.
   const [animationTarget, setAnimationTarget] = useState(null)
+  // Bumped to remount the Animations gallery back to its top level (its
+  // in-page "back to gallery" now lives in the masthead nav).
+  const [animationsReset, setAnimationsReset] = useState(0)
 
   // A deterministic, development-only fixture for screenshot capture. It is
   // excluded from production navigation and does not touch session progress.
@@ -64,7 +67,12 @@ export default function App() {
   // the user is returning to. Without this the page lives only in React state
   // and the browser has no history to walk.
   const navigate = (nextPage, nextTarget = null) => {
-    if (nextPage === page && nextTarget === animationTarget) return
+    if (nextPage === page && nextTarget === animationTarget) {
+      // Re-clicking the current section resets its in-page sub-view — e.g.
+      // returns the Animations gallery from an open experiment.
+      if (nextPage === 'animations') setAnimationsReset((n) => n + 1)
+      return
+    }
     setPage(nextPage)
     setAnimationTarget(nextTarget)
     window.history.pushState({ page: nextPage, animationTarget: nextTarget }, '')
@@ -137,7 +145,7 @@ export default function App() {
           <DataGraphsPage />
         ) : page === 'animations' ? (
           /* Animations gallery: full width beside the sidebar */
-          <AnimationsPage initialId={animationTarget} />
+          <AnimationsPage key={animationsReset} initialId={animationTarget} />
         ) : page === 'games' ? (
           /* Educational games: gallery + individual games, full width */
           <GamesPage />

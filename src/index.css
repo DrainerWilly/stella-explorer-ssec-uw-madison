@@ -192,6 +192,12 @@ html { scroll-behavior: smooth; }
   background: #ffffff;
 }
 
+/* The animations gallery uses a transparent masthead over its hero image;
+   keep the gallery flush with the viewport so the hero sits beneath it. */
+.cm-floating-nav-content > main.cm-animations::before {
+  height: 0;
+}
+
 /* ---- home hero video treatment ---- */
 @keyframes cm-hero-video-zoom {
   from { transform: scale(1.1); }
