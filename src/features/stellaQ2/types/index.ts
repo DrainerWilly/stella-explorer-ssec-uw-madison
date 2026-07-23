@@ -50,6 +50,34 @@ export type LayoutValidationStatus =
   | 'target-occupied'
   | 'cables-not-available'
 
+export type ConnectionComparisonMode = 'diagram' | 'build-two' | 'side-by-side' | 'overlay' | 'schematic'
+
+export type ConnectionValidationStatus =
+  | 'idle'
+  | 'layout-incomplete'
+  | 'incomplete'
+  | 'incompatible-connector'
+  | 'port-occupied'
+  | 'self-connection'
+  | 'wrong-topology'
+  | 'coin-not-installed'
+  | 'coin-face-down'
+  | 'valid'
+
+export interface CableConnectionState {
+  cableId: string
+  kind: 'qwiic' | 'power'
+  endpointA: string | null
+  endpointB: string | null
+}
+
+export interface ConnectionHistoryEntry {
+  connections: CableConnectionState[]
+  selectedConnectionId: string | null
+  selectedConnectionEndpoint: 'a' | 'b' | null
+  coinCellInstalled: boolean
+}
+
 export interface ComponentPlacement {
   partId: LayoutPartId
   targetId: string | null
@@ -186,7 +214,7 @@ export interface ScaffoldingHistoryEntry {
 }
 
 export interface LabState {
-  version: 3
+  version: 4
   mode: LabMode
   guidance: GuidanceLevel
   activeBuildStepId: string
@@ -213,6 +241,18 @@ export interface LabState {
   layoutValidation: LayoutValidationStatus
   layoutUndoHistory: LayoutHistoryEntry[]
   layoutRedoHistory: LayoutHistoryEntry[]
+  selectedConnectionId: string | null
+  selectedConnectionEndpoint: 'a' | 'b' | null
+  step6Connections: CableConnectionState[]
+  coinCellInstalled: boolean
+  connectionComparisonMode: ConnectionComparisonMode
+  connectionHintVisible: boolean
+  connectionLabelsVisible: boolean
+  requiredPathsVisible: boolean
+  isolateSelectedConnection: boolean
+  connectionValidation: ConnectionValidationStatus
+  connectionUndoHistory: ConnectionHistoryEntry[]
+  connectionRedoHistory: ConnectionHistoryEntry[]
 }
 
 export type LabAction =
@@ -249,4 +289,18 @@ export type LabAction =
   | { type: 'REDO_LAYOUT' }
   | { type: 'RESET_LAYOUT' }
   | { type: 'CHECK_LAYOUT' }
+  | { type: 'SELECT_CONNECTION'; connectionId: string | null }
+  | { type: 'SELECT_CONNECTION_ENDPOINT'; endpoint: 'a' | 'b' | null }
+  | { type: 'SET_CONNECTION_ENDPOINT'; connectionId: string; endpoint: 'a' | 'b'; connectorId: string | null }
+  | { type: 'CLEAR_CONNECTION'; connectionId: string }
+  | { type: 'SET_COIN_CELL_INSTALLED'; installed: boolean }
+  | { type: 'SET_CONNECTION_COMPARISON_MODE'; mode: ConnectionComparisonMode }
+  | { type: 'TOGGLE_CONNECTION_HINT' }
+  | { type: 'TOGGLE_CONNECTION_LABELS' }
+  | { type: 'TOGGLE_REQUIRED_PATHS' }
+  | { type: 'TOGGLE_CONNECTION_ISOLATION' }
+  | { type: 'UNDO_CONNECTIONS' }
+  | { type: 'REDO_CONNECTIONS' }
+  | { type: 'RESET_CONNECTIONS' }
+  | { type: 'CHECK_CONNECTIONS' }
   | { type: 'RESET_PROGRESS' }

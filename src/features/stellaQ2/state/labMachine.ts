@@ -17,8 +17,18 @@ import {
   validateLayout,
 } from '../utils/componentLayout'
 import { LAYOUT_TARGET_BY_ID } from '../data/componentLayout'
+import { CONNECTOR_BY_ID } from '../data/connectors'
+import {
+  connectorIsCompatible,
+  connectorIsOccupied,
+  createInitialStep6Connections,
+  isConnectionId,
+  validateConnectionGraph,
+} from '../utils/connections'
 import type {
+  CableConnectionState,
   ComponentPlacement,
+  ConnectionHistoryEntry,
   LabAction,
   LabState,
   LayoutHistoryEntry,
@@ -32,7 +42,7 @@ import type {
 export const STELLA_Q2_SESSION_KEY = 'exstella.stella-q2.phase-2a.v1'
 
 export const INITIAL_LAB_STATE: LabState = {
-  version: 3,
+  version: 4,
   mode: 'intro',
   guidance: 'standard',
   activeBuildStepId: BUILD_STEPS[0].id,
@@ -59,6 +69,18 @@ export const INITIAL_LAB_STATE: LabState = {
   layoutValidation: 'idle',
   layoutUndoHistory: [],
   layoutRedoHistory: [],
+  selectedConnectionId: null,
+  selectedConnectionEndpoint: null,
+  step6Connections: createInitialStep6Connections(),
+  coinCellInstalled: false,
+  connectionComparisonMode: 'diagram',
+  connectionHintVisible: false,
+  connectionLabelsVisible: true,
+  requiredPathsVisible: false,
+  isolateSelectedConnection: false,
+  connectionValidation: 'idle',
+  connectionUndoHistory: [],
+  connectionRedoHistory: [],
 }
 
 function validStepId(stepId: string) {
@@ -104,6 +126,32 @@ function validLayoutTargetId(targetId: string | null) {
 
 function validLayoutComparisonMode(mode: unknown) {
   return mode === 'diagram' || mode === 'build-one' || mode === 'side-by-side' || mode === 'overlay'
+}
+
+function validConnectionComparisonMode(mode: unknown) {
+  return mode === 'diagram' || mode === 'build-two' || mode === 'side-by-side' || mode === 'overlay' || mode === 'schematic'
+}
+
+function validConnectionState(value: unknown): value is CableConnectionState {
+  if (!value || typeof value !== 'object') return false
+  const connection = value as Partial<CableConnectionState>
+  return typeof connection.cableId === 'string'
+    && isConnectionId(connection.cableId)
+    && (connection.kind === 'qwiic' || connection.kind === 'power')
+    && (connection.endpointA === null || (typeof connection.endpointA === 'string' && CONNECTOR_BY_ID.has(connection.endpointA)))
+    && (connection.endpointB === null || (typeof connection.endpointB === 'string' && CONNECTOR_BY_ID.has(connection.endpointB)))
+}
+
+function validConnectionHistoryEntry(value: unknown): value is ConnectionHistoryEntry {
+  if (!value || typeof value !== 'object') return false
+  const entry = value as Partial<ConnectionHistoryEntry>
+  return Array.isArray(entry.connections)
+    && entry.connections.every(validConnectionState)
+    && entry.connections.length === createInitialStep6Connections().length
+    && new Set(entry.connections.map((connection) => connection.cableId)).size === entry.connections.length
+    && (entry.selectedConnectionId === null || isConnectionId(entry.selectedConnectionId ?? null))
+    && (entry.selectedConnectionEndpoint === null || entry.selectedConnectionEndpoint === 'a' || entry.selectedConnectionEndpoint === 'b')
+    && typeof entry.coinCellInstalled === 'boolean'
 }
 
 function validLayoutHistoryEntry(value: unknown): value is LayoutHistoryEntry {
@@ -155,6 +203,40 @@ function snapshotLayout(state: LabState): LayoutHistoryEntry {
     placements: state.layoutPlacements.map((placement) => ({ ...placement })),
     selectedLayoutPartId: state.selectedLayoutPartId,
     selectedLayoutTargetId: state.selectedLayoutTargetId,
+  }
+}
+
+function snapshotConnections(state: LabState): ConnectionHistoryEntry {
+  return {
+    connections: state.step6Connections.map((connection) => ({ ...connection })),
+    selectedConnectionId: state.selectedConnectionId,
+    selectedConnectionEndpoint: state.selectedConnectionEndpoint,
+    coinCellInstalled: state.coinCellInstalled,
+  }
+}
+
+function applyConnectionSnapshot(
+  state: LabState,
+  snapshot: ConnectionHistoryEntry,
+  historyKey: 'connectionUndoHistory' | 'connectionRedoHistory',
+): LabState {
+  const otherHistoryKey = historyKey === 'connectionUndoHistory' ? 'connectionRedoHistory' : 'connectionUndoHistory'
+  const updated = {
+    ...state,
+    step6Connections: snapshot.connections.map((connection) => ({ ...connection })),
+    selectedConnectionId: snapshot.selectedConnectionId,
+    selectedConnectionEndpoint: snapshot.selectedConnectionEndpoint,
+    coinCellInstalled: snapshot.coinCellInstalled,
+    [historyKey]: state[historyKey].slice(0, -1),
+    [otherHistoryKey]: [...state[otherHistoryKey], snapshotConnections(state)],
+  } as LabState
+  const validation = validateConnectionGraph(updated.layoutPlacements, updated.step6Connections, updated.coinCellInstalled)
+  return {
+    ...updated,
+    connectionValidation: validation.status === 'valid' ? 'idle' : validation.status,
+    completedBuildStepIds: validation.status === 'valid'
+      ? updated.completedBuildStepIds
+      : updated.completedBuildStepIds.filter((id) => id !== 'cable-connections'),
   }
 }
 
@@ -425,6 +507,108 @@ export function labReducer(state: LabState, action: LabAction): LabState {
           : state.completedBuildStepIds,
       }
     }
+    case 'SELECT_CONNECTION':
+      return action.connectionId === null || isConnectionId(action.connectionId)
+        ? { ...state, selectedConnectionId: action.connectionId, selectedConnectionEndpoint: action.connectionId ? 'a' : null, connectionValidation: 'idle' }
+        : state
+    case 'SELECT_CONNECTION_ENDPOINT':
+      return { ...state, selectedConnectionEndpoint: action.endpoint }
+    case 'SET_CONNECTION_ENDPOINT': {
+      if (!isConnectionId(action.connectionId)) return state
+      const connection = state.step6Connections.find((item) => item.cableId === action.connectionId)
+      if (!connection) return state
+      if (action.connectorId !== null) {
+        if (!CONNECTOR_BY_ID.has(action.connectorId) || !connectorIsCompatible(connection, action.connectorId)) {
+          return { ...state, connectionValidation: 'incompatible-connector' }
+        }
+        if (connectorIsOccupied(state.step6Connections, action.connectorId, action.connectionId)) {
+          return { ...state, connectionValidation: 'port-occupied' }
+        }
+        const otherEndpoint = action.endpoint === 'a' ? connection.endpointB : connection.endpointA
+        if (otherEndpoint === action.connectorId) {
+          return { ...state, connectionValidation: 'self-connection' }
+        }
+      }
+      return {
+        ...state,
+        step6Connections: state.step6Connections.map((item) => item.cableId === action.connectionId
+          ? { ...item, [action.endpoint === 'a' ? 'endpointA' : 'endpointB']: action.connectorId }
+          : item),
+        selectedConnectionId: action.connectionId,
+        selectedConnectionEndpoint: action.endpoint === 'a' ? 'b' : 'a',
+        connectionUndoHistory: [...state.connectionUndoHistory, snapshotConnections(state)],
+        connectionRedoHistory: [],
+        connectionValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'cable-connections'),
+      }
+    }
+    case 'CLEAR_CONNECTION': {
+      if (!isConnectionId(action.connectionId) || !state.step6Connections.some((item) => item.cableId === action.connectionId)) return state
+      return {
+        ...state,
+        step6Connections: state.step6Connections.map((item) => item.cableId === action.connectionId ? { ...item, endpointA: null, endpointB: null } : item),
+        selectedConnectionId: action.connectionId,
+        selectedConnectionEndpoint: 'a',
+        connectionUndoHistory: [...state.connectionUndoHistory, snapshotConnections(state)],
+        connectionRedoHistory: [],
+        connectionValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'cable-connections'),
+      }
+    }
+    case 'SET_COIN_CELL_INSTALLED': {
+      const looseCoin = state.layoutPlacements.find((placement) => placement.partId === 'cr1220')
+      if (action.installed && looseCoin?.face !== 'positive-up') {
+        return { ...state, connectionValidation: 'coin-face-down' }
+      }
+      return {
+        ...state,
+        coinCellInstalled: action.installed,
+        connectionUndoHistory: [...state.connectionUndoHistory, snapshotConnections(state)],
+        connectionRedoHistory: [],
+        connectionValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'cable-connections'),
+      }
+    }
+    case 'SET_CONNECTION_COMPARISON_MODE':
+      return validConnectionComparisonMode(action.mode) ? { ...state, connectionComparisonMode: action.mode } : state
+    case 'TOGGLE_CONNECTION_HINT':
+      return { ...state, connectionHintVisible: !state.connectionHintVisible }
+    case 'TOGGLE_CONNECTION_LABELS':
+      return { ...state, connectionLabelsVisible: !state.connectionLabelsVisible }
+    case 'TOGGLE_REQUIRED_PATHS':
+      return { ...state, requiredPathsVisible: !state.requiredPathsVisible }
+    case 'TOGGLE_CONNECTION_ISOLATION':
+      return { ...state, isolateSelectedConnection: !state.isolateSelectedConnection }
+    case 'UNDO_CONNECTIONS': {
+      const snapshot = state.connectionUndoHistory[state.connectionUndoHistory.length - 1]
+      return snapshot ? applyConnectionSnapshot(state, snapshot, 'connectionUndoHistory') : state
+    }
+    case 'REDO_CONNECTIONS': {
+      const snapshot = state.connectionRedoHistory[state.connectionRedoHistory.length - 1]
+      return snapshot ? applyConnectionSnapshot(state, snapshot, 'connectionRedoHistory') : state
+    }
+    case 'RESET_CONNECTIONS':
+      return {
+        ...state,
+        selectedConnectionId: null,
+        selectedConnectionEndpoint: null,
+        step6Connections: createInitialStep6Connections(),
+        coinCellInstalled: false,
+        connectionUndoHistory: [...state.connectionUndoHistory, snapshotConnections(state)],
+        connectionRedoHistory: [],
+        connectionValidation: 'idle',
+        completedBuildStepIds: state.completedBuildStepIds.filter((id) => id !== 'cable-connections'),
+      }
+    case 'CHECK_CONNECTIONS': {
+      const validation = validateConnectionGraph(state.layoutPlacements, state.step6Connections, state.coinCellInstalled)
+      return {
+        ...state,
+        connectionValidation: validation.status,
+        completedBuildStepIds: validation.status === 'valid' && !state.completedBuildStepIds.includes('cable-connections')
+          ? [...state.completedBuildStepIds, 'cable-connections']
+          : state.completedBuildStepIds,
+      }
+    }
     case 'RESET_PROGRESS':
       return { ...INITIAL_LAB_STATE, mode: state.mode, guidance: state.guidance }
     default:
@@ -443,7 +627,7 @@ export function validatePersistedState(value: unknown): LabState | null {
     const migrated = {
       ...INITIAL_LAB_STATE,
       ...candidate,
-      version: 3 as const,
+      version: 3,
       selectedLayoutPartId: null,
       selectedLayoutTargetId: null,
       layoutPlacements: [],
@@ -458,8 +642,28 @@ export function validatePersistedState(value: unknown): LabState | null {
     }
     return validatePersistedState(migrated)
   }
+  if (persistedVersion === 3) {
+    const migrated = {
+      ...INITIAL_LAB_STATE,
+      ...candidate,
+      version: 4 as const,
+      selectedConnectionId: null,
+      selectedConnectionEndpoint: null,
+      step6Connections: createInitialStep6Connections(),
+      coinCellInstalled: false,
+      connectionComparisonMode: 'diagram' as const,
+      connectionHintVisible: false,
+      connectionLabelsVisible: true,
+      requiredPathsVisible: false,
+      isolateSelectedConnection: false,
+      connectionValidation: 'idle' as const,
+      connectionUndoHistory: [],
+      connectionRedoHistory: [],
+    }
+    return validatePersistedState(migrated)
+  }
   if (
-    candidate.version !== 3 ||
+    persistedVersion !== 4 ||
     (candidate.mode !== 'intro' && candidate.mode !== 'build') ||
     !validStepId(candidate.activeBuildStepId ?? '') ||
     !validPartId(candidate.selectedPartId ?? '') ||
@@ -499,7 +703,24 @@ export function validatePersistedState(value: unknown): LabState | null {
     !Array.isArray(candidate.layoutUndoHistory) ||
     !candidate.layoutUndoHistory.every(validLayoutHistoryEntry) ||
     !Array.isArray(candidate.layoutRedoHistory) ||
-    !candidate.layoutRedoHistory.every(validLayoutHistoryEntry)
+    !candidate.layoutRedoHistory.every(validLayoutHistoryEntry) ||
+    (candidate.selectedConnectionId !== null && !isConnectionId(candidate.selectedConnectionId ?? null)) ||
+    (candidate.selectedConnectionEndpoint !== null && candidate.selectedConnectionEndpoint !== 'a' && candidate.selectedConnectionEndpoint !== 'b') ||
+    !Array.isArray(candidate.step6Connections) ||
+    candidate.step6Connections.length !== createInitialStep6Connections().length ||
+    !candidate.step6Connections.every(validConnectionState) ||
+    new Set(candidate.step6Connections.map((connection) => connection.cableId)).size !== candidate.step6Connections.length ||
+    !validConnectionComparisonMode(candidate.connectionComparisonMode) ||
+    typeof candidate.coinCellInstalled !== 'boolean' ||
+    typeof candidate.connectionHintVisible !== 'boolean' ||
+    typeof candidate.connectionLabelsVisible !== 'boolean' ||
+    typeof candidate.requiredPathsVisible !== 'boolean' ||
+    typeof candidate.isolateSelectedConnection !== 'boolean' ||
+    !['idle', 'layout-incomplete', 'incomplete', 'incompatible-connector', 'port-occupied', 'self-connection', 'wrong-topology', 'coin-not-installed', 'coin-face-down', 'valid'].includes(candidate.connectionValidation ?? '') ||
+    !Array.isArray(candidate.connectionUndoHistory) ||
+    !candidate.connectionUndoHistory.every(validConnectionHistoryEntry) ||
+    !Array.isArray(candidate.connectionRedoHistory) ||
+    !candidate.connectionRedoHistory.every(validConnectionHistoryEntry)
   ) {
     return null
   }

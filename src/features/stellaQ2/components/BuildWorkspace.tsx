@@ -13,6 +13,7 @@ import StepNavigator from './StepNavigator'
 
 const ScaffoldingWorkspace = lazy(() => import('./scaffolding/ScaffoldingWorkspace'))
 const LayoutWorkspace = lazy(() => import('./layout/LayoutWorkspace'))
+const ConnectionsWorkspace = lazy(() => import('./connections/ConnectionsWorkspace'))
 
 interface BuildWorkspaceProps {
   state: LabState
@@ -27,6 +28,7 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
   const activeIndex = BUILD_STEPS.findIndex((step) => step.id === activeStep.id)
   const isScaffoldingStep = activeStep.id === 'remove-scaffolding'
   const isLayoutStep = activeStep.id === 'parts-layout'
+  const isConnectionsStep = activeStep.id === 'cable-connections'
   const progressPercent = Math.round(
     (state.completedBuildStepIds.length / BUILD_STEPS.length) * 100,
   )
@@ -163,8 +165,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
 
         <section
           className="min-w-0"
-          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : isLayoutStep ? 'Interactive components layout workspace' : undefined}
-          aria-labelledby={isScaffoldingStep || isLayoutStep ? undefined : 'workspace-reference-title'}
+          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : isLayoutStep ? 'Interactive components layout workspace' : isConnectionsStep ? 'Interactive cable connections workspace' : undefined}
+          aria-labelledby={isScaffoldingStep || isLayoutStep || isConnectionsStep ? undefined : 'workspace-reference-title'}
         >
           {isScaffoldingStep ? (
             <Suspense
@@ -185,6 +187,10 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
               }
             >
               <LayoutWorkspace state={state} dispatch={dispatch} />
+            </Suspense>
+          ) : isConnectionsStep ? (
+            <Suspense fallback={<div className="sq2-panel min-h-[34rem] rounded-sm p-6 text-sm text-slate-400">Loading the Step 6 cable workspace…</div>}>
+              <ConnectionsWorkspace state={state} dispatch={dispatch} />
             </Suspense>
           ) : (
             <>
@@ -247,6 +253,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                     ? { type: 'CHECK_SCAFFOLDING' }
                     : isLayoutStep
                       ? { type: 'CHECK_LAYOUT' }
+                      : isConnectionsStep
+                        ? { type: 'CHECK_CONNECTIONS' }
                     : { type: 'COMPLETE_BUILD_STEP', stepId: activeStep.id },
                 )
               }
@@ -258,11 +266,15 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
                   ? '✓ Scaffolding validated'
                   : isLayoutStep
                     ? '✓ Layout validated'
+                    : isConnectionsStep
+                      ? '✓ Connections validated'
                     : '✓ Marked reviewed'
                 : isScaffoldingStep
                   ? 'Check scaffolding'
                   : isLayoutStep
                     ? 'Check layout'
+                    : isConnectionsStep
+                      ? 'Check connections'
                     : 'Mark step reviewed'}
             </button>
             <button
