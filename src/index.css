@@ -320,6 +320,13 @@ html { scroll-behavior: smooth; }
   border-radius: 2px;
 }
 
+/* STELLA-Q2 Phase 2A: restrained confirmation when a documented support is removed. */
+@keyframes sq2-scaffold-discard-in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.sq2-scaffold-discard { animation: sq2-scaffold-discard-in 220ms ease-out both; }
+
 /* ---- animated full-screen mobile menu ---- */
 .cm-mobile-nav { transition: opacity 450ms var(--cm-ease), visibility 450ms var(--cm-ease); }
 .cm-mobile-nav__item {
@@ -337,6 +344,7 @@ html { scroll-behavior: smooth; }
   }
   .cm-read-more svg { animation: none; }
   .cm-hero-video--zoom { animation: none; }
+  .sq2-scaffold-discard { animation: none; }
 }
 
 @media (max-width: 767px) {

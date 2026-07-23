@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
 import { BUILD_STEP_BY_ID, BUILD_STEPS } from '../data/buildSteps'
 import { PART_BY_ID, PARTS_LIST } from '../data/parts'
 import type { LabAction, LabState, WorkspaceView } from '../types'
@@ -11,6 +11,8 @@ import SourceReferencePanel from './SourceReferencePanel'
 import StepInstruction from './StepInstruction'
 import StepNavigator from './StepNavigator'
 
+const ScaffoldingWorkspace = lazy(() => import('./scaffolding/ScaffoldingWorkspace'))
+
 interface BuildWorkspaceProps {
   state: LabState
   dispatch: (action: LabAction) => void
@@ -22,6 +24,7 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
   const activeStep = BUILD_STEP_BY_ID.get(state.activeBuildStepId) ?? BUILD_STEPS[0]
   const selectedPart = PART_BY_ID.get(state.selectedPartId) ?? PARTS_LIST[0]
   const activeIndex = BUILD_STEPS.findIndex((step) => step.id === activeStep.id)
+  const isScaffoldingStep = activeStep.id === 'remove-scaffolding'
   const progressPercent = Math.round(
     (state.completedBuildStepIds.length / BUILD_STEPS.length) * 100,
   )
@@ -42,6 +45,9 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
     }
     if (step?.partIds[0]) {
       dispatch({ type: 'SELECT_PART', partId: step.partIds[0] })
+    }
+    if (step?.id === 'remove-scaffolding') {
+      dispatch({ type: 'SELECT_SCAFFOLDING_PART', partId: 'top-housing' })
     }
   }
 
@@ -77,14 +83,14 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
               <span aria-hidden="true">←</span> Lab overview
             </button>
             <p className="mt-5 text-[10px] font-semibold uppercase tracking-[0.24em] text-cyan-300">
-              STELLA-Q2 · Phase 1 foundation
+              STELLA-Q2 · Phase 2A interactive scaffolding
             </p>
             <h1 className="mt-2 text-3xl font-semibold tracking-[-0.035em] text-white sm:text-4xl">
               Physical build workspace
             </h1>
             <p className="mt-2 max-w-2xl text-sm leading-6 text-slate-400">
-              Follow the official 12-step construction sequence using the supplied diagram,
-              photographs, parts list, and source files.
+              Follow the official 12-step construction sequence. Step 4 provides a
+              source-backed 3D scaffolding-removal simulation with photo evidence.
             </p>
           </div>
 
@@ -149,7 +155,23 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
           <StepInstruction step={activeStep} guidance={state.guidance} />
         </aside>
 
-        <section className="min-w-0" aria-labelledby="workspace-reference-title">
+        <section
+          className="min-w-0"
+          aria-label={isScaffoldingStep ? 'Interactive scaffolding workspace' : undefined}
+          aria-labelledby={isScaffoldingStep ? undefined : 'workspace-reference-title'}
+        >
+          {isScaffoldingStep ? (
+            <Suspense
+              fallback={
+                <div className="sq2-panel min-h-[34rem] rounded-sm p-6 text-sm text-slate-400">
+                  Loading the source-backed 3D workspace…
+                </div>
+              }
+            >
+              <ScaffoldingWorkspace state={state} dispatch={dispatch} />
+            </Suspense>
+          ) : (
+            <>
           <div className="sq2-panel flex flex-wrap items-center justify-between gap-3 rounded-sm p-3">
             <div>
               <p className="text-[9px] font-semibold uppercase tracking-[0.2em] text-cyan-300">
@@ -189,6 +211,8 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
               />
             )}
           </div>
+            </>
+          )}
 
           <div className="mt-4 flex flex-col gap-3 rounded-sm border border-white/10 bg-[#050b17] p-4 sm:flex-row sm:items-center sm:justify-between">
             <button
@@ -201,13 +225,23 @@ export default function BuildWorkspace({ state, dispatch }: BuildWorkspaceProps)
             </button>
             <button
               type="button"
-              onClick={() => dispatch({ type: 'COMPLETE_BUILD_STEP', stepId: activeStep.id })}
+              onClick={() =>
+                dispatch(
+                  isScaffoldingStep
+                    ? { type: 'CHECK_SCAFFOLDING' }
+                    : { type: 'COMPLETE_BUILD_STEP', stepId: activeStep.id },
+                )
+              }
               disabled={state.completedBuildStepIds.includes(activeStep.id)}
               className="sq2-focus min-h-10 rounded-sm bg-cyan-300 px-5 text-xs font-semibold text-[#03101c] transition hover:bg-white disabled:cursor-default disabled:bg-emerald-300 disabled:text-emerald-950"
             >
               {state.completedBuildStepIds.includes(activeStep.id)
-                ? '✓ Marked reviewed'
-                : 'Mark step reviewed'}
+                ? isScaffoldingStep
+                  ? '✓ Scaffolding validated'
+                  : '✓ Marked reviewed'
+                : isScaffoldingStep
+                  ? 'Check scaffolding'
+                  : 'Mark step reviewed'}
             </button>
             <button
               type="button"

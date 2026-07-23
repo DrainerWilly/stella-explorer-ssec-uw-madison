@@ -4,6 +4,28 @@ export type GuidanceLevel = 'beginner' | 'standard' | 'expert'
 
 export type WorkspaceView = 'diagram' | 'photos'
 
+export type ScaffoldingEnclosurePartId = 'top-housing' | 'bottom-cover'
+
+export type ScaffoldCameraPreset =
+  | 'fit'
+  | 'front'
+  | 'back'
+  | 'top'
+  | 'bottom'
+  | 'left'
+  | 'right'
+
+export type ScaffoldingValidationStatus =
+  | 'idle'
+  | 'top-incomplete'
+  | 'bottom-incomplete'
+  | 'top-complete'
+  | 'bottom-complete'
+  | 'complete'
+  | 'permanent-protected'
+  | 'nothing-selected'
+  | 'already-removed'
+
 export type SourceKind =
   | 'pdf'
   | 'spreadsheet'
@@ -104,8 +126,27 @@ export interface StlAsset {
   sourceIds: string[]
 }
 
+export interface ScaffoldTarget {
+  id: string
+  enclosurePartId: ScaffoldingEnclosurePartId
+  kind: 'removable' | 'permanent'
+  label: string
+  location: string
+  description: string
+  sourcePhotoId: string
+  meshComponentIndex: number
+  meshEvidence: string
+  interactionAnchorMm: readonly [number, number, number]
+  interactionSizeMm: readonly [number, number, number]
+}
+
+export interface ScaffoldingHistoryEntry {
+  removedScaffoldIds: string[]
+  selectedScaffoldId: string | null
+}
+
 export interface LabState {
-  version: 1
+  version: 2
   mode: LabMode
   guidance: GuidanceLevel
   activeBuildStepId: string
@@ -113,6 +154,14 @@ export interface LabState {
   selectedPartId: string
   selectedPhotoId: string
   workspaceView: WorkspaceView
+  selectedEnclosurePart: ScaffoldingEnclosurePartId
+  removedScaffoldIds: string[]
+  selectedScaffoldId: string | null
+  scaffoldCameraPreset: ScaffoldCameraPreset
+  scaffoldHintVisible: boolean
+  scaffoldValidation: ScaffoldingValidationStatus
+  scaffoldUndoHistory: ScaffoldingHistoryEntry[]
+  scaffoldRedoHistory: ScaffoldingHistoryEntry[]
 }
 
 export type LabAction =
@@ -126,4 +175,13 @@ export type LabAction =
   | { type: 'SELECT_PHOTO'; photoId: string }
   | { type: 'SET_WORKSPACE_VIEW'; view: WorkspaceView }
   | { type: 'SET_GUIDANCE'; guidance: GuidanceLevel }
+  | { type: 'SELECT_SCAFFOLDING_PART'; partId: ScaffoldingEnclosurePartId }
+  | { type: 'SELECT_SCAFFOLD'; scaffoldId: string }
+  | { type: 'REMOVE_SCAFFOLD'; scaffoldId?: string }
+  | { type: 'UNDO_SCAFFOLD_REMOVAL' }
+  | { type: 'REDO_SCAFFOLD_REMOVAL' }
+  | { type: 'RESET_SCAFFOLDING_PART' }
+  | { type: 'SET_SCAFFOLD_CAMERA'; preset: ScaffoldCameraPreset }
+  | { type: 'TOGGLE_SCAFFOLD_HINT' }
+  | { type: 'CHECK_SCAFFOLDING' }
   | { type: 'RESET_PROGRESS' }
