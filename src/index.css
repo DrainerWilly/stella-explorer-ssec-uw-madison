@@ -1,6 +1,12 @@
+@import url('https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.rs-lesson {
+  font-family: 'Satoshi', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
 
 /* Single NASA dark-blue theme. Tokens are RGB channels so Tailwind's /opacity
    modifiers keep working (e.g. text-ink/70). There is no light/dark toggle;
@@ -180,6 +186,15 @@ html { scroll-behavior: smooth; }
 
 .cm-floating-nav-content > main.cm-page--spectral::before {
   height: clamp(4.75rem, 5.5vw, 5.75rem);
+}
+
+/* This lesson is a two-column application shell, so its navbar clearance
+   belongs on the shell itself rather than as a flex pseudo-element. */
+.cm-floating-nav-content > main.cm-remote-sensing::before {
+  display: none;
+}
+.cm-remote-sensing {
+  padding-top: clamp(6.5rem, 9.5vw, 8.75rem);
 }
 
 /* The big-image grid begins flush against the end of the (full-height) navbar,

@@ -9,6 +9,7 @@ import DataGraphsPage from './components/DataGraphsPage'
 import AnimationsPage from './components/animations/AnimationsPage'
 import HowLandsatImagesAreMade from './components/lessons/HowLandsatImagesAreMade'
 import WhatIsTheEMS from './components/lessons/WhatIsTheEMS'
+import WhatIsRemoteSensing from './components/lessons/WhatIsRemoteSensing'
 import { LESSONS, filterLessons } from './data/lessons'
 
 // Mission Control pulls in Three.js; load it (and its deps) only when opened.
@@ -227,6 +228,9 @@ export default function App() {
         ) : page === 'lesson-ems' ? (
           /* Electromagnetic Spectrum lesson: full width beside the sidebar */
           <WhatIsTheEMS onBack={goBack} onOpenAnimation={openAnimation} />
+        ) : page === 'lesson-remote-sensing' ? (
+          /* Remote sensing foundations: source-led visual lesson */
+          <WhatIsRemoteSensing onBack={goBack} />
         ) : page === 'mission-control' ? (
           /* Mission Control: 3D Earth-orbit explorer, full width beside the sidebar */
           <Suspense

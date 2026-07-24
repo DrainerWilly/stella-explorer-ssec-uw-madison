@@ -28,6 +28,7 @@ export const CATEGORIES = [
 export const LESSONS = [
   {
     id: 'remote-sensing-intro',
+    route: 'lesson-remote-sensing',
     color: 'blue',
     label: 'Remote Sensing',
     icon: 'orbit',
