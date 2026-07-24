@@ -179,22 +179,25 @@ export default function AnimationsPage({ initialId = null }) {
         /* detail */
         <div className="relative mx-auto max-w-4xl px-5 pb-6 pt-24 sm:px-8 sm:pt-28 lg:pb-8">
           {/* title row */}
-          <div className="mt-5 flex flex-wrap items-center gap-3">
+          <div className="mt-2 flex flex-wrap items-center gap-3">
             <span
-              className="grid h-14 w-14 rotate-[-4deg] place-items-center rounded-2xl border-2"
-              style={{ backgroundColor: `${accent}26`, borderColor: `${accent}66`, color: accent }}
+              className="grid h-12 w-12 shrink-0 place-items-center border"
+              style={{ backgroundColor: `${accent}18`, borderColor: `${accent}66`, color: accent }}
             >
-              <Icon name={selected.icon} className="h-7 w-7" />
+              <Icon name={selected.icon} className="h-6 w-6" />
             </span>
             <div>
-              <div className="font-game text-[11px] font-bold uppercase tracking-wider text-white/40">
+              <div className="text-[11px] font-medium uppercase tracking-[0.18em] text-white/40">
                 Experiment · {selected.label}
               </div>
-              <h2 className="font-game text-2xl font-extrabold tracking-tight text-white sm:text-3xl">
+              <h2
+                className="text-2xl font-semibold tracking-tight text-white sm:text-3xl"
+                style={{ fontFamily: IOSEVKA }}
+              >
                 {selected.title}
               </h2>
             </div>
-            <span className="ml-auto rounded-full border-2 border-white/10 bg-white/5 px-3.5 py-1.5 font-game text-xs font-bold text-white/60">
+            <span className="ml-auto border border-white/15 bg-white/5 px-3.5 py-1.5 text-xs font-medium text-white/60">
               {selected.badge}
             </span>
           </div>

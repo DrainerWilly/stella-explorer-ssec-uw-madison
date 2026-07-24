@@ -1,5 +1,5 @@
 // @ts-nocheck
-import { Suspense, lazy, useEffect, useMemo, useState } from 'react'
+import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react'
 import AppShell from './components/AppShell'
 import Masthead from './components/Masthead'
 import HomePage from './components/HomePage'
@@ -39,12 +39,26 @@ const Step10Preview = lazy(() =>
 )
 
 export default function App() {
-  const [page, setPage] = useState('home')
+  const initialNavigationState = typeof window !== 'undefined' ? window.history.state : null
+  const hasInitialNavigationState = Boolean(initialNavigationState?.__exstellaNavigation)
+  const [page, setPage] = useState(() => (
+    hasInitialNavigationState && typeof initialNavigationState.page === 'string'
+      ? initialNavigationState.page
+      : 'home'
+  ))
   const [category, setCategory] = useState('all')
   const [grade, setGrade] = useState('all')
 
   // Deep-link from a lesson into a specific animation module.
-  const [animationTarget, setAnimationTarget] = useState(null)
+  const [animationTarget, setAnimationTarget] = useState(() => (
+    hasInitialNavigationState ? initialNavigationState.animationTarget ?? null : null
+  ))
+  const [historyIndex, setHistoryIndex] = useState(() => (
+    hasInitialNavigationState && Number.isInteger(initialNavigationState.index)
+      ? initialNavigationState.index
+      : 0
+  ))
+  const historyIndexRef = useRef(historyIndex)
   // Bumped to remount the Animations gallery back to its top level (its
   // in-page "back to gallery" now lives in the masthead nav).
   const [animationsReset, setAnimationsReset] = useState(0)
@@ -73,23 +87,59 @@ export default function App() {
       if (nextPage === 'animations') setAnimationsReset((n) => n + 1)
       return
     }
+    const nextIndex = historyIndexRef.current + 1
     setPage(nextPage)
     setAnimationTarget(nextTarget)
-    window.history.pushState({ page: nextPage, animationTarget: nextTarget }, '')
+    setHistoryIndex(nextIndex)
+    historyIndexRef.current = nextIndex
+    window.history.pushState({
+      __exstellaNavigation: true,
+      page: nextPage,
+      animationTarget: nextTarget,
+      index: nextIndex,
+    }, '')
   }
 
   useEffect(() => {
-    // Seed the current (first) history entry so back returns here with state.
-    window.history.replaceState({ page: 'home', animationTarget: null }, '')
+    // Seed only a fresh entry. Replacing every entry on mount destroys the
+    // browser's existing in-app back/forward chain after a refresh or remount.
+    if (!window.history.state?.__exstellaNavigation) {
+      window.history.replaceState({
+        __exstellaNavigation: true,
+        page: 'home',
+        animationTarget: null,
+        index: 0,
+      }, '')
+      historyIndexRef.current = 0
+      setHistoryIndex(0)
+    }
 
     const onPopState = (e) => {
       const state = e.state
-      setPage(state && typeof state.page === 'string' ? state.page : 'home')
-      setAnimationTarget(state?.animationTarget ?? null)
+      if (state?.__exstellaNavigation) {
+        setPage(typeof state.page === 'string' ? state.page : 'home')
+        setAnimationTarget(state.animationTarget ?? null)
+        const nextIndex = Number.isInteger(state.index) ? state.index : 0
+        historyIndexRef.current = nextIndex
+        setHistoryIndex(nextIndex)
+      } else {
+        setPage('home')
+        setAnimationTarget(null)
+        historyIndexRef.current = 0
+        setHistoryIndex(0)
+      }
     }
     window.addEventListener('popstate', onPopState)
     return () => window.removeEventListener('popstate', onPopState)
   }, [])
+
+  const goBack = (fallbackPage = 'home') => {
+    if (historyIndex > 0) {
+      window.history.back()
+      return
+    }
+    if (page !== fallbackPage || animationTarget !== null) navigate(fallbackPage)
+  }
 
   // Open a lesson detail view when a card with a `route` is clicked.
   const openLesson = (lesson) => {
@@ -173,10 +223,10 @@ export default function App() {
           </Suspense>
         ) : page === 'lesson-landsat' ? (
           /* Landsat lesson: full width beside the sidebar */
-          <HowLandsatImagesAreMade onBack={() => navigate('home')} />
+          <HowLandsatImagesAreMade onBack={goBack} />
         ) : page === 'lesson-ems' ? (
           /* Electromagnetic Spectrum lesson: full width beside the sidebar */
-          <WhatIsTheEMS onBack={() => navigate('home')} onOpenAnimation={openAnimation} />
+          <WhatIsTheEMS onBack={goBack} onOpenAnimation={openAnimation} />
         ) : page === 'mission-control' ? (
           /* Mission Control: 3D Earth-orbit explorer, full width beside the sidebar */
           <Suspense

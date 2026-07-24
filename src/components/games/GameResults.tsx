@@ -5,6 +5,9 @@ import Icon from '../Icon'
 import { GAME_ACCENT } from '../../data/games'
 import { recordResult } from '../../utils/gameProgress'
 
+const IOSEVKA =
+  "'Iosevka', 'Iosevka Nerd Font', 'Iosevka Fixed', 'Roboto Mono', 'SFMono-Regular', Consolas, monospace"
+
 function medal(pct) {
   if (pct >= 0.9) return { label: 'Mission specialist!', stars: 3 }
   if (pct >= 0.6) return { label: 'Nicely done!', stars: 2 }
@@ -60,7 +63,7 @@ export default function GameResults({ game, score, total, onReplay, onExit, deta
   }, [])
 
   return (
-    <div className="relative overflow-hidden rounded-3xl border-2 border-white/10 bg-white/[0.05] p-8 text-center backdrop-blur-sm">
+    <div className="relative overflow-hidden rounded-lg border border-white/12 bg-white/[0.03] p-8 text-center">
       {!reduce && stars >= 2 && <Confetti />}
 
       <motion.span
@@ -90,8 +93,10 @@ export default function GameResults({ game, score, total, onReplay, onExit, deta
         ))}
       </div>
 
-      <h2 className="relative mt-3 font-game text-3xl font-extrabold text-white">{label}</h2>
-      <p className="relative mt-1 font-game text-5xl font-extrabold" style={{ color: accent }}>
+      <h2 className="relative mt-3 text-2xl font-semibold text-white" style={{ fontFamily: IOSEVKA }}>
+        {label}
+      </h2>
+      <p className="relative mt-1 text-5xl font-semibold" style={{ color: accent, fontFamily: IOSEVKA }}>
         {score}
         <span className="text-2xl text-white/40"> / {total}</span>
       </p>
@@ -102,14 +107,14 @@ export default function GameResults({ game, score, total, onReplay, onExit, deta
           initial={{ opacity: 0, y: reduce ? 0 : 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6 }}
-          className="relative mx-auto mt-3 inline-flex items-center gap-2 rounded-full border-2 border-amber-300/50 bg-amber-300/15 px-4 py-1.5 font-game text-sm font-bold text-amber-200"
+          className="relative mx-auto mt-3 inline-flex items-center gap-2 rounded-full border border-amber-300/40 bg-amber-300/10 px-4 py-1.5 text-sm font-medium text-amber-200"
         >
           <Icon name={game.icon} className="h-4 w-4" />
           New mission patch earned!
         </motion.p>
       )}
       {outcome && !outcome.firstPatch && outcome.newBest && (
-        <p className="relative mt-3 font-game text-sm font-bold text-emerald-300">New best score!</p>
+        <p className="relative mt-3 text-sm font-medium text-emerald-300">New best score!</p>
       )}
 
       {detail && <p className="relative mx-auto mt-3 max-w-md text-sm leading-relaxed text-white/60">{detail}</p>}
@@ -117,15 +122,15 @@ export default function GameResults({ game, score, total, onReplay, onExit, deta
       <div className="relative mt-6 flex flex-wrap justify-center gap-3">
         <button
           onClick={onReplay}
-          className="inline-flex items-center gap-2 rounded-full px-6 py-3 font-game text-sm font-extrabold text-[#101426] transition-transform hover:scale-105"
-          style={{ backgroundColor: accent }}
+          className="inline-flex items-center gap-2 rounded-md px-6 py-3 text-sm font-semibold text-[#101426] transition-transform hover:scale-105"
+          style={{ backgroundColor: accent, fontFamily: IOSEVKA }}
         >
           <Icon name="reset" className="h-4 w-4" />
           Play again
         </button>
         <button
           onClick={onExit}
-          className="inline-flex items-center gap-2 rounded-full border-2 border-white/15 bg-white/5 px-6 py-3 font-game text-sm font-bold text-white transition-colors hover:bg-white/10"
+          className="inline-flex items-center gap-2 rounded-md border border-white/20 bg-white/5 px-6 py-3 text-sm font-medium text-white transition-colors hover:bg-white/10"
         >
           <Icon name="games" className="h-4 w-4" />
           More games

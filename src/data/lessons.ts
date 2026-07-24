@@ -27,6 +27,20 @@ export const CATEGORIES = [
 // `credit` records the source for the on-card attribution.
 export const LESSONS = [
   {
+    id: 'remote-sensing-intro',
+    color: 'blue',
+    label: 'Remote Sensing',
+    icon: 'orbit',
+    title: 'What Is Remote Sensing?',
+    meta: 'Introductory lesson • 15 min',
+    badge: 'All grades',
+    minutes: 15,
+    category: 'missions',
+    grades: ['elementary', 'middle', 'high'],
+    image: 'assets/animations/nasa/landsat-orbit.png',
+    credit: 'NASA Scientific Visualization Studio',
+  },
+  {
     id: 'how-landsat-images',
     route: 'lesson-landsat',
     color: 'lavender',

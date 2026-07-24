@@ -105,23 +105,15 @@ export default function OrbitLoadingState({ label = 'Loading orbital data' }) {
             </div>
           </div>
 
-          <div className="mt-8 grid max-w-md gap-3 sm:grid-cols-2">
-            <div className="rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 backdrop-blur-md">
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-sky-300/70">
-                Visual field
-              </p>
-              <p className="mt-1 text-sm text-sky-50/85">{shader.name}</p>
-              <p className="mt-1 text-[11px] text-sky-100/35">Random Radiant shader</p>
-            </div>
-
+          <div className="mt-8 max-w-md">
             <div
               key={index}
               className="motion-safe:animate-fade-in rounded-2xl border border-white/10 bg-white/[0.045] px-4 py-3 backdrop-blur-md"
             >
-              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-sky-300/70">
+              <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-sky-300/70">
                 Did you know?
               </p>
-              <p className="mt-1 text-[12px] leading-relaxed text-sky-50/82">{fact}</p>
+              <p className="mt-2 text-sm leading-relaxed text-sky-50/85">{fact}</p>
             </div>
           </div>
         </section>
