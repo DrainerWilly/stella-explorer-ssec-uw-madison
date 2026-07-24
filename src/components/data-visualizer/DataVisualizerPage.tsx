@@ -661,7 +661,7 @@ export default function DataVisualizerPage() {
   }
 
   return (
-    <main className="order-1 flex-1 overflow-y-auto overflow-x-hidden bg-[#f6f7f2] text-slate-950 lg:min-h-0">
+    <main className="cm-page--data-viz order-1 flex-1 overflow-y-auto overflow-x-hidden bg-[#f6f7f2] text-slate-950 lg:min-h-0">
       <div className="mx-auto max-w-[1560px] px-5 pb-12 pt-6 sm:px-8 lg:px-10">
         <header className="grid gap-5 xl:grid-cols-[minmax(0,1fr)_minmax(560px,0.9fr)] xl:items-end">
           <div>

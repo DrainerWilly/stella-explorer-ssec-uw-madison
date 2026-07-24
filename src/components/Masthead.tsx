@@ -14,9 +14,12 @@ export default function Masthead({ active = 'home', onNavigate }) {
   const [scrolled, setScrolled] = useState(false)
   const lastWindowScroll = useRef(0)
   const lastElementScroll = useRef(new WeakMap())
+  // These pages use a full-bleed transparent masthead. It remains visible and
+  // becomes solid black once the page's scroll container moves.
+  const isScrollOverlayPage = ['animations', 'games', 'data', 'device', 'data-viz'].includes(active)
   // Lessons keeps its editorial masthead visible while its own grid scrolls;
   // other long-form pages retain the hide-on-scroll behavior.
-  const shouldAutoHide = active !== 'home' && active !== 'mission-control' && active !== 'lessons' && active !== 'animations' && active !== 'games'
+  const shouldAutoHide = !isScrollOverlayPage && active !== 'home' && active !== 'mission-control' && active !== 'lessons'
 
   // Close on Escape and lock body scroll while the drawer is open.
   useEffect(() => {
@@ -45,7 +48,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
       const next = readWindowScroll()
       const previous = lastWindowScroll.current
       const delta = next - previous
-      if (active === 'animations' || active === 'games') setScrolled(next > 16)
+      if (isScrollOverlayPage) setScrolled(next > 16)
       if (Math.abs(delta) < threshold) return
       if (shouldAutoHide) setHidden(delta > 0 && next > 36)
       lastWindowScroll.current = next
@@ -57,7 +60,7 @@ export default function Masthead({ active = 'home', onNavigate }) {
       if (typeof target.scrollTop !== 'number') return
 
       const next = target.scrollTop
-      if (active === 'animations' || active === 'games') setScrolled(next > 16)
+      if (isScrollOverlayPage) setScrolled(next > 16)
       if (!lastElementScroll.current.has(target)) {
         lastElementScroll.current.set(target, next)
         return
@@ -74,16 +77,16 @@ export default function Masthead({ active = 'home', onNavigate }) {
     window.addEventListener('scroll', handleWindowScroll, { passive: true })
     document.addEventListener('scroll', handleElementScroll, true)
 
-    if (active === 'animations' || active === 'games') {
-      const gallery = document.querySelector('main.cm-animations, main.cm-games')
-      if (gallery) setScrolled(gallery.scrollTop > 16)
+    if (isScrollOverlayPage) {
+      const scrollContainer = document.querySelector('main.cm-animations, main.cm-games, main.cm-page--spectral, main.cm-page--data-viz, main.sq2-page')
+      if (scrollContainer) setScrolled(scrollContainer.scrollTop > 16)
     }
 
     return () => {
       window.removeEventListener('scroll', handleWindowScroll)
       document.removeEventListener('scroll', handleElementScroll, true)
     }
-  }, [active, shouldAutoHide])
+  }, [active, isScrollOverlayPage, shouldAutoHide])
 
   useEffect(() => {
     if (menuOpen) setHidden(false)
@@ -96,15 +99,14 @@ export default function Masthead({ active = 'home', onNavigate }) {
 
   // The Lessons page is a light, visualjournal-style layout, so the navbar
   // there is white with black text instead of the default dark treatment.
-  const isLight = active === 'lessons'
+  const isLight = active === 'lessons' || (active === 'data-viz' && !scrolled)
   const ink = isLight ? 'text-[#111]' : 'text-white'
   const linkColor = isLight ? 'text-[#333] hover:text-black' : 'text-white/85 hover:text-white'
   const autoHidden = shouldAutoHide && hidden && !menuOpen
   const isMissionControl = active === 'mission-control'
-  // Animations and Games share the same full-bleed hero + gallery treatment:
-  // a transparent masthead over the hero that turns solid black on scroll.
-  const isAnimations = active === 'animations' || active === 'games'
-  const isFixedOverlay = isMissionControl || isAnimations
+  // Full-bleed pages use a transparent masthead over their content that turns
+  // solid black on scroll.
+  const isFixedOverlay = isMissionControl || isScrollOverlayPage
 
   return (
     <header
@@ -115,11 +117,11 @@ export default function Masthead({ active = 'home', onNavigate }) {
       } ${
         shouldAutoHide || isFixedOverlay
           ? `fixed inset-x-0 top-0 z-50 pb-5 ${
-              isMissionControl || (isAnimations && !scrolled)
-                ? isAnimations
+              isMissionControl || (isScrollOverlayPage && !scrolled)
+                ? isScrollOverlayPage
                   ? 'bg-transparent shadow-none border-b border-white/25'
                   : 'bg-transparent shadow-none'
-                : isAnimations
+                : isScrollOverlayPage
                   ? 'bg-black shadow-[0_14px_32px_rgba(0,0,0,0.35)] border-b border-transparent'
                   : isLight
                     ? 'bg-white'
